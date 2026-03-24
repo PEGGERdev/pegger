@@ -20,7 +20,6 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        working-directory: pegger.dev
         run: npm ci
 
       - name: Install sshpass
@@ -33,7 +32,6 @@ jobs:
           ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts || true
 
       - name: Deploy to production server
-        working-directory: pegger.dev
         env:
           DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
           REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -41,4 +39,4 @@ jobs:
           REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
           REMOTE_DIR: ${{ secrets.DEPLOY_APP_DIR }}
           CADDYFILE_PATH: ${{ secrets.DEPLOY_CADDYFILE_PATH }}
-        run: bash ./scripts/deploy-hub.sh
+        run: bash scripts/deploy-hub.sh
