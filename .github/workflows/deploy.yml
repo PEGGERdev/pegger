@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: pegger.dev/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         working-directory: pegger.dev
