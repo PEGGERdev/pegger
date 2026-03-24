@@ -4,7 +4,7 @@ set -euo pipefail
 REMOTE_HOST="${REMOTE_HOST:-89.167.118.25}"
 REMOTE_USER="${REMOTE_USER:-root}"
 REMOTE_PORT="${REMOTE_PORT:-22}"
-REMOTE_DIR="${REMOTE_DIR:-/opt/peggar-hub}"
+REMOTE_DIR="${REMOTE_DIR:-/opt/pegger-hub}"
 CADDYFILE_PATH="${CADDYFILE_PATH:-/opt/spotonsight/infrastructure/caddy/Caddyfile}"
 DEPLOY_PASSWORD="${DEPLOY_PASSWORD:-}"
 
@@ -54,9 +54,9 @@ EOF"
 
 ssh_cmd "cat > ${REMOTE_DIR}/docker-compose.yml <<'EOF'
 services:
-  peggar-hub:
+  pegger-hub:
     image: nginx:alpine
-    container_name: peggar-hub
+    container_name: pegger-hub
     restart: unless-stopped
     read_only: true
     tmpfs:
@@ -81,14 +81,14 @@ networks:
     name: spotonsight_proxy
 EOF"
 
-ssh_cmd "if ! grep -q 'peggar.dev' ${CADDYFILE_PATH}; then cat >> ${CADDYFILE_PATH} <<'EOF'
+ssh_cmd "if ! grep -q 'pegger.dev' ${CADDYFILE_PATH}; then cat >> ${CADDYFILE_PATH} <<'EOF'
 
-peggar.dev, www.peggar.dev {
+pegger.dev, www.pegger.dev {
     encode zstd gzip
     import security_headers
 
     handle {
-        reverse_proxy peggar-hub:80
+        reverse_proxy pegger-hub:80
     }
 }
 EOF
@@ -96,4 +96,4 @@ fi"
 
 ssh_cmd "docker compose -f ${REMOTE_DIR}/docker-compose.yml up -d --force-recreate && docker restart spotonsight-proxy-1 >/dev/null"
 
-ssh_cmd "curl -I https://peggar.dev && docker inspect peggar-hub --format='{{json .State.Health}}'"
+ssh_cmd "curl -I https://pegger.dev && docker inspect pegger-hub --format='{{json .State.Health}}'"

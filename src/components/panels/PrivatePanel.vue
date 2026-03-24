@@ -80,7 +80,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--peggar-orange, #ea580c), #c2410c);
+  background: linear-gradient(135deg, var(--pegger-orange, #ea580c), #c2410c);
   border-radius: 0.6rem;
   font-size: 1.25rem;
   color: #fff;
@@ -94,7 +94,7 @@ defineProps({
   font-size: 0.6rem;
   font-weight: 700;
   background: #fff;
-  color: var(--peggar-orange, #ea580c);
+  color: var(--pegger-orange, #ea580c);
   border-radius: 4px;
 }
 
@@ -126,7 +126,7 @@ defineProps({
 }
 
 .private-card:hover .private-card__arrow {
-  color: var(--peggar-orange, #ea580c);
+  color: var(--pegger-orange, #ea580c);
 }
 
 .private-panel__warning {
@@ -143,6 +143,6 @@ defineProps({
 }
 
 .private-panel__warning i {
-  color: var(--peggar-orange, #ea580c);
+  color: var(--pegger-orange, #ea580c);
 }
 </style>

@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: pegger.dev/package-lock.json
+
+      - name: Install dependencies
+        working-directory: pegger.dev
+        run: npm ci
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass rsync
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -R "${{ secrets.DEPLOY_HOST }}" || true
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts || true
+
+      - name: Deploy to production server
+        working-directory: pegger.dev
+        env:
+          DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
+          REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
+          REMOTE_USER: ${{ secrets.DEPLOY_USER }}
+          REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
+          REMOTE_DIR: ${{ secrets.DEPLOY_APP_DIR }}
+          CADDYFILE_PATH: ${{ secrets.DEPLOY_CADDYFILE_PATH }}
+        run: bash ./scripts/deploy-hub.sh

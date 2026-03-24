@@ -2,36 +2,36 @@
 
 :root {
   /* Brand Colors - Matching SpotOnSight */
-  --peggar-primary: #1f7c72;
-  --peggar-primary-rgb: 31, 124, 114;
-  --peggar-accent: #2f6ea8;
-  --peggar-accent-rgb: 47, 110, 168;
-  --peggar-purple: #7c3aed;
-  --peggar-purple-rgb: 124, 58, 237;
-  --peggar-orange: #ea580c;
-  --peggar-orange-rgb: 234, 88, 12;
+  --pegger-primary: #1f7c72;
+  --pegger-primary-rgb: 31, 124, 114;
+  --pegger-accent: #2f6ea8;
+  --pegger-accent-rgb: 47, 110, 168;
+  --pegger-purple: #7c3aed;
+  --pegger-purple-rgb: 124, 58, 237;
+  --pegger-orange: #ea580c;
+  --pegger-orange-rgb: 234, 88, 12;
 
   /* Surface Colors */
-  --peggar-surface: rgba(255, 255, 255, 0.94);
-  --peggar-surface-soft: #f7fbfc;
-  --peggar-surface-glass: rgba(255, 255, 255, 0.12);
+  --pegger-surface: rgba(255, 255, 255, 0.94);
+  --pegger-surface-soft: #f7fbfc;
+  --pegger-surface-glass: rgba(255, 255, 255, 0.12);
 
   /* Text */
-  --peggar-text: #16222b;
-  --peggar-text-muted: #607887;
+  --pegger-text: #16222b;
+  --pegger-text-muted: #607887;
 
   /* Background */
-  --peggar-bg-dark: #0d0d14;
-  --peggar-bg-deep: #0a0a12;
+  --pegger-bg-dark: #0d0d14;
+  --pegger-bg-deep: #0a0a12;
 
   /* Shadows */
-  --peggar-shadow: 0 14px 38px rgba(18, 42, 50, 0.12);
-  --peggar-shadow-glow: 0 0 40px rgba(31, 124, 114, 0.25);
-  --peggar-shadow-glow-blue: 0 0 40px rgba(47, 110, 168, 0.25);
+  --pegger-shadow: 0 14px 38px rgba(18, 42, 50, 0.12);
+  --pegger-shadow-glow: 0 0 40px rgba(31, 124, 114, 0.25);
+  --pegger-shadow-glow-blue: 0 0 40px rgba(47, 110, 168, 0.25);
 
   /* Typography */
-  --peggar-font-display: 'Space Grotesk', sans-serif;
-  --peggar-font-body: 'Plus Jakarta Sans', sans-serif;
+  --pegger-font-display: 'Space Grotesk', sans-serif;
+  --pegger-font-body: 'Plus Jakarta Sans', sans-serif;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -56,9 +56,9 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: var(--peggar-bg-deep);
+  background: var(--pegger-bg-deep);
   color: #eee;
-  font-family: var(--peggar-font-body);
+  font-family: var(--pegger-font-body);
   overflow-x: hidden;
 }
 
@@ -82,7 +82,7 @@ html, body {
   height: 400px;
   top: -150px;
   right: -100px;
-  background: radial-gradient(circle, var(--peggar-primary) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--pegger-primary) 0%, transparent 70%);
   animation: driftA 15s ease-in-out infinite;
 }
 
@@ -91,7 +91,7 @@ html, body {
   height: 350px;
   left: -100px;
   bottom: -100px;
-  background: radial-gradient(circle, var(--peggar-accent) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--pegger-accent) 0%, transparent 70%);
   animation: driftB 18s ease-in-out infinite;
 }
 
@@ -100,7 +100,7 @@ html, body {
   height: 300px;
   top: 40%;
   left: 40%;
-  background: radial-gradient(circle, var(--peggar-purple) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--pegger-purple) 0%, transparent 70%);
   opacity: 0.2;
   animation: driftC 20s ease-in-out infinite;
 }
@@ -125,23 +125,23 @@ html, body {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--peggar-font-display);
+  font-family: var(--pegger-font-display);
   margin: 0;
 }
 
 a {
-  color: var(--peggar-primary);
+  color: var(--pegger-primary);
   text-decoration: none;
   transition: color 150ms ease;
 }
 
 a:hover {
-  color: var(--peggar-accent);
+  color: var(--pegger-accent);
 }
 
 /* Buttons */
 .btn {
-  font-family: var(--peggar-font-body);
+  font-family: var(--pegger-font-body);
   font-weight: 600;
   border-radius: var(--radius-md);
   transition: transform 170ms ease, box-shadow 190ms ease;
@@ -152,17 +152,17 @@ a:hover {
 }
 
 .btn-primary {
-  background: linear-gradient(145deg, var(--peggar-primary), color-mix(in srgb, var(--peggar-primary) 80%, black 20%));
-  border-color: var(--peggar-primary);
+  background: linear-gradient(145deg, var(--pegger-primary), color-mix(in srgb, var(--pegger-primary) 80%, black 20%));
+  border-color: var(--pegger-primary);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--peggar-primary) 90%, white 10%), color-mix(in srgb, var(--peggar-primary) 70%, black 30%));
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pegger-primary) 90%, white 10%), color-mix(in srgb, var(--pegger-primary) 70%, black 30%));
 }
 
 /* Cards */
 .card {
-  background: var(--peggar-surface-glass);
+  background: var(--pegger-surface-glass);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -187,7 +187,7 @@ a:hover {
 }
 
 .star__core--bright {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, var(--peggar-primary) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, var(--pegger-primary) 50%, transparent 70%);
   box-shadow: 0 0 20px rgba(31, 124, 114, 0.5), 0 0 40px rgba(31, 124, 114, 0.3);
 }
 
@@ -197,7 +197,7 @@ a:hover {
 }
 
 .star__core--center {
-  background: radial-gradient(circle, #fff 0%, var(--peggar-primary) 40%, transparent 70%);
+  background: radial-gradient(circle, #fff 0%, var(--pegger-primary) 40%, transparent 70%);
   box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 0 60px rgba(31, 124, 114, 0.4);
   animation: centerPulse 3s ease-in-out infinite;
 }
@@ -258,13 +258,13 @@ a:hover {
 }
 
 .constellation-line--primary {
-  stroke: var(--peggar-primary);
+  stroke: var(--pegger-primary);
   stroke-width: 2;
   opacity: 0.5;
 }
 
 .constellation-line--secondary {
-  stroke: var(--peggar-primary);
+  stroke: var(--pegger-primary);
   stroke-width: 1.5;
   opacity: 0.3;
 }
@@ -307,7 +307,7 @@ a:hover {
 }
 
 .star-panel__content {
-  background: var(--peggar-surface-glass);
+  background: var(--pegger-surface-glass);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -323,7 +323,7 @@ a:hover {
 }
 
 .star-panel__title {
-  font-family: var(--peggar-font-display);
+  font-family: var(--pegger-font-display);
   font-size: 1.5rem;
   font-weight: 600;
   color: #fff;
