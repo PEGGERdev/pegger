@@ -18,6 +18,10 @@ const props = defineProps({
   mouseY: {
     type: Number,
     default: 0
+  },
+  active: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -131,7 +135,7 @@ onUnmounted(() => {
     ref="starRef"
     :style="style"
     class="star"
-    :class="[`star--${star.type}`, { 'star--hovered': isHovered }]"
+    :class="[`star--${star.type}`, { 'star--hovered': isHovered, 'star--active': active }]"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
     @click="handleClick"
@@ -247,5 +251,19 @@ onUnmounted(() => {
 
 .star--dim .star__label {
   font-size: 0.6rem;
+}
+
+.star--active .star__core-wrapper {
+  transform: scale(1.2);
+  animation: starPulse 1.5s ease-in-out infinite;
+}
+
+.star--active .star__label {
+  opacity: 1;
+}
+
+@keyframes starPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 </style>

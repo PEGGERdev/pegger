@@ -156,6 +156,7 @@ export const starMapData = {
 export const panelData = {
   apps: {
     id: 'apps',
+    icon: 'bi-briefcase-fill',
     title: 'My Work',
     items: [
       {
@@ -184,6 +185,7 @@ export const panelData = {
 
   contact: {
     id: 'contact',
+    icon: 'bi-envelope-fill',
     title: "Let's Connect",
     items: [
       {
@@ -199,6 +201,7 @@ export const panelData = {
 
   socials: {
     id: 'socials',
+    icon: 'bi-people-fill',
     title: 'Find Me Online',
     items: [
       {
@@ -218,6 +221,7 @@ export const panelData = {
 
   private: {
     id: 'private',
+    icon: 'bi-key-fill',
     title: 'Private Access',
     description: 'Web-based terminal for remote server management',
     items: [

@@ -1,6 +1,6 @@
 {
   "name": "pegger-dev-hub",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,12 +11,8 @@
   },
   "dependencies": {
     "vue": "^3.5.25",
-    "vue-router": "^5.0.2",
     "@vueuse/core": "^13.0.0",
-    "aos": "^2.3.4",
-    "bootswatch": "^5.3.8",
-    "bootstrap-icons": "^1.13.1",
-    "tsparticles": "^3.8.1"
+    "bootstrap-icons": "^1.13.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.2",

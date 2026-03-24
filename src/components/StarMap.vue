@@ -6,6 +6,13 @@ import Star from './Star.vue'
 import CenterPresence from './CenterPresence.vue'
 import ConstellationLines from './ConstellationLines.vue'
 
+const props = defineProps({
+  activeStarId: {
+    type: String,
+    default: null
+  }
+})
+
 const emit = defineEmits(['star-click'])
 
 const containerRef = ref(null)
@@ -41,7 +48,7 @@ function handleStarHover(starId) {
 function handleStarClick(starId) {
   const star = allStars.value.find(s => s.id === starId)
   if (star && star.panel) {
-    emit('star-click', star.panel)
+    emit('star-click', starId)
   }
 }
 
@@ -86,6 +93,7 @@ onUnmounted(() => {
       :center="centerPosition"
       :mouse-x="mouseX"
       :mouse-y="mouseY"
+      :active="activeStarId === star.id"
       @hover="handleStarHover"
       @click="handleStarClick"
     />
@@ -97,6 +105,7 @@ onUnmounted(() => {
       :center="centerPosition"
       :mouse-x="mouseX"
       :mouse-y="mouseY"
+      :active="activeStarId === star.id"
       @hover="handleStarHover"
       @click="handleStarClick"
     />
