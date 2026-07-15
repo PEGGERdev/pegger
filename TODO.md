@@ -14,6 +14,16 @@ Status: complete for the current product scope.
 - [x] Group related products, stack nodes, channels, and infrastructure into legible clusters
 - [x] Reapprove Windows and Linux visual baselines after the redesign
 
+### Active Galactic Zoom Interaction
+
+- [x] Remove StarPanel card system (no more cards opening on click)
+- [x] Replace click-to-open-panel with smooth galaxy-style zoom toward the star
+- [x] Keep stars in their default positions; only camera/viewport moves
+- [ ] Add deterministic galaxy field with spiral structure, dust, and nebula depth
+- [ ] Turn the center beacon into a luminous galactic nucleus with an accretion plane
+- [ ] Connect related nodes as named asterisms with orbital and cross-system paths
+- [ ] Reapprove Windows and Linux visual baselines and deploy the completed enhancement
+
 ### Core Features
 
 - [x] **Star Map Constellation**

@@ -1,55 +1,15 @@
 <script setup>
-import { computed, ref, shallowRef } from 'vue'
+import { ref } from 'vue'
 import StarMap from './components/StarMap.vue'
 import StarField from './components/StarField.vue'
-import StarPanel from './components/StarPanel.vue'
 
-const activePanel = ref(null)
 const focusedStarId = ref(null)
-const panelTrigger = shallowRef(null)
-
-const heroActions = [
-  {
-    label: 'View Projects',
-    panelId: 'apps',
-    variant: 'primary',
-    icon: 'bi-arrow-up-right',
-  },
-  {
-    label: 'Contact',
-    panelId: 'contact',
-    variant: 'secondary',
-    icon: 'bi-envelope',
-  },
-]
 
 const insightPills = [
   'Product-minded frontend',
   'Backend systems',
   'Swiss-based',
 ]
-
-const isPanelOpen = computed(() => Boolean(activePanel.value))
-
-function rememberPanelTrigger() {
-  panelTrigger.value = document.activeElement instanceof HTMLElement
-    ? document.activeElement
-    : null
-}
-
-function handleStarClick(panelId) {
-  rememberPanelTrigger()
-  activePanel.value = panelId
-}
-
-function openPanel(panelId) {
-  rememberPanelTrigger()
-  activePanel.value = panelId
-}
-
-function closePanel() {
-  activePanel.value = null
-}
 
 function handleFocusChange(starId) {
   focusedStarId.value = starId
@@ -60,7 +20,6 @@ function handleFocusChange(starId) {
   <div
     class="app-shell"
     :class="{
-      'app-shell--panel-open': isPanelOpen,
       'app-shell--focused': focusedStarId,
     }"
   >
@@ -77,35 +36,14 @@ function handleFocusChange(starId) {
         Patrik Egger builds polished product interfaces, practical backend systems, and developer tools that feel clear from the first interaction.
       </p>
 
-      <div class="hero-panel__actions">
-        <button
-          v-for="action in heroActions"
-          :key="action.panelId"
-          class="hero-panel__action"
-          :class="`hero-panel__action--${action.variant}`"
-          type="button"
-          @click="openPanel(action.panelId)"
-        >
-          <span>{{ action.label }}</span>
-          <i :class="['bi', action.icon]" />
-        </button>
-      </div>
-
       <div class="hero-panel__meta">
         <span v-for="pill in insightPills" :key="pill">{{ pill }}</span>
       </div>
     </section>
 
     <main class="star-map-container">
-      <StarMap @star-click="handleStarClick" @focus-change="handleFocusChange" />
+      <StarMap @focus-change="handleFocusChange" />
     </main>
-
-    <StarPanel
-      v-if="activePanel"
-      :panel-id="activePanel"
-      :return-focus="panelTrigger"
-      @close="closePanel"
-    />
   </div>
 </template>
 
@@ -169,43 +107,6 @@ function handleFocusChange(starId) {
   font-size: 1rem;
   line-height: 1.65;
   color: rgba(223, 235, 251, 0.76);
-}
-
-.hero-panel__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-  margin-top: 1.4rem;
-}
-
-.hero-panel__action {
-  min-height: 3rem;
-  padding: 0.85rem 1rem;
-  border-radius: 3px 14px 3px 3px;
-  border: 1px solid transparent;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  font: inherit;
-  font-weight: 600;
-  color: #f7fbff;
-  cursor: pointer;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
-}
-
-.hero-panel__action:hover,
-.hero-panel__action:focus-visible {
-  transform: translateY(-1px);
-}
-
-.hero-panel__action--primary {
-  background: linear-gradient(135deg, rgba(73, 197, 182, 0.9), rgba(90, 167, 255, 0.86));
-  box-shadow: 0 16px 36px rgba(73, 197, 182, 0.22);
-}
-
-.hero-panel__action--secondary {
-  border-color: rgba(166, 205, 255, 0.2);
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .hero-panel__meta {
@@ -273,24 +174,8 @@ function handleFocusChange(starId) {
     line-height: 1.5;
   }
 
-  .hero-panel__actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.65rem;
-    margin-top: 1.1rem;
-  }
-
-  .hero-panel__action {
-    justify-content: center;
-  }
-
   .hero-panel__meta {
     display: none;
-  }
-
-  .app-shell--panel-open .hero-panel {
-    opacity: 0;
-    pointer-events: none;
   }
 }
 

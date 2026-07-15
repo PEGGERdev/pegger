@@ -88,7 +88,7 @@ test('keeps compact desktop overlays clear and mobile scrolling available', asyn
 
 test('captures keyboard focus and the expanded constellation', async ({ page }, testInfo) => {
   await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'View Projects' })).toBeFocused()
+  await expect(page.getByRole('button', { name: 'Dismiss guide' })).toBeFocused()
   await capture(page, 'landing-keyboard-focus.png')
 
   if (testInfo.project.name === 'mobile') {
@@ -115,92 +115,66 @@ test('captures keyboard focus and the expanded constellation', async ({ page }, 
   await expect(page.getByText('100%')).toBeVisible()
 })
 
-test('captures project details, focus, and connected hover states', async ({ page }) => {
-  const mobileDirectory = page.locator('.star-map__mobile-node').filter({ hasText: 'Portfolio' })
-  const desktopGuide = page.locator('.star-map__guide-action').filter({ hasText: 'Portfolio' })
-  const projectEntry = await mobileDirectory.isVisible() ? mobileDirectory : desktopGuide
-  await projectEntry.click()
-  await expect(page.getByRole('dialog')).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'My Work' })).toBeVisible()
-  await expect(page.getByRole('link', { name: /Portfolio/ })).toHaveAttribute('href', 'https://portfolio.pegger.dev')
-  await page.mouse.move(1, 1)
-  await capture(page, 'panel-apps.png', { fullPage: false })
-
-  await page.keyboard.press('Escape')
-  await expect(page.getByRole('dialog')).toBeHidden()
-  if (await page.getByText('Focused node').isVisible()) {
-    await expect(page.getByRole('button', { name: /Open detailed panel/ })).toBeFocused()
-    await expect(page.locator('button.star[aria-label^="Portfolio."]')).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.locator('.cluster-region[data-cluster-id="product-craft"]')).toHaveClass(/cluster-region--active/)
-    await capture(page, 'focus-portfolio.png', { fullPage: false })
-
-    const typescriptStar = page.locator('button.star[aria-label^="TypeScript."]')
-    await typescriptStar.hover()
-    await capture(page, 'focus-portfolio-hover.png', { fullPage: false })
-  } else {
-    await expect(mobileDirectory).toBeFocused()
-    await expect(mobileDirectory).toHaveClass(/star-map__mobile-node--selected/)
-    await expect(mobileDirectory).toHaveAttribute('aria-pressed', 'true')
-    await capture(page, 'mobile-portfolio-selected.png')
-  }
-})
-
-test('captures contact and social panel variants', async ({ page }, testInfo) => {
-  const contactButton = page.locator('.hero-panel__action').filter({ hasText: 'Contact' })
-  await contactButton.click()
-  await expect(page.getByRole('heading', { name: "Let's Connect" })).toBeVisible()
-  const contactLink = page.getByRole('link', { name: /patrik\.egger@email\.ch/ })
-  await expect(contactLink).toHaveAttribute('href', 'mailto:patrik.egger@email.ch')
-  await expect.poll(() => page.evaluate(() => document.documentElement.style.overflow)).toBe('hidden')
-  await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe('fixed')
-
+test('captures zoom focus, star detail, and connected hover states', async ({ page }, testInfo) => {
   if (testInfo.project.name === 'mobile') {
-    const initialScroll = await page.evaluate(() => window.scrollY)
-    await page.locator('.star-panel__backdrop').hover({ position: { x: 8, y: 8 } })
-    await page.mouse.wheel(0, 500)
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(initialScroll)
+    const mobilePortfolio = page.locator('.star-map__mobile-node').filter({ hasText: 'Portfolio' })
+    await mobilePortfolio.click()
+    await expect(mobilePortfolio).toHaveClass(/star-map__mobile-node--selected/)
+    await expect(mobilePortfolio).toHaveAttribute('aria-pressed', 'true')
+    await capture(page, 'mobile-portfolio-selected.png')
+    return
   }
 
-  await contactLink.focus()
-  await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Close details panel' })).toBeFocused()
-  await page.mouse.move(1, 1)
-  await capture(page, 'panel-contact.png', { fullPage: false })
+  const guidePortfolio = page.locator('.star-map__guide-action').filter({ hasText: 'Portfolio' })
+  await guidePortfolio.click()
+  await expect(page.getByText('Focused node')).toBeVisible()
+  await expect(page.getByText('Portfolio').first()).toBeVisible()
+  await expect(page.locator('button.star[aria-label^="Portfolio."]')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.cluster-region[data-cluster-id="product-craft"]')).toHaveClass(/cluster-region--active/)
+  await capture(page, 'focus-portfolio.png', { fullPage: false })
 
-  await page.getByRole('button', { name: 'Close details panel' }).click()
-  await expect(contactButton).toBeFocused()
-  await expect.poll(() => page.evaluate(() => document.documentElement.style.overflow)).toBe('')
-  await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe('')
-  const mobileGitHub = page.locator('.star-map__mobile-node').filter({ hasText: 'GitHub' })
-  if (await mobileGitHub.isVisible()) {
-    await mobileGitHub.click()
-  } else {
-    await zoomToAllBrightStars(page)
-    await page.locator('button.star[aria-label^="GitHub."]').click()
-  }
-  await expect(page.getByRole('heading', { name: 'Find Me Online' })).toBeVisible()
-  await expect(page.getByRole('link', { name: /GitHub/ })).toHaveAttribute('target', '_blank')
-  await page.mouse.move(1, 1)
-  await capture(page, 'panel-socials.png', { fullPage: false })
-
-  await page.locator('.star-panel__backdrop').click({ position: { x: 8, y: 8 } })
-  await expect(page.getByRole('dialog')).toBeHidden()
+  const typescriptStar = page.locator('button.star[aria-label^="TypeScript."]')
+  await typescriptStar.hover()
+  await capture(page, 'focus-portfolio-hover.png', { fullPage: false })
 })
 
-test('captures the restricted private panel variant', async ({ page }) => {
-  const mobileDevTerminal = page.locator('.star-map__mobile-node').filter({ hasText: 'Dev Terminal' })
-  if (await mobileDevTerminal.isVisible()) {
-    await mobileDevTerminal.click()
-  } else {
-    await zoomToAllBrightStars(page)
-    await page.locator('button.star[aria-label^="Dev Terminal."]').click()
+test('captures contact zoom and social star focus', async ({ page }, testInfo) => {
+  if (testInfo.project.name === 'mobile') {
+    const mobileContact = page.locator('.star-map__mobile-node').filter({ hasText: 'Contact' })
+    if (await mobileContact.isVisible()) {
+      await mobileContact.click()
+      await expect(mobileContact).toHaveAttribute('aria-pressed', 'true')
+    }
+    await capture(page, 'mobile-contact-selected.png')
+    return
   }
-  await expect(page.getByRole('heading', { name: 'Private Access' })).toBeVisible()
-  await expect(page.getByText('Access restricted. Authentication required.')).toBeVisible()
-  await expect(page.getByRole('link', { name: /Dev Terminal/ })).toHaveAttribute('href', 'https://dev.pegger.dev')
-  await page.mouse.move(1, 1)
-  await capture(page, 'panel-private.png', { fullPage: false })
 
-  await page.getByRole('button', { name: 'Close details panel' }).click()
-  await expect(page.getByRole('dialog')).toBeHidden()
+  await zoomToAllBrightStars(page)
+  await page.locator('button.star[aria-label^="Contact."]').click()
+  await expect(page.getByText('Focused node')).toBeVisible()
+  await expect(page.getByText('Contact').first()).toBeVisible()
+  await page.waitForTimeout(300)
+  await capture(page, 'focus-contact.png', { fullPage: false })
+
+  await page.locator('button.star[aria-label^="GitHub."]').click()
+  await expect(page.getByText('GitHub').first()).toBeVisible()
+  await page.waitForTimeout(300)
+  await capture(page, 'focus-github.png', { fullPage: false })
+})
+
+test('captures dev terminal zoom and focus state', async ({ page }, testInfo) => {
+  if (testInfo.project.name === 'mobile') {
+    const mobileDev = page.locator('.star-map__mobile-node').filter({ hasText: 'Dev Terminal' })
+    await mobileDev.click()
+    await expect(mobileDev).toHaveAttribute('aria-pressed', 'true')
+    await capture(page, 'mobile-dev-selected.png')
+    return
+  }
+
+  await zoomToAllBrightStars(page)
+  await page.locator('button.star[aria-label^="Dev Terminal."]').click()
+  await expect(page.getByText('Focused node')).toBeVisible()
+  await expect(page.getByText('Dev Terminal').first()).toBeVisible()
+  await page.waitForTimeout(300)
+  await capture(page, 'focus-dev-terminal.png', { fullPage: false })
 })

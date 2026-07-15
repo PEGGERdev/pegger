@@ -1,73 +1,86 @@
 # Pegger Hub Project Status
 
-## Current Branch
+## Current State
 
-- Feature branch: `fix/caddy-site-label-detection`
-- Integration branch: `dev`
-- Production branch: `master`
-- Repository: `PEGGERdev/pegger`
+- Current branch: `feature/galactic-constellation`
+- Remote tracking state: local feature branch based on clean `origin/dev` at `82a4ba6`; not pushed yet
+- Last updated: 2026-07-15
+- Current objective: replace card-based star interaction with smooth galaxy-style zoom toward stars; remove panel system
+- Main promotion allowed: no
+- Reason: HUB-007 through HUB-009 are required and not yet complete on remote `dev`
 
-## Open Tasks
+## Task Tracker
 
-- None.
+| ID | Task | Source | Status | Branch | Files | Tests / Verification | Commit | Pushed to dev | Blocker / Risk |
+|---|---|---|---|---|---|---|---|---|---|
+| HUB-001 | Deterministic visual coverage | Prior user request | completed | `feature/visual-e2e-coverage` | Playwright configuration and snapshots | 12 scenarios, 20 baselines per platform | `ca4121c`, `1ad13c3` | yes | None |
+| HUB-002 | Responsive and interaction polish | Prior user request | completed | `feature/visual-e2e-coverage` | Hub components and styles | Desktop, compact, and Pixel 7 interaction coverage | `ca4121c` | yes | None |
+| HUB-003 | Phase 1 scope reconciliation | `opencode.md` | completed | `feature/visual-e2e-coverage` | `TODO.md`, `project_status.md` | Scope and evidence review | `ca4121c` | yes | None |
+| HUB-004 | Celestial star bodies and center beacon | Prior user request | completed | `feature/futuristic-constellation` | `Star.vue`, `CenterPresence.vue`, theme | Runtime, type, build, visual review | `5764c7e` | yes | None |
+| HUB-005 | Explicit relationship systems and grouped geometry | Prior user request | completed | `feature/futuristic-constellation` | Cluster, line, map, and data components | Schema integrity and 12 Playwright scenarios | `337a475` | yes | None |
+| HUB-006 | Cross-platform visual and security approval | `opencode.md` | completed | `feature/futuristic-constellation` | Tests and 40 snapshots | Windows and Linux comparison, audit | `f799aa5`, `961c5ed` | yes | None |
+| OPS-001 | Gated production deployment | Prior user request | completed | `feature/visual-e2e-coverage` | Workflow and deployment scripts | Health, revision, TLS, rollback | `4e4f3d7`, `ebe27c8` | yes | None |
+| OPS-002 | Portable Caddy label detection | Production regression | completed | `fix/caddy-site-label-detection` | Deployment parser and fixture test | Ubuntu fixture, CI, successful VPS releases | `86f5267`, `30d9740` | yes | None |
+| HUB-007 | Replace card-based star interaction with smooth galaxy zoom | Current user request | verified | `feature/galactic-constellation` | `StarMap.vue`, `App.vue`, `hub.e2e.spec.js` | Type check, build, npm test, E2E zoom/focus/hover tests | pending | no | Animation timing and snapshot variance |
+| HUB-008 | Galaxy field depth, natural stellar light, center nucleus, and asterism paths | Current user request | open | `feature/galactic-constellation` | `StarField.vue`, `Star.vue`, `CenterPresence.vue`, `ClusterRegions.vue`, `ConstellationLines.vue` | Runtime/type/build, reduced motion, desktop/mobile visual review | pending | no | GPU cost and visual determinism |
+| HUB-009 | Cross-platform galactic visual approval and production promotion | `opencode.md` | open | `feature/galactic-constellation` | Tests, snapshots, status files | Full local gates, 20 Windows and 20 Linux baselines, audit, production checks | pending | no | Platform rendering drift |
 
-## In Progress
+## Verification Log
 
-- None.
+| Date | Task ID | Command or Manual Check | Expected Result | Actual Result | Evidence |
+|---|---|---|---|---|---|
+| 2026-07-15 | HUB-006 | `npm run test:e2e` | 12 scenarios match | 12 passed | Local Windows run |
+| 2026-07-15 | HUB-006 | GitHub run `29402859565` | Linux snapshots match | Passed | 20 Linux baselines |
+| 2026-07-15 | OPS-002 | GitHub run `29405478802` | CI and VPS release pass | Passed | Production deploy in 39 seconds |
+| 2026-07-15 | OPS-002 | `https://pegger.dev/health` and live browser checks | Healthy responsive hub | Passed | Five systems and seven paths verified |
+| 2026-07-15 | HUB-007 | `npm run typecheck` | No type errors | Passed | Clean zero-error output |
+| 2026-07-15 | HUB-007 | `npm run build` | Build succeeds | Passed | 41 modules, no warnings |
+| 2026-07-15 | HUB-007 | `npm test` | 12 runtime tests | Passed | All 12 passed |
+| 2026-07-15 | HUB-007 | Final typecheck + build after all edits | Clean typecheck and build | Passed | 41 modules, zero errors |
 
-## Completed Work
+## Dev Integration Log
 
-| ID | Item | Evidence |
-|---|---|---|
-| HUB-001 | Deterministic desktop and mobile screenshot coverage for every visible hub state | 12 scenarios with 20 Windows and 20 Linux baselines |
-| HUB-002 | Responsive, interaction, accessibility, and visual-polish corrections | Desktop, compact desktop, and Pixel 7 states reviewed; all assertions passed |
-| HUB-003 | Phase 1 scope reconciliation and implementation evidence | `TODO.md` separates completed product scope from future phases |
-| HUB-004 | Celestial star bodies, diffraction rays, spectral tokens, spring attraction, and a modern center beacon | Runtime/type/build checks passed; six desktop and six mobile Playwright scenarios passed; default, compact, expanded, and focused states reviewed |
-| HUB-005 | Five explicit relationship systems, grouped geometry, spectral fields, signal lines, and a grouped mobile directory | All 21 nodes have one valid membership; all 26 edges validate; 12 parallel Playwright scenarios passed; long-page modal lock and compact collisions are covered |
-| HUB-006 | Deterministic cross-platform visual approval, accessibility regression coverage, and focused security review | Runs `29402340871` and `29402859565` generated and matched all 20 Linux baselines; Windows matched all 20; audit found zero vulnerabilities |
-| OPS-001 | Gated automatic production deployment and repaired apex routing | Run `29396387223` deployed `15480cf5526aacaba59ac50d15e56a67490d7867`; health, revision, TLS, desktop, and mobile checks passed |
-| OPS-002 | Portable exact Caddy label detection and deployment parser regression coverage | Run `29405273922` passed the new Ubuntu fixture gate; run `29405478802` deployed `7b753830b4954f00495734e6e76cfd8c0b2d1ec9` and passed public desktop/mobile checks |
+| Task ID | Commit | Dev Push | Remote Verification | Notes |
+|---|---|---|---|---|
+| HUB-004 | `5764c7e` | yes | present in `origin/dev` | Stellar node system |
+| HUB-005 | `337a475` | yes | present in `origin/dev` | Relationship clusters |
+| HUB-006 | `f799aa5`, `961c5ed` | yes | present in `origin/dev` | Cross-platform approval |
+| OPS-002 | `86f5267`, `30d9740` | yes | present in `origin/dev` | Portable deployment parser |
 
-## Blocked
+## Main Promotion Checklist
 
-- None.
+- [ ] Every explicit user request is completed.
+- [ ] Every required task in this file is completed.
+- [ ] Every required task from other status or planning files is completed.
+- [ ] No task is open.
+- [ ] No task is in progress.
+- [ ] No task is implemented but unverified.
+- [ ] No required task is blocked.
+- [ ] No required task is silently deferred.
+- [ ] Every completed task was pushed to dev.
+- [ ] All relevant automated tests pass on dev.
+- [ ] Build, lint, and typecheck pass where available.
+- [ ] Frontend interactions were verified where relevant.
+- [ ] Backend contracts and behavior were verified where relevant.
+- [ ] No unrelated changes were included.
+- [ ] Final full-scope scan passed.
+- [ ] Dev is synchronized with the remote.
+- [ ] Main promotion is authorized by these rules.
 
-## Verification Results
+## Main Promotion History
 
-Latest redesign verification:
-
-```text
-npm test: 12 passed, 0 failed
-npm run typecheck: passed
-npm run build: passed
-npm run test:e2e:update: 12 passed, 0 failed; 20 Windows snapshots regenerated
-npm run test:e2e: 12 passed, 0 failed; all Windows snapshots matched
-npm audit --audit-level=low: 0 vulnerabilities
-GitHub run 29402340871: Linux baseline generation passed; 20 snapshots reviewed
-GitHub run 29402859565: unit, type, build, and all Linux visual comparisons passed
-Security review: no unsafe HTML/eval paths, remote runtime assets, or dependency changes introduced
-GitHub run 29403733506: application CI passed; deploy rolled back after portable awk failure caused duplicate Caddy route validation
-GitHub run 29405273922: deployment fixture, unit, type, build, and Linux visual checks passed
-GitHub run 29405478802: deployment fixture and application CI passed; production deployment completed in 39 seconds
-GitHub run 29406232027: status-only follow-up passed all gates and deployed 7806654a9200434bdb3681b18303312b20bdcaab
-Production /health: ok
-Production revision contract: /revision.txt matched the triggering master SHA for each successful release
-Production desktop: 5 cluster regions, 7 visible stars, center beacon visible
-Production Pixel 7: 5 grouped systems, 7 paths, mobile directory scroll height 2094px
-```
+| Date | Dev Commit | Main Commit | Verification | Notes |
+|---|---|---|---|---|
+| 2026-07-15 | `7d86202` | `936a4d2` | Application CI passed; deployment rolled back safely | Initial constellation promotion exposed the awk parser defect |
+| 2026-07-15 | `0d96c4c` | `7b75383` | Run `29405478802` passed CI and deployment | Corrected constellation release |
+| 2026-07-15 | `82a4ba6` | `54270bd` | Run `29406945221` passed CI and deployment | Stable evidence tracking release |
 
 ## Known Risks
 
 | ID | Risk | Status | Handling |
 |---|---|---|---|
-| R-001 | Ambient motion can make screenshots nondeterministic. | mitigated | Visual tests use seeded randomness and reduced motion. |
-| R-002 | Rich star effects can obscure labels, focus rings, or connection lines. | mitigated | Effects are bounded inside node layers; default, hover, focused, and panel-open states were reviewed. |
-| R-003 | Cluster regions can become visual clutter on compact screens. | mitigated | Desktop fields are low contrast, captions sit outside node paths, compact collisions are asserted, and mobile uses grouped directory sections. |
-| R-004 | GPU-heavy filters can reduce animation smoothness. | mitigated | Effects use bounded CSS layers, transforms, and opacity; no new render loop or runtime dependency was added. |
-| R-005 | Windows and Linux font/effect rendering can shift visual snapshots. | mitigated | Twenty reviewed baselines per platform pass locally and in GitHub's Ubuntu comparison environment. |
-| R-006 | Repeated local SSH probes can be throttled. | monitored | Use serialized probes and rely on deployment health/revision gates. |
-| R-007 | Caddy label parsing depended on awk accepting a built-in function name as a loop variable. | mitigated | The iterator is portable, fixture cases run in CI, shell files enforce LF, and the corrected VPS deployment passed. |
-
-## Next Recommended Task
-
-No active task. Monitor the automated production health and revision gates on future `master` releases.
+| R-001 | Galaxy layers and ambient motion can make screenshots nondeterministic. | active | Use component-local seeded generation and static reduced-motion rendering. |
+| R-002 | Nebulae and asterism paths can obscure labels and controls. | active | Bound effects below interaction layers and inspect every visible state. |
+| R-003 | Blur, gradients, and canvas density can reduce low-end GPU performance. | active | Cap particles and layers, scale by viewport, and avoid new JavaScript animation loops. |
+| R-004 | Windows and Linux rasterization can diverge. | active | Regenerate and review both baseline sets before promotion. |
+| R-005 | Repeated local SSH probes can be throttled. | monitored | Use CI release health and revision gates for production verification. |

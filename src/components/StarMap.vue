@@ -1,18 +1,17 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useMouse } from '@vueuse/core'
-import { usePeggerRuntime } from '@/composables/usePeggerRuntime.js'
 import theme from '@/config/theme'
+import { starMapData } from '@/data/starMapData'
 import Star from './Star.vue'
 import CenterPresence from './CenterPresence.vue'
 import ClusterRegions from './ClusterRegions.vue'
 import ConstellationLines from './ConstellationLines.vue'
 
-const emit = defineEmits(['star-click', 'focus-change'])
+const emit = defineEmits(['focus-change'])
 
 const containerRef = ref(null)
 const { x: mouseX, y: mouseY } = useMouse()
-const { getPanelView, starMapView } = usePeggerRuntime()
 
 const viewport = ref({ x: 0, y: 0, scale: 1 })
 const containerSize = ref({ width: 0, height: 0 })
@@ -23,23 +22,25 @@ const isDragging = ref(false)
 const dragDistance = ref(0)
 const suppressClick = ref(false)
 const guideDismissed = ref(false)
+const zoomAnimation = ref(null)
 
 const MIN_SCALE = 0.72
-const MAX_SCALE = 2.2
+const MAX_SCALE = 2.4
 const ZOOM_STEP = 0.14
-const FOCUS_SCALE = 1.5
+const FOCUS_SCALE = 1.8
 const FEATURED_STAR_IDS = ['portfolio', 'spotonsight', 'contact']
+const ZOOM_DURATION = 1000
 
 let activePointerId = null
 let dragStart = { x: 0, y: 0, viewportX: 0, viewportY: 0 }
 
-const allStars = computed(() => starMapView.value.allStars)
-const clusters = computed(() => starMapView.value.clusters || [])
+const allStars = computed(() => starMapData.brightStars.concat(starMapData.dimStars))
+const clusters = computed(() => starMapData.clusters || [])
 const mobileStars = computed(() => allStars.value.filter(star => star.type === 'bright'))
 const isMobile = computed(() => (containerSize.value.width || window.innerWidth) < 900)
 
 const starLookup = computed(() => {
-  const entries = [...allStars.value, starMapView.value.center].map(star => [star.id, star])
+  const entries = [...allStars.value, starMapData.center].map(star => [star.id, star])
   return Object.fromEntries(entries)
 })
 
@@ -62,56 +63,14 @@ const featuredStars = computed(() => FEATURED_STAR_IDS
   .map(id => starLookup.value[id])
   .filter(Boolean))
 
-const selectedPanel = computed(() => {
-  if (!selectedStar.value?.panel) {
-    return null
-  }
-
-  return getPanelView(selectedStar.value.panel)
-})
-
 const focusFacts = computed(() => selectedStar.value?.data?.facts || [])
-
-const focusAction = computed(() => {
-  if (!selectedStar.value) {
-    return null
-  }
-
-  if (selectedStar.value.panel) {
-    return {
-      kind: 'panel',
-      label: 'Open detailed panel',
-      icon: 'bi-arrow-up-right',
-    }
-  }
-
-  if (selectedStar.value.data?.url) {
-    return {
-      kind: 'link',
-      label: 'Open related link',
-      icon: 'bi-box-arrow-up-right',
-      href: selectedStar.value.data.url,
-    }
-  }
-
-  if (selectedStar.value.data?.email) {
-    return {
-      kind: 'mail',
-      label: 'Send an email',
-      icon: 'bi-envelope-arrow-up',
-      href: `mailto:${selectedStar.value.data.email}`,
-    }
-  }
-
-  return null
-})
 
 const connectedNodeIds = computed(() => {
   if (!selectedStarId.value) {
     return []
   }
 
-  return starMapView.value.connections.reduce((ids, connection) => {
+  return starMapData.connections.reduce((ids, connection) => {
     if (connection.from === selectedStarId.value) {
       ids.push(connection.to)
     } else if (connection.to === selectedStarId.value) {
@@ -125,14 +84,6 @@ const connectedNodeIds = computed(() => {
 const connectedNodes = computed(() => connectedNodeIds.value
   .map(id => starLookup.value[id])
   .filter(Boolean))
-
-const otherNodes = computed(() => allStars.value.filter(star => {
-  if (!selectedStarId.value) {
-    return true
-  }
-
-  return star.id !== selectedStarId.value && !connectedNodeIds.value.includes(star.id)
-}))
 
 const detailLevel = computed(() => {
   if (selectedStar.value || viewport.value.scale >= 1.5) {
@@ -202,7 +153,7 @@ const visibleClusterCount = computed(() => clusters.value.filter(cluster => (
   cluster.memberIds.some(id => visibleNodeIds.value.has(id))
 )).length)
 
-const visibleConnections = computed(() => starMapView.value.connections.filter(connection => {
+const visibleConnections = computed(() => starMapData.connections.filter(connection => {
   return visibleNodeIds.value.has(connection.from) && visibleNodeIds.value.has(connection.to)
 }))
 
@@ -210,14 +161,14 @@ const interactionScaleLabel = computed(() => `${Math.round(viewport.value.scale 
 
 const navigationHint = computed(() => {
   if (selectedStar.value) {
-    return 'Follow the connected cluster, then use the drawer for direct actions and deeper detail.'
+    return 'Click a connected node to zoom to it, or click again to zoom back out.'
   }
 
   if (isDragging.value) {
     return 'Release to settle the camera into its new position.'
   }
 
-  return 'Start with a featured node, then drag to pan or scroll to reveal the wider network.'
+  return 'Click a node to zoom in and explore its connections.'
 })
 
 const orbitSize = computed(() => {
@@ -291,54 +242,7 @@ const renderedPositions = computed(() => {
   return positions
 })
 
-function getBaseAngle(star) {
-  return Math.atan2(star.position.y || 0, star.position.x || 1)
-}
-
-const starPositions = computed(() => {
-  if (!selectedStar.value) {
-    return defaultPositions.value
-  }
-
-  const positions = {}
-  const connected = connectedNodes.value.filter(node => node.id !== 'you')
-  const secondary = otherNodes.value.filter(node => node.id !== 'you')
-  const width = containerSize.value.width || window.innerWidth
-  const height = containerSize.value.height || window.innerHeight
-  const connectedRadiusX = Math.min(width * 0.24, 300) * Math.max(0.92, viewport.value.scale)
-  const connectedRadiusY = Math.min(height * 0.2, 220) * Math.max(0.92, viewport.value.scale)
-  const outerRadiusX = connectedRadiusX + Math.min(width * 0.18, 220)
-  const outerRadiusY = connectedRadiusY + Math.min(height * 0.14, 160)
-
-  positions.you = centerPosition.value
-
-  positions[selectedStar.value.id] = {
-    x: focusAnchor.value.x,
-    y: focusAnchor.value.y,
-  }
-
-  connected.forEach((star, index) => {
-    const angle = -Math.PI / 2 + (index / Math.max(connected.length, 1)) * Math.PI * 2
-    const radiusScale = 1 + (index % 2) * 0.14
-
-    positions[star.id] = {
-      x: focusAnchor.value.x + Math.cos(angle) * connectedRadiusX * radiusScale,
-      y: focusAnchor.value.y + Math.sin(angle) * connectedRadiusY * radiusScale,
-    }
-  })
-
-  secondary.forEach((star, index) => {
-    const angle = getBaseAngle(star) + index * 0.08
-    const wave = (index % 3) * 0.06 + 0.92
-
-    positions[star.id] = {
-      x: focusAnchor.value.x + Math.cos(angle) * outerRadiusX * wave,
-      y: focusAnchor.value.y + Math.sin(angle) * outerRadiusY * wave,
-    }
-  })
-
-  return positions
-})
+const starPositions = computed(() => defaultPositions.value)
 
 function isConnected(starId) {
   return connectedNodeIds.value.includes(starId)
@@ -433,44 +337,82 @@ function nudgeZoom(direction) {
 }
 
 function resetViewport() {
+  if (selectedStarId.value) {
+    emit('focus-change', null)
+  }
   selectedStarId.value = null
-  emit('focus-change', null)
   liveStarPositions.value = {}
-  viewport.value = { x: 0, y: 0, scale: 1 }
+  animateViewport({ x: 0, y: 0, scale: 1 })
 }
 
-function focusOnStar(starId) {
+function calculateZoomTarget(starId) {
+  const pos = defaultPositions.value[starId]
+  if (!pos) {
+    return { x: viewport.value.x, y: viewport.value.y, scale: FOCUS_SCALE }
+  }
+
+  return {
+    x: -(containerSize.value.width * 0.12) - (starMapData.brightStars.find(s => s.id === starId)?.position.x || 0) / 100 * orbitSize.value.x * FOCUS_SCALE,
+    y: -(starMapData.brightStars.find(s => s.id === starId)?.position.y || 0) / 100 * orbitSize.value.y * FOCUS_SCALE,
+    scale: FOCUS_SCALE,
+  }
+}
+
+function animateViewport(target, onComplete) {
+  if (zoomAnimation.value) {
+    cancelAnimationFrame(zoomAnimation.value)
+  }
+
+  const start = {
+    x: viewport.value.x,
+    y: viewport.value.y,
+    scale: viewport.value.scale,
+  }
+  const duration = ZOOM_DURATION
+  const startTime = performance.now()
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+  }
+
+  function animate(time) {
+    const elapsed = time - startTime
+    const progress = Math.min(elapsed / duration, 1)
+    const eased = easeInOutCubic(progress)
+
+    viewport.value = {
+      x: start.x + (target.x - start.x) * eased,
+      y: start.y + (target.y - start.y) * eased,
+      scale: start.scale + (target.scale - start.scale) * eased,
+    }
+
+    if (progress < 1) {
+      zoomAnimation.value = requestAnimationFrame(animate)
+    } else {
+      zoomAnimation.value = null
+      if (onComplete) onComplete()
+    }
+  }
+
+  zoomAnimation.value = requestAnimationFrame(animate)
+}
+
+function zoomToStar(starId) {
+  guideDismissed.value = true
+
+  if (selectedStarId.value === starId) {
+    animateViewport({ x: 0, y: 0, scale: 1 }, () => {
+      selectedStarId.value = null
+      emit('focus-change', null)
+    })
+    return
+  }
+
   selectedStarId.value = starId
   emit('focus-change', starId)
-  viewport.value = {
-    x: 0,
-    y: 0,
-    scale: Math.max(viewport.value.scale, FOCUS_SCALE),
-  }
-}
 
-function openSelectedPanel() {
-  if (selectedStar.value?.panel) {
-    emit('star-click', selectedStar.value.panel)
-  }
-}
-
-function openSelectedAction() {
-  if (!focusAction.value) {
-    return
-  }
-
-  if (focusAction.value.kind === 'panel') {
-    openSelectedPanel()
-    return
-  }
-
-  if (focusAction.value.kind === 'mail') {
-    window.location.href = focusAction.value.href
-    return
-  }
-
-  window.open(focusAction.value.href, '_blank', 'noopener,noreferrer')
+  const target = calculateZoomTarget(starId)
+  animateViewport(target)
 }
 
 function handleStarHover(starId) {
@@ -482,24 +424,18 @@ function handleStarClick(starId) {
     return
   }
 
-  guideDismissed.value = true
-  const star = starLookup.value[starId]
-
-  if (selectedStarId.value === starId) {
-    openSelectedPanel()
-    return
-  }
-
-  focusOnStar(starId)
-
-  if (star?.panel) {
-    emit('star-click', star.panel)
-  }
+  zoomToStar(starId)
 }
 
 function focusFeaturedStar(starId) {
-  guideDismissed.value = true
-  handleStarClick(starId)
+  zoomToStar(starId)
+}
+
+function openStarUrl() {
+  const url = selectedStar.value?.data?.url
+  if (url) {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 }
 
 function handleStarPositionChange({ id, position }) {
@@ -613,6 +549,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (zoomAnimation.value) {
+    cancelAnimationFrame(zoomAnimation.value)
+  }
   window.removeEventListener('resize', updateContainerMetrics)
 })
 </script>
@@ -724,7 +663,7 @@ onUnmounted(() => {
       </div>
 
       <p class="star-map__guide-copy">
-        Featured nodes open the most useful detail first. Pan and zoom only after the story is clear.
+        Click a featured node to zoom into its detail. Pan, scroll, or use controls to explore the wider constellation.
       </p>
 
       <div class="star-map__guide-actions">
@@ -773,7 +712,6 @@ onUnmounted(() => {
       <div class="star-map__focus-tags">
         <span v-if="selectedStar.category">{{ selectedStar.category }}</span>
         <span>{{ connectedNodes.length }} direct links</span>
-        <span v-if="selectedPanel?.title">{{ selectedPanel.title }}</span>
       </div>
 
       <div v-if="focusFacts.length" class="star-map__facts">
@@ -790,7 +728,7 @@ onUnmounted(() => {
           class="star-map__connected-item"
           type="button"
           :style="getNodeClusterStyle(node.id)"
-          @click="focusOnStar(node.id)"
+          @click="zoomToStar(node.id)"
         >
           <span class="star-map__connected-icon">
             <i :class="node.icon || 'bi-stars'" />
@@ -803,13 +741,13 @@ onUnmounted(() => {
       </div>
 
       <button
-        v-if="focusAction"
+        v-if="selectedStar?.data?.url"
         class="star-map__panel-action"
         type="button"
-        @click="openSelectedAction"
+        @click="openStarUrl"
       >
-        {{ focusAction.label }}
-        <i :class="focusAction.icon" />
+        Visit site
+        <i class="bi bi-box-arrow-up-right" />
       </button>
     </aside>
 
@@ -841,12 +779,12 @@ onUnmounted(() => {
     />
 
     <CenterPresence
-      :center="starMapView.center"
+      :center="starMapData.center"
       :position="centerPosition"
       :selected="selectedStarId === 'you'"
       :map-focused="Boolean(selectedStar)"
       :detail-level="detailLevel"
-      @click="focusOnStar"
+      @click="zoomToStar"
     />
 
       <Star
