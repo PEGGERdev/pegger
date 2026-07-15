@@ -1,46 +1,144 @@
-name: Deploy
+name: CI and Deploy
 
 on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: Generate Linux visual baselines without deploying
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
 
 jobs:
-  deploy:
+  verify:
+    name: Verify
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: pegger.dev
         run: npm ci
 
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass rsync
+      - name: Run unit tests
+        run: npm test
 
-      - name: Add host to known_hosts
+      - name: Run type checks
+        run: npm run typecheck
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser visual tests
+        if: github.event_name != 'workflow_dispatch' || inputs.update_snapshots != true
+        run: npm run test:e2e
+
+      - name: Generate Linux visual baselines
+        if: github.event_name == 'workflow_dispatch' && inputs.update_snapshots
+        run: npm run test:e2e:update
+
+      - name: Upload Linux visual baselines
+        if: github.event_name == 'workflow_dispatch' && inputs.update_snapshots
+        uses: actions/upload-artifact@v7
+        with:
+          name: pegger-linux-visual-baselines
+          path: tests/e2e/hub.e2e.spec.js-snapshots/*-linux.png
+          retention-days: 1
+
+  deploy:
+    name: Deploy production
+    needs: verify
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.update_snapshots != true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: write
+    concurrency:
+      group: pegger-production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: https://pegger.dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Check release is current
+        id: release
+        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          ssh-keygen -R "${{ secrets.DEPLOY_HOST }}" || true
-          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts || true
+          current_sha="$(git ls-remote origin refs/heads/master | cut -f1)"
+          if [[ "$current_sha" == "$GITHUB_SHA" ]]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping superseded revision $GITHUB_SHA; master is $current_sha"
+          fi
+
+      - name: Setup Node
+        if: steps.release.outputs.deploy == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.release.outputs.deploy == 'true'
+        run: npm ci
+
+      - name: Configure deployment SSH
+        if: steps.release.outputs.deploy == 'true'
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_APP_DIR: ${{ secrets.DEPLOY_APP_DIR }}
+          DEPLOY_CADDYFILE_PATH: ${{ secrets.DEPLOY_CADDYFILE_PATH }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          : "${DEPLOY_HOST:?DEPLOY_HOST secret is required}"
+          : "${DEPLOY_PORT:?DEPLOY_PORT secret is required}"
+          : "${DEPLOY_USER:?DEPLOY_USER secret is required}"
+          : "${DEPLOY_APP_DIR:?DEPLOY_APP_DIR secret is required}"
+          : "${DEPLOY_CADDYFILE_PATH:?DEPLOY_CADDYFILE_PATH secret is required}"
+          : "${DEPLOY_KNOWN_HOSTS:?DEPLOY_KNOWN_HOSTS secret is required}"
+          : "${DEPLOY_SSH_KEY:?DEPLOY_SSH_KEY secret is required}"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy to production server
-        working-directory: pegger.dev
+        if: steps.release.outputs.deploy == 'true'
         env:
-          DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
           REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
           REMOTE_USER: ${{ secrets.DEPLOY_USER }}
           REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
           REMOTE_DIR: ${{ secrets.DEPLOY_APP_DIR }}
           CADDYFILE_PATH: ${{ secrets.DEPLOY_CADDYFILE_PATH }}
+          SSH_KEY_PATH: /home/runner/.ssh/id_ed25519
         run: bash ./scripts/deploy-hub.sh

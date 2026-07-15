@@ -2,115 +2,114 @@
 
 ## Project Overview
 
-Personal hub for Patrik Egger featuring an interactive star map constellation landing page and a web-based SSH terminal.
+Personal hub for Patrik Egger featuring an interactive star-map landing page. A web-based SSH terminal and passkey authentication remain future roadmap phases.
 
 ## Phase 1: Star Map Landing Page
 
+Status: complete for the current product scope.
+
 ### Core Features
 
-- [ ] **Star Map Constellation**
-  - [x] Project structure created
-  - [x] Basic Vue components (StarMap, Star, CenterPresence, ConstellationLines, StarField)
-  - [x] Design tokens and theme system
-  - [x] Star data with positions and connections
-  - [ ] Refine star positions for better visual balance
-  - [ ] Add responsive layout for mobile
+- [x] **Star Map Constellation**
+  - [x] Project structure and Vue component hierarchy
+  - [x] Design tokens and dark-first theme system
+  - [x] Star data, balanced positions, and connection graph
+  - [x] Responsive desktop constellation and mobile directory
 
-- [ ] **Animations**
-  - [x] Ambient wobble animation for stars
-  - [x] Magnetic attraction to mouse cursor
-  - [x] Background star field with canvas
-  - [x] Center star pulsing effect
-  - [x] Line illumination on hover
-  - [ ] Wobble variation per star type
-  - [ ] Smooth spring-back when mouse leaves range
-  - [ ] Expansion cloud animation on click
+- [x] **Animations**
+  - [x] Ambient wobble with variation by star type
+  - [x] Magnetic pointer attraction and smooth spring-back
+  - [x] Reduced-motion-compatible canvas star field
+  - [x] Center-star pulse and line illumination
+  - [x] Expansion cloud and focused constellation states
 
-- [ ] **Panel System**
-  - [x] Basic panel component with backdrop
-  - [x] Apps panel with project cards
-  - [x] Contact panel
-  - [x] Socials panel
-  - [x] Private panel
-  - [ ] Panel transition animations
-  - [ ] Tech tags display in Apps panel
-  - [ ] Add more contact methods (if any)
+- [x] **Panel System**
+  - [x] Responsive desktop drawer and mobile bottom sheet
+  - [x] Apps, contact, socials, and private variants
+  - [x] Panel transition animations
+  - [x] Project technology tags
+  - [x] Contact inventory reviewed; email is the primary direct method
 
-- [ ] **Visual Polish**
-  - [ ] Optimize glow effects for performance
-  - [ ] Add AOS scroll animations
-  - [ ] Dark mode toggle
-  - [ ] Custom cursor styles
-  - [ ] Sound effects (optional)
+- [x] **Visual Polish**
+  - [x] Reduced-motion and focused rendering paths for animation work
+  - [x] AOS entry animations
+  - [x] Product-theme decision recorded: retain the single dark-first theme
+  - [x] Pointer, grab, and grabbing cursor states
 
-### Bug Fixes & Improvements
+### Bug Fixes and Improvements
 
-- [ ] Fix star positioning calculation
-- [ ] Ensure constellation lines update on resize
-- [ ] Handle edge cases for very small viewports
-- [ ] Add keyboard navigation
+- [x] Correct star positioning and keep content inside desktop safe zones
+- [x] Update constellation geometry on resize
+- [x] Handle small and mobile viewports with a dedicated directory
+- [x] Add semantic controls, visible focus states, and keyboard navigation
+- [x] Support Escape, close-button, and backdrop panel dismissal
 
-## Phase 2: Dev Terminal
+### Verification
 
-### Backend
+- [x] Runtime test harness with 12 passing scenarios
+- [x] Type checking with `vue-tsc`
+- [x] Production build with Vite
+- [x] Playwright interaction coverage for desktop, compact desktop, and mobile
+- [x] Twenty reviewed Windows visual baselines across all reachable hub states
 
-- [ ] Create Python project structure
-- [ ] Implement WebSocket handler
-- [ ] Implement SSH manager with paramiko
-- [ ] Implement password authentication
-- [ ] Add rate limiting
-- [ ] Add session timeout
-- [ ] Implement passkey authentication (Phase 3)
+## Active Operations
 
-### Frontend
+- [x] Repair the root-directory errors in the existing GitHub Actions workflow
+- [x] Replace password deployment with the repository deployment SSH key
+- [x] Add test, type-check, build, browser, health, and revision gates
+- [x] Add staged release swaps, automatic rollback, and validated Caddy reloads
+- [x] Pin the production SSH host keys in repository secrets
+- [x] Generate the Linux visual baselines used by CI
+- [ ] Commit and push the generated Linux visual baselines
+- [ ] Merge the verified feature branch into `master`
+- [ ] Confirm the automatic production deployment and public revision
 
-- [ ] Create React project for terminal UI
-- [ ] Integrate xterm.js
-- [ ] Build authentication form
-- [ ] Add connection status indicator
-- [ ] Implement WebSocket connection
-- [ ] Handle terminal resize
+## Future Phase 2: Dev Terminal
 
-### Deployment
+Status: future and explicitly outside the active Phase 1 frontend scope.
 
-- [ ] Create Dockerfile for server
-- [ ] Update docker-compose.yml
-- [ ] Configure Caddy for WebSocket
-- [ ] Set up environment variables
-- [ ] Test end-to-end connection
+### Backend Roadmap
 
-## Phase 3: Passkey Authentication
+- Create the Python service and WebSocket handler
+- Implement the Paramiko SSH manager and password authentication
+- Add rate limiting and session timeouts
 
-- [ ] Research WebAuthn implementation
-- [ ] Add @simplewebauthn packages
-- [ ] Create registration flow
-- [ ] Create authentication flow
-- [ ] Store credentials securely
-- [ ] Test across devices
+### Frontend Roadmap
 
-## Technical Debt
+- Create the terminal UI and integrate xterm.js
+- Build authentication and connection-status views
+- Implement WebSocket connection and terminal resizing
 
-- [ ] Add TypeScript type definitions
-- [ ] Write unit tests for composables
-- [ ] Add E2E tests with Playwright
-- [ ] Set up CI/CD pipeline
-- [ ] Document deployment process
-- [ ] Create monitoring/alerting
+### Deployment Roadmap
 
-## Nice to Have
+- Add a server Dockerfile and service configuration
+- Configure the reverse proxy and environment variables
+- Test the complete authenticated terminal connection
 
-- [ ] Easter egg animations
-- [ ] Custom 404 page
-- [ ] Loading animation
-- [ ] PWA support
-- [ ] Analytics integration
-- [ ] SEO optimization
-- [ ] Sitemap generation
+## Future Phase 3: Passkey Authentication
+
+Status: future and dependent on the Phase 2 terminal service.
+
+- Research and select the WebAuthn implementation
+- Add registration and authentication flows
+- Store credentials securely
+- Test across supported devices
+
+## Future Engineering Backlog
+
+These items are not part of the completed Phase 1 visual scope:
+
+- Full TypeScript migration; current JavaScript is checked by `vue-tsc`
+- Production monitoring/alerting
+- Optional sound and easter-egg animations
+- Custom 404 and loading experiences
+- PWA and analytics support
+- Additional SEO work and sitemap generation
 
 ## Notes
 
-- Design should match SpotOnSight brand
-- Use Space Grotesk for display, Plus Jakarta Sans for body
-- Animations should be subtle, not distracting
-- Mobile experience should be functional, not identical
-- Security is paramount for dev terminal
+- Design matches the SpotOnSight visual direction
+- Use Space Grotesk for display and Plus Jakarta Sans for body copy
+- Keep animations subtle and honor reduced-motion preferences
+- Mobile behavior should be purpose-built rather than identical to desktop
+- Security is paramount before enabling the future dev terminal

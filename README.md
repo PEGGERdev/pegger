@@ -8,10 +8,10 @@ Personal hub for Patrik Egger's web presence, portfolio, and private developer t
 
 ## Live
 
-- **Hub**: https://peggar.dev
+- **Hub**: https://pegger.dev
 - **Portfolio**: https://portfolio.pegger.dev
 - **SpotOnSight**: https://spotonsight.com
-- **Dev Terminal**: https://dev.peggar.dev
+- **Dev Terminal**: https://dev.pegger.dev
 
 ## Architecture
 
@@ -22,22 +22,24 @@ pegger.dev/
 │   ├── App.vue              # Root component
 │   ├── style.css            # Design tokens + global styles
 │   ├── components/
-│   │   ├── StarMap.vue              # Main constellation container
-│   │   ├── StarField.vue            # Background particles
+│   │   ├── StarMap.vue              # Responsive constellation and directory
+│   │   ├── StarField.vue            # Background star canvas
 │   │   ├── ConstellationLines.vue   # SVG connections
-│   │   ├── Star.vue                # Interactive star
-│   │   ├── StarCluster.vue          # Grouped stars
-│   │   ├── StarPanel.vue           # Expansion panel
+│   │   ├── Star.vue                 # Interactive star
+│   │   ├── StarPanel.vue            # Accessible detail panel
 │   │   ├── CenterPresence.vue       # "You" center point
-│   │   └── panels/                 # Content for each category
+│   │   ├── ItemList.vue             # Panel item collection
+│   │   └── ItemCard.vue             # Panel item presentation
 │   ├── composables/
-│   │   ├── useStarPhysics.js        # Magnetic attraction + wobble
-│   │   ├── useConstellation.js      # Connection calculations
-│   │   └── useStarExpansion.js      # Panel animation
+│   │   └── usePeggerRuntime.js      # Runtime view-model access
 │   ├── data/
 │   │   └── starMapData.js           # All stars and connections
+│   ├── runtime/                      # Workflow and projection catalogs
+│   ├── registry/                     # Runtime registry facade
+│   ├── test/                         # Runtime test scenarios and harness
 │   └── config/
 │       └── theme.js
+├── tests/e2e/                        # Playwright interaction and visual tests
 ├── deployment/                      # Docker + Nginx config
 ├── docs/                           # Feature specifications
 └── package.json
@@ -59,14 +61,14 @@ pegger.dev/
 ### Colors (matching SpotOnSight brand)
 
 ```css
---peggar-primary: #1f7c72;        /* Teal - primary brand */
---peggar-primary-rgb: 31, 124, 114;
---peggar-accent: #2f6ea8;         /* Blue - secondary accent */
---peggar-accent-rgb: 47, 110, 168;
---peggar-surface: rgba(255, 255, 255, 0.94);
---peggar-surface-soft: #f7fbfc;
---peggar-text: #16222b;
---peggar-text-muted: #607887;
+--pegger-primary: #49c5b6;        /* Teal - primary brand */
+--pegger-primary-rgb: 73, 197, 182;
+--pegger-accent: #5aa7ff;         /* Blue - secondary accent */
+--pegger-accent-rgb: 90, 167, 255;
+--pegger-surface: rgba(238, 246, 255, 0.94);
+--pegger-surface-soft: #edf5ff;
+--pegger-text: #112130;
+--pegger-text-muted: #6f879b;
 ```
 
 ### Typography
@@ -114,7 +116,7 @@ When a star is clicked:
 4. Content fades in
 5. Click outside or X to collapse (reverse animation)
 
-### Phase 2: Dev Terminal (dev.peggar.dev)
+### Phase 2: Dev Terminal (dev.pegger.dev)
 
 Web-based SSH terminal for remote server access.
 
@@ -171,11 +173,11 @@ npm run typecheck
 
 ```
 /opt/
-├── peggar-hub/           # peggar.dev landing page
+├── pegger-hub/           # pegger.dev landing page
 │   ├── dist/
 │   ├── config/
 │   └── docker-compose.yml
-├── peggar-dev/           # dev.peggar.dev terminal
+├── pegger-dev/           # dev.pegger.dev terminal
 │   ├── frontend/
 │   ├── server/
 │   └── docker-compose.yml
@@ -185,16 +187,32 @@ npm run typecheck
 ### Caddy Routes
 
 ```caddy
-peggar.dev {
+pegger.dev, www.pegger.dev {
     encode zstd gzip
-    handle { reverse_proxy peggar-hub:80 }
+    handle { reverse_proxy pegger-hub:80 }
 }
 
-dev.peggar.dev {
+dev.pegger.dev {
     encode zstd gzip
-    handle { reverse_proxy peggar-dev:8080 }
+    handle { reverse_proxy pegger-dev:8080 }
 }
 ```
+
+### Automated Deployment
+
+Pull requests targeting `master` run unit tests, type checks, a production build, and Linux Playwright visual comparisons. A successful push to `master` repeats those checks and deploys the exact Git revision to the production Nginx container over SSH.
+
+The `production` GitHub environment uses these repository secrets:
+
+- `DEPLOY_HOST`
+- `DEPLOY_PORT`
+- `DEPLOY_USER`
+- `DEPLOY_SSH_KEY`
+- `DEPLOY_KNOWN_HOSTS`
+- `DEPLOY_APP_DIR`
+- `DEPLOY_CADDYFILE_PATH`
+
+The deploy script validates the container health, reloads the Caddy route, and confirms `https://pegger.dev/revision.txt` matches the triggering commit.
 
 ## Design Specifications
 
