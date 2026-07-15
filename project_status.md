@@ -9,18 +9,11 @@
 
 ## Open Tasks
 
-| ID | Item | Source | Status | Planned files | Verification |
-|---|---|---|---|---|---|
-| OPS-002 | Make exact Caddy site-label detection portable across VPS awk implementations | Production run `29403733506` | in_progress | `scripts/deploy-production.sh`, deployment regression tests | Shell syntax, fixture cases, CI, rollback/public health, production revision |
+- None.
 
 ## In Progress
 
-### OPS-002: Portable Caddy Label Detection
-
-- Failure: VPS awk rejects `index` as a loop variable, causing both exact-label checks to fail and a duplicate `pegger.dev` site block to be appended.
-- Safety state: Caddy validation rejected the duplicate route, the deployment trap restored the original Caddyfile and prior image, `/health` remains `ok`, and `/revision.txt` remains `15480cf5526aacaba59ac50d15e56a67490d7867`.
-- Scope: use a portable iterator name, extract or expose the detector for fixture testing, and verify apex, `www`, subdomain-only, scheme, port, comma-separated, and commented labels.
-- Security and reliability: preserve exact-host matching, rollback behavior, Caddy validation, immutable image revision checks, and non-deployment CI behavior.
+- None.
 
 ## Completed Work
 
@@ -33,6 +26,7 @@
 | HUB-005 | Five explicit relationship systems, grouped geometry, spectral fields, signal lines, and a grouped mobile directory | All 21 nodes have one valid membership; all 26 edges validate; 12 parallel Playwright scenarios passed; long-page modal lock and compact collisions are covered |
 | HUB-006 | Deterministic cross-platform visual approval, accessibility regression coverage, and focused security review | Runs `29402340871` and `29402859565` generated and matched all 20 Linux baselines; Windows matched all 20; audit found zero vulnerabilities |
 | OPS-001 | Gated automatic production deployment and repaired apex routing | Run `29396387223` deployed `15480cf5526aacaba59ac50d15e56a67490d7867`; health, revision, TLS, desktop, and mobile checks passed |
+| OPS-002 | Portable exact Caddy label detection and deployment parser regression coverage | Run `29405273922` passed the new Ubuntu fixture gate; run `29405478802` deployed `7b753830b4954f00495734e6e76cfd8c0b2d1ec9` and passed public desktop/mobile checks |
 
 ## Blocked
 
@@ -53,8 +47,12 @@ GitHub run 29402340871: Linux baseline generation passed; 20 snapshots reviewed
 GitHub run 29402859565: unit, type, build, and all Linux visual comparisons passed
 Security review: no unsafe HTML/eval paths, remote runtime assets, or dependency changes introduced
 GitHub run 29403733506: application CI passed; deploy rolled back after portable awk failure caused duplicate Caddy route validation
+GitHub run 29405273922: deployment fixture, unit, type, build, and Linux visual checks passed
+GitHub run 29405478802: deployment fixture and application CI passed; production deployment completed in 39 seconds
 Production /health: ok
-Production /revision.txt: 15480cf5526aacaba59ac50d15e56a67490d7867
+Production /revision.txt: 7b753830b4954f00495734e6e76cfd8c0b2d1ec9
+Production desktop: 5 cluster regions, 7 visible stars, center beacon visible
+Production Pixel 7: 5 grouped systems, 7 paths, mobile directory scroll height 2094px
 ```
 
 ## Known Risks
@@ -67,8 +65,8 @@ Production /revision.txt: 15480cf5526aacaba59ac50d15e56a67490d7867
 | R-004 | GPU-heavy filters can reduce animation smoothness. | mitigated | Effects use bounded CSS layers, transforms, and opacity; no new render loop or runtime dependency was added. |
 | R-005 | Windows and Linux font/effect rendering can shift visual snapshots. | mitigated | Twenty reviewed baselines per platform pass locally and in GitHub's Ubuntu comparison environment. |
 | R-006 | Repeated local SSH probes can be throttled. | monitored | Use serialized probes and rely on deployment health/revision gates. |
-| R-007 | Caddy label parsing depended on awk accepting a built-in function name as a loop variable. | active | Rename the iterator and cover exact-label parsing with the VPS awk implementation before redeployment. |
+| R-007 | Caddy label parsing depended on awk accepting a built-in function name as a loop variable. | mitigated | The iterator is portable, fixture cases run in CI, shell files enforce LF, and the corrected VPS deployment passed. |
 
 ## Next Recommended Task
 
-Complete OPS-002, merge it through `dev`, and promote the fix so the already-merged constellation revision can deploy safely.
+No active task. Monitor the automated production health and revision gates on future `master` releases.
