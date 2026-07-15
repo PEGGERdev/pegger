@@ -2,18 +2,25 @@
 
 ## Current Branch
 
-- Feature branch: `feature/futuristic-constellation`
+- Feature branch: `fix/caddy-site-label-detection`
 - Integration branch: `dev`
 - Production branch: `master`
 - Repository: `PEGGERdev/pegger`
 
 ## Open Tasks
 
-- None.
+| ID | Item | Source | Status | Planned files | Verification |
+|---|---|---|---|---|---|
+| OPS-002 | Make exact Caddy site-label detection portable across VPS awk implementations | Production run `29403733506` | in_progress | `scripts/deploy-production.sh`, deployment regression tests | Shell syntax, fixture cases, CI, rollback/public health, production revision |
 
 ## In Progress
 
-- None.
+### OPS-002: Portable Caddy Label Detection
+
+- Failure: VPS awk rejects `index` as a loop variable, causing both exact-label checks to fail and a duplicate `pegger.dev` site block to be appended.
+- Safety state: Caddy validation rejected the duplicate route, the deployment trap restored the original Caddyfile and prior image, `/health` remains `ok`, and `/revision.txt` remains `15480cf5526aacaba59ac50d15e56a67490d7867`.
+- Scope: use a portable iterator name, extract or expose the detector for fixture testing, and verify apex, `www`, subdomain-only, scheme, port, comma-separated, and commented labels.
+- Security and reliability: preserve exact-host matching, rollback behavior, Caddy validation, immutable image revision checks, and non-deployment CI behavior.
 
 ## Completed Work
 
@@ -45,6 +52,7 @@ npm audit --audit-level=low: 0 vulnerabilities
 GitHub run 29402340871: Linux baseline generation passed; 20 snapshots reviewed
 GitHub run 29402859565: unit, type, build, and all Linux visual comparisons passed
 Security review: no unsafe HTML/eval paths, remote runtime assets, or dependency changes introduced
+GitHub run 29403733506: application CI passed; deploy rolled back after portable awk failure caused duplicate Caddy route validation
 Production /health: ok
 Production /revision.txt: 15480cf5526aacaba59ac50d15e56a67490d7867
 ```
@@ -59,7 +67,8 @@ Production /revision.txt: 15480cf5526aacaba59ac50d15e56a67490d7867
 | R-004 | GPU-heavy filters can reduce animation smoothness. | mitigated | Effects use bounded CSS layers, transforms, and opacity; no new render loop or runtime dependency was added. |
 | R-005 | Windows and Linux font/effect rendering can shift visual snapshots. | mitigated | Twenty reviewed baselines per platform pass locally and in GitHub's Ubuntu comparison environment. |
 | R-006 | Repeated local SSH probes can be throttled. | monitored | Use serialized probes and rely on deployment health/revision gates. |
+| R-007 | Caddy label parsing depended on awk accepting a built-in function name as a loop variable. | active | Rename the iterator and cover exact-label parsing with the VPS awk implementation before redeployment. |
 
 ## Next Recommended Task
 
-Merge `feature/futuristic-constellation` into `dev`, verify the integration branch, then promote `dev` into production `master` through the gated pull-request workflow.
+Complete OPS-002, merge it through `dev`, and promote the fix so the already-merged constellation revision can deploy safely.

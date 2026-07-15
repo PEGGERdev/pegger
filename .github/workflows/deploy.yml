@@ -40,6 +40,9 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      - name: Run deployment tests
+        run: npm run test:deployment
+
       - name: Run type checks
         run: npm run typecheck
 
