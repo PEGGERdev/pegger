@@ -49,8 +49,9 @@ Security review: no unsafe HTML/eval paths, remote runtime assets, or dependency
 GitHub run 29403733506: application CI passed; deploy rolled back after portable awk failure caused duplicate Caddy route validation
 GitHub run 29405273922: deployment fixture, unit, type, build, and Linux visual checks passed
 GitHub run 29405478802: deployment fixture and application CI passed; production deployment completed in 39 seconds
+GitHub run 29406232027: status-only follow-up passed all gates and deployed 7806654a9200434bdb3681b18303312b20bdcaab
 Production /health: ok
-Production /revision.txt: 7b753830b4954f00495734e6e76cfd8c0b2d1ec9
+Production revision contract: /revision.txt matched the triggering master SHA for each successful release
 Production desktop: 5 cluster regions, 7 visible stars, center beacon visible
 Production Pixel 7: 5 grouped systems, 7 paths, mobile directory scroll height 2094px
 ```
