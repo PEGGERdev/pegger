@@ -1,25 +1,33 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const canvasRef = ref(null)
 
 const STAR_COUNT = 100
+let animationId = null
+let handleResize = null
 
 onMounted(() => {
   const canvas = canvasRef.value
   if (!canvas) return
 
   const ctx = canvas.getContext('2d')
-  
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const stars = []
+
   function resize() {
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
-  }
-  
-  resize()
-  window.addEventListener('resize', resize)
 
-  const stars = []
+    if (reducedMotion && stars.length > 0) {
+      animate()
+    }
+  }
+
+  resize()
+  handleResize = resize
+  window.addEventListener('resize', handleResize)
+
   for (let i = 0; i < STAR_COUNT; i++) {
     stars.push({
       x: Math.random() * canvas.width,
@@ -37,7 +45,6 @@ onMounted(() => {
     stars[stars.length - 1].baseY = stars[stars.length - 1].y
   }
 
-  let animationId
   let time = 0
 
   function animate() {
@@ -48,8 +55,10 @@ onMounted(() => {
       const twinkle = Math.sin(time * star.twinkleSpeed + star.twinkleOffset) * 0.3 + 0.7
       const opacity = star.opacity * twinkle
 
-      star.x += star.driftX
-      star.y += star.driftY
+      if (!reducedMotion) {
+        star.x += star.driftX
+        star.y += star.driftY
+      }
 
       if (star.x < 0) star.x = canvas.width
       if (star.x > canvas.width) star.x = 0
@@ -62,10 +71,22 @@ onMounted(() => {
       ctx.fill()
     })
 
-    animationId = requestAnimationFrame(animate)
+    if (!reducedMotion) {
+      animationId = requestAnimationFrame(animate)
+    }
   }
 
   animate()
+})
+
+onBeforeUnmount(() => {
+  if (animationId) {
+    cancelAnimationFrame(animationId)
+  }
+
+  if (handleResize) {
+    window.removeEventListener('resize', handleResize)
+  }
 })
 </script>
 

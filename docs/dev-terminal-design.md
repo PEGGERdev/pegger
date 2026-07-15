@@ -2,7 +2,7 @@
 
 ## Overview
 
-`dev.peggar.dev` provides a web-based SSH terminal for remote server access, allowing Patrik to interact with his development server from anywhere using a browser.
+`dev.pegger.dev` provides a web-based SSH terminal for remote server access, allowing Patrik to interact with his development server from anywhere using a browser.
 
 ## Architecture
 
@@ -21,7 +21,7 @@
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Caddy Reverse Proxy                           │
-│                 (dev.peggar.dev → :8080)                        │
+│                 (dev.pegger.dev → :8080)                         │
 └───────────────────────────────┬─────────────────────────────────┘
                                 │
                                 ▼
@@ -781,7 +781,7 @@ CMD ["python", "main.py"]
 services:
   dev-terminal:
     build: .
-    container_name: peggar-dev-terminal
+    container_name: pegger-dev-terminal
     restart: unless-stopped
     ports:
       - "8765:8765"
@@ -808,7 +808,7 @@ networks:
 ### Caddy Configuration
 
 ```caddy
-dev.peggar.dev {
+dev.pegger.dev {
     encode zstd gzip
     
     # WebSocket endpoint
@@ -820,12 +820,12 @@ dev.peggar.dev {
     
     # Proxy WebSocket to terminal server
     handle @ws {
-        reverse_proxy peggar-dev-terminal:8765
+        reverse_proxy pegger-dev-terminal:8765
     }
     
     # Proxy HTTP to frontend
     handle {
-        reverse_proxy peggar-dev-frontend:8080
+        reverse_proxy pegger-dev-frontend:8080
     }
 }
 ```

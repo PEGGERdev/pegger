@@ -1,19 +1,19 @@
 export const theme = {
   colors: {
-    primary: '#1f7c72',
-    primaryRgb: '31, 124, 114',
-    accent: '#2f6ea8',
-    accentRgb: '47, 110, 168',
-    purple: '#7c3aed',
-    purpleRgb: '124, 58, 237',
-    orange: '#ea580c',
-    orangeRgb: '234, 88, 12',
-    background: '#0d0d14',
-    backgroundDeep: '#0a0a12',
-    surface: 'rgba(255, 255, 255, 0.94)',
-    surfaceGlass: 'rgba(255, 255, 255, 0.12)',
-    text: '#16222b',
-    textMuted: '#607887',
+    primary: '#49c5b6',
+    primaryRgb: '73, 197, 182',
+    accent: '#5aa7ff',
+    accentRgb: '90, 167, 255',
+    purple: '#9b7bff',
+    purpleRgb: '155, 123, 255',
+    orange: '#f59e0b',
+    orangeRgb: '245, 158, 11',
+    background: '#0c1624',
+    backgroundDeep: '#07111b',
+    surface: 'rgba(238, 246, 255, 0.94)',
+    surfaceGlass: 'rgba(255, 255, 255, 0.08)',
+    text: '#112130',
+    textMuted: '#6f879b',
     textLight: '#ffffff',
     textLightMuted: 'rgba(255, 255, 255, 0.7)'
   },
@@ -56,9 +56,9 @@ export const theme = {
   },
 
   shadows: {
-    glow: '0 0 40px rgba(31, 124, 114, 0.25)',
-    glowBlue: '0 0 40px rgba(47, 110, 168, 0.25)',
-    card: '0 14px 38px rgba(18, 42, 50, 0.12)'
+    glow: '0 0 40px rgba(73, 197, 182, 0.22)',
+    glowBlue: '0 0 40px rgba(90, 167, 255, 0.22)',
+    card: '0 18px 48px rgba(4, 10, 18, 0.22)'
   }
 }
 

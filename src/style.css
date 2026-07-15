@@ -1,33 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600&display=swap');
-
 :root {
-  /* Brand Colors - Matching SpotOnSight */
-  --pegger-primary: #1f7c72;
-  --pegger-primary-rgb: 31, 124, 114;
-  --pegger-accent: #2f6ea8;
-  --pegger-accent-rgb: 47, 110, 168;
-  --pegger-purple: #7c3aed;
-  --pegger-purple-rgb: 124, 58, 237;
-  --pegger-orange: #ea580c;
-  --pegger-orange-rgb: 234, 88, 12;
+  --pegger-primary: #49c5b6;
+  --pegger-primary-rgb: 73, 197, 182;
+  --pegger-accent: #5aa7ff;
+  --pegger-accent-rgb: 90, 167, 255;
+  --pegger-purple: #9b7bff;
+  --pegger-purple-rgb: 155, 123, 255;
+  --pegger-orange: #f59e0b;
+  --pegger-orange-rgb: 245, 158, 11;
 
   /* Surface Colors */
-  --pegger-surface: rgba(255, 255, 255, 0.94);
-  --pegger-surface-soft: #f7fbfc;
-  --pegger-surface-glass: rgba(255, 255, 255, 0.12);
+  --pegger-surface: rgba(238, 246, 255, 0.94);
+  --pegger-surface-soft: #edf5ff;
+  --pegger-surface-glass: rgba(255, 255, 255, 0.08);
 
   /* Text */
-  --pegger-text: #16222b;
-  --pegger-text-muted: #607887;
+  --pegger-text: #112130;
+  --pegger-text-muted: #6f879b;
 
   /* Background */
-  --pegger-bg-dark: #0d0d14;
-  --pegger-bg-deep: #0a0a12;
+  --pegger-bg-dark: #0c1624;
+  --pegger-bg-deep: #07111b;
 
   /* Shadows */
-  --pegger-shadow: 0 14px 38px rgba(18, 42, 50, 0.12);
-  --pegger-shadow-glow: 0 0 40px rgba(31, 124, 114, 0.25);
-  --pegger-shadow-glow-blue: 0 0 40px rgba(47, 110, 168, 0.25);
+  --pegger-shadow: 0 18px 48px rgba(4, 10, 18, 0.22);
+  --pegger-shadow-glow: 0 0 40px rgba(73, 197, 182, 0.22);
+  --pegger-shadow-glow-blue: 0 0 40px rgba(90, 167, 255, 0.22);
 
   /* Typography */
   --pegger-font-display: 'Space Grotesk', sans-serif;
@@ -56,7 +53,10 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: var(--pegger-bg-deep);
+  background:
+    radial-gradient(circle at top, rgba(90, 167, 255, 0.08), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(73, 197, 182, 0.08), transparent 32%),
+    linear-gradient(180deg, var(--pegger-bg-dark), var(--pegger-bg-deep));
   color: #eee;
   font-family: var(--pegger-font-body);
   overflow-x: hidden;
@@ -73,7 +73,7 @@ html, body {
   z-index: 0;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.4;
+  opacity: 0.28;
   pointer-events: none;
 }
 
@@ -82,7 +82,7 @@ html, body {
   height: 400px;
   top: -150px;
   right: -100px;
-  background: radial-gradient(circle, var(--pegger-primary) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--pegger-accent-rgb), 0.85) 0%, transparent 70%);
   animation: driftA 15s ease-in-out infinite;
 }
 
@@ -91,7 +91,7 @@ html, body {
   height: 350px;
   left: -100px;
   bottom: -100px;
-  background: radial-gradient(circle, var(--pegger-accent) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--pegger-primary-rgb), 0.8) 0%, transparent 70%);
   animation: driftB 18s ease-in-out infinite;
 }
 
@@ -100,7 +100,7 @@ html, body {
   height: 300px;
   top: 40%;
   left: 40%;
-  background: radial-gradient(circle, var(--pegger-purple) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--pegger-purple-rgb), 0.7) 0%, transparent 70%);
   opacity: 0.2;
   animation: driftC 20s ease-in-out infinite;
 }
@@ -137,6 +137,11 @@ a {
 
 a:hover {
   color: var(--pegger-accent);
+}
+
+:focus-visible {
+  outline: 2px solid rgba(var(--pegger-accent-rgb), 0.9);
+  outline-offset: 3px;
 }
 
 /* Buttons */
@@ -286,119 +291,13 @@ a:hover {
   50% { opacity: 1; }
 }
 
-/* Panel */
-.star-panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(600px, calc(100vw - 2rem));
-  max-height: calc(100vh - 4rem);
-  overflow-y: auto;
-  z-index: 100;
-}
-
-.star-panel__backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 10, 18, 0.7);
-  backdrop-filter: blur(8px);
-  z-index: 99;
-}
-
-.star-panel__content {
-  background: var(--pegger-surface-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-}
-
-.star-panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-}
-
-.star-panel__title {
-  font-family: var(--pegger-font-display);
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #fff;
-}
-
-.star-panel__close {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-sm);
-  color: #fff;
-  cursor: pointer;
-  transition: background 150ms ease;
-}
-
-.star-panel__close:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.star-panel__items {
-  display: grid;
-  gap: var(--spacing-md);
-}
-
-/* Panel Transitions */
-.panel-enter-active {
-  animation: panelRise 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.panel-leave-active {
-  animation: panelFall 300ms ease-in;
-}
-
-.backdrop-enter-active {
-  animation: fadeIn 200ms ease;
-}
-
-.backdrop-leave-active {
-  animation: fadeOut 200ms ease;
-}
-
-@keyframes panelRise {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.85) translateY(30px);
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
   }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1) translateY(0);
-  }
-}
-
-@keyframes panelFall {
-  from {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1) translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9) translateY(20px);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
 }
 
 /* Responsive */
@@ -411,8 +310,4 @@ a:hover {
     font-size: 0.65rem;
   }
 
-  .star-panel {
-    width: calc(100vw - 1rem);
-    max-height: calc(100vh - 2rem);
-  }
 }

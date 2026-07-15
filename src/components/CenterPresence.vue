@@ -9,8 +9,18 @@ const props = defineProps({
   position: {
     type: Object,
     required: true
+  },
+  selected: {
+    type: Boolean,
+    default: false
+  },
+  detailLevel: {
+    type: String,
+    default: 'overview'
   }
 })
+
+const emit = defineEmits(['click'])
 
 const style = computed(() => ({
   left: `${props.position.x}px`,
@@ -19,7 +29,7 @@ const style = computed(() => ({
 </script>
 
 <template>
-  <div class="center-presence" :style="style">
+  <button class="center-presence" :class="{ 'center-presence--selected': selected }" :style="style" type="button" @click="emit('click', center.id)">
     <div class="center-presence__core">
       <div class="center-presence__inner" />
     </div>
@@ -28,10 +38,14 @@ const style = computed(() => ({
       <div class="center-presence__ring center-presence__ring--2" />
     </div>
     <div class="center-presence__info">
-      <h1 class="center-presence__name">{{ center.label }}</h1>
+      <p class="center-presence__eyebrow">Core profile</p>
+      <h2 class="center-presence__name">{{ center.label }}</h2>
       <p class="center-presence__subtitle">{{ center.subtitle }}</p>
+      <p v-if="detailLevel !== 'overview' && center.data?.description" class="center-presence__detail">
+        {{ center.data.description }}
+      </p>
     </div>
-  </div>
+  </button>
 </template>
 
 <style scoped>
@@ -42,6 +56,17 @@ const style = computed(() => ({
   flex-direction: column;
   align-items: center;
   z-index: 10;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.center-presence--selected .center-presence__inner {
+  box-shadow:
+    0 0 36px rgba(255, 255, 255, 0.72),
+    0 0 74px rgba(31, 124, 114, 0.5),
+    0 0 128px rgba(31, 124, 114, 0.32);
 }
 
 .center-presence__core {
@@ -116,9 +141,23 @@ const style = computed(() => ({
 }
 
 .center-presence__info {
-  margin-top: 16px;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(7, 12, 22, 0.8), rgba(7, 12, 22, 0.46));
+  backdrop-filter: blur(16px);
   text-align: center;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.24);
   animation: fadeInUp 600ms ease-out;
+}
+
+.center-presence__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.52);
 }
 
 @keyframes fadeInUp {
@@ -134,7 +173,7 @@ const style = computed(() => ({
 
 .center-presence__name {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: #fff;
   margin: 0;
@@ -145,5 +184,13 @@ const style = computed(() => ({
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.7);
   margin: 4px 0 0 0;
+}
+
+.center-presence__detail {
+  margin: 0.5rem 0 0;
+  max-width: 17rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.58);
 }
 </style>
