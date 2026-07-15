@@ -49,10 +49,13 @@ test('captures the complete default landing surface', async ({ page }, testInfo)
   if (testInfo.project.name === 'mobile') {
     await expect(page.getByRole('heading', { name: 'Explore the work' })).toBeVisible()
     await expect(page.locator('.star-map__mobile-node')).toHaveCount(7)
+    await expect(page.locator('.star-map__mobile-cluster')).toHaveCount(5)
   } else {
     await expect(page.getByRole('heading', { name: 'Guided constellation' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Choose a featured path into the work.' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Patrik Egger' })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^Patrik Egger\./ })).toBeVisible()
+    await expect(page.locator('.cluster-region')).toHaveCount(5)
   }
 
   await capture(page, 'landing-default.png')
@@ -75,6 +78,11 @@ test('keeps compact desktop overlays clear and mobile scrolling available', asyn
 
   expect(boxesOverlap(heroBox, guideBox)).toBe(false)
   expect(boxesOverlap(guideBox, controlsBox)).toBe(false)
+  await expect.poll(async () => {
+    const centerInfoBox = await page.locator('.center-presence__info').boundingBox()
+    const settledGuideBox = await page.locator('.star-map__hud--guide').boundingBox()
+    return boxesOverlap(centerInfoBox, settledGuideBox)
+  }).toBe(false)
   await capture(page, 'landing-compact.png', { fullPage: false })
 })
 
@@ -91,6 +99,7 @@ test('captures keyboard focus and the expanded constellation', async ({ page }, 
   await page.getByRole('button', { name: 'Dismiss guide' }).click()
   await zoomToAllBrightStars(page)
   await expect(page.getByText('114%')).toBeVisible()
+  await expect(page.locator('.cluster-region:not(.cluster-region--dormant)')).toHaveCount(5)
   await capture(page, 'constellation-expanded.png')
 
   await page.locator('button.star[aria-label^="GitHub."]').hover()
@@ -114,12 +123,15 @@ test('captures project details, focus, and connected hover states', async ({ pag
   await expect(page.getByRole('dialog')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'My Work' })).toBeVisible()
   await expect(page.getByRole('link', { name: /Portfolio/ })).toHaveAttribute('href', 'https://portfolio.pegger.dev')
+  await page.mouse.move(1, 1)
   await capture(page, 'panel-apps.png', { fullPage: false })
 
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog')).toBeHidden()
   if (await page.getByText('Focused node').isVisible()) {
     await expect(page.getByRole('button', { name: /Open detailed panel/ })).toBeFocused()
+    await expect(page.locator('button.star[aria-label^="Portfolio."]')).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('.cluster-region[data-cluster-id="product-craft"]')).toHaveClass(/cluster-region--active/)
     await capture(page, 'focus-portfolio.png', { fullPage: false })
 
     const typescriptStar = page.locator('button.star[aria-label^="TypeScript."]')
@@ -128,6 +140,7 @@ test('captures project details, focus, and connected hover states', async ({ pag
   } else {
     await expect(mobileDirectory).toBeFocused()
     await expect(mobileDirectory).toHaveClass(/star-map__mobile-node--selected/)
+    await expect(mobileDirectory).toHaveAttribute('aria-pressed', 'true')
     await capture(page, 'mobile-portfolio-selected.png')
   }
 })
@@ -139,6 +152,7 @@ test('captures contact and social panel variants', async ({ page }, testInfo) =>
   const contactLink = page.getByRole('link', { name: /patrik\.egger@email\.ch/ })
   await expect(contactLink).toHaveAttribute('href', 'mailto:patrik.egger@email.ch')
   await expect.poll(() => page.evaluate(() => document.documentElement.style.overflow)).toBe('hidden')
+  await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe('fixed')
 
   if (testInfo.project.name === 'mobile') {
     const initialScroll = await page.evaluate(() => window.scrollY)
@@ -150,11 +164,13 @@ test('captures contact and social panel variants', async ({ page }, testInfo) =>
   await contactLink.focus()
   await page.keyboard.press('Tab')
   await expect(page.getByRole('button', { name: 'Close details panel' })).toBeFocused()
+  await page.mouse.move(1, 1)
   await capture(page, 'panel-contact.png', { fullPage: false })
 
   await page.getByRole('button', { name: 'Close details panel' }).click()
   await expect(contactButton).toBeFocused()
   await expect.poll(() => page.evaluate(() => document.documentElement.style.overflow)).toBe('')
+  await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe('')
   const mobileGitHub = page.locator('.star-map__mobile-node').filter({ hasText: 'GitHub' })
   if (await mobileGitHub.isVisible()) {
     await mobileGitHub.click()
@@ -164,6 +180,7 @@ test('captures contact and social panel variants', async ({ page }, testInfo) =>
   }
   await expect(page.getByRole('heading', { name: 'Find Me Online' })).toBeVisible()
   await expect(page.getByRole('link', { name: /GitHub/ })).toHaveAttribute('target', '_blank')
+  await page.mouse.move(1, 1)
   await capture(page, 'panel-socials.png', { fullPage: false })
 
   await page.locator('.star-panel__backdrop').click({ position: { x: 8, y: 8 } })
@@ -181,6 +198,7 @@ test('captures the restricted private panel variant', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Private Access' })).toBeVisible()
   await expect(page.getByText('Access restricted. Authentication required.')).toBeVisible()
   await expect(page.getByRole('link', { name: /Dev Terminal/ })).toHaveAttribute('href', 'https://dev.pegger.dev')
+  await page.mouse.move(1, 1)
   await capture(page, 'panel-private.png', { fullPage: false })
 
   await page.getByRole('button', { name: 'Close details panel' }).click()

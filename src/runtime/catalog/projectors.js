@@ -11,6 +11,7 @@ export const projectorCatalog = [
         center: starMap?.center || null,
         brightStars,
         dimStars,
+        clusters: starMap?.clusters || [],
         connections: starMap?.connections || [],
         allStars: [...brightStars, ...dimStars],
       }

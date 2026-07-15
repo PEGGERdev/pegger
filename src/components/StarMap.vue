@@ -2,8 +2,10 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useMouse } from '@vueuse/core'
 import { usePeggerRuntime } from '@/composables/usePeggerRuntime.js'
+import theme from '@/config/theme'
 import Star from './Star.vue'
 import CenterPresence from './CenterPresence.vue'
+import ClusterRegions from './ClusterRegions.vue'
 import ConstellationLines from './ConstellationLines.vue'
 
 const emit = defineEmits(['star-click', 'focus-change'])
@@ -32,6 +34,7 @@ let activePointerId = null
 let dragStart = { x: 0, y: 0, viewportX: 0, viewportY: 0 }
 
 const allStars = computed(() => starMapView.value.allStars)
+const clusters = computed(() => starMapView.value.clusters || [])
 const mobileStars = computed(() => allStars.value.filter(star => star.type === 'bright'))
 const isMobile = computed(() => (containerSize.value.width || window.innerWidth) < 900)
 
@@ -39,6 +42,20 @@ const starLookup = computed(() => {
   const entries = [...allStars.value, starMapView.value.center].map(star => [star.id, star])
   return Object.fromEntries(entries)
 })
+
+const clusterByNode = computed(() => {
+  const entries = clusters.value.flatMap(cluster => (
+    cluster.memberIds.map(nodeId => [nodeId, cluster])
+  ))
+  return Object.fromEntries(entries)
+})
+
+const mobileClusters = computed(() => clusters.value.map(cluster => ({
+  ...cluster,
+  stars: cluster.memberIds
+    .map(id => starLookup.value[id])
+    .filter(star => star?.type === 'bright'),
+})).filter(cluster => cluster.stars.length > 0))
 
 const selectedStar = computed(() => selectedStarId.value ? starLookup.value[selectedStarId.value] : null)
 const featuredStars = computed(() => FEATURED_STAR_IDS
@@ -178,6 +195,12 @@ const visibleNodeIds = computed(() => {
   ids.add('you')
   return ids
 })
+
+const visibleNodeIdList = computed(() => Array.from(visibleNodeIds.value))
+
+const visibleClusterCount = computed(() => clusters.value.filter(cluster => (
+  cluster.memberIds.some(id => visibleNodeIds.value.has(id))
+)).length)
 
 const visibleConnections = computed(() => starMapView.value.connections.filter(connection => {
   return visibleNodeIds.value.has(connection.from) && visibleNodeIds.value.has(connection.to)
@@ -319,6 +342,22 @@ const starPositions = computed(() => {
 
 function isConnected(starId) {
   return connectedNodeIds.value.includes(starId)
+}
+
+function getNodeTone(starId) {
+  return clusterByNode.value[starId]?.tone || 'mint'
+}
+
+function getClusterStyle(cluster) {
+  const token = theme.clusterTones[cluster.tone] || theme.clusterTones.mint
+  return {
+    '--cluster-color': token.color,
+    '--cluster-rgb': token.rgb,
+  }
+}
+
+function getNodeClusterStyle(starId) {
+  return getClusterStyle(clusterByNode.value[starId] || {})
 }
 
 function isMuted(starId) {
@@ -607,26 +646,48 @@ onUnmounted(() => {
         Choose a path for project details, professional links, direct contact, or protected infrastructure access.
       </p>
 
-      <div class="star-map__mobile-grid">
-        <button
-          v-for="star in mobileStars"
-          :key="star.id"
-          class="star-map__mobile-node"
-          :class="{ 'star-map__mobile-node--selected': selectedStarId === star.id }"
-          type="button"
-          @click="focusFeaturedStar(star.id)"
+      <div class="star-map__mobile-clusters">
+        <section
+          v-for="cluster in mobileClusters"
+          :key="cluster.id"
+          class="star-map__mobile-cluster"
+          :class="{ 'star-map__mobile-cluster--single': cluster.stars.length === 1 }"
+          :style="getClusterStyle(cluster)"
+          :data-cluster-id="cluster.id"
+          :aria-labelledby="`mobile-cluster-${cluster.id}`"
         >
-          <span class="star-map__mobile-icon">
-            <i :class="star.icon || 'bi-stars'" />
-          </span>
-          <span class="star-map__mobile-category">{{ star.category }}</span>
-          <strong>{{ star.label }}</strong>
-          <small>{{ star.data?.description }}</small>
-          <span class="star-map__mobile-action">
-            Explore
-            <i class="bi bi-arrow-up-right" />
-          </span>
-        </button>
+          <header class="star-map__mobile-cluster-header">
+            <span>{{ cluster.sequence }}</span>
+            <div>
+              <h3 :id="`mobile-cluster-${cluster.id}`">{{ cluster.label }}</h3>
+              <p>{{ cluster.description }}</p>
+            </div>
+            <small>{{ cluster.stars.length }} {{ cluster.stars.length === 1 ? 'path' : 'paths' }}</small>
+          </header>
+
+          <div class="star-map__mobile-grid">
+            <button
+              v-for="star in cluster.stars"
+              :key="star.id"
+              class="star-map__mobile-node"
+              :class="{ 'star-map__mobile-node--selected': selectedStarId === star.id }"
+              type="button"
+              :aria-pressed="selectedStarId === star.id"
+              @click="focusFeaturedStar(star.id)"
+            >
+              <span class="star-map__mobile-icon">
+                <i :class="star.icon || 'bi-stars'" />
+              </span>
+              <span class="star-map__mobile-category">{{ star.category }}</span>
+              <strong>{{ star.label }}</strong>
+              <small>{{ star.data?.description }}</small>
+              <span class="star-map__mobile-action">
+                Explore
+                <i class="bi bi-arrow-up-right" />
+              </span>
+            </button>
+          </div>
+        </section>
       </div>
     </section>
 
@@ -642,6 +703,7 @@ onUnmounted(() => {
         <span>{{ interactionScaleLabel }}</span>
         <span>{{ renderedStars.length }} visible nodes</span>
         <span>{{ visibleConnections.length }} visible links</span>
+        <span>{{ visibleClusterCount }} systems in view</span>
       </div>
     </aside>
 
@@ -671,6 +733,7 @@ onUnmounted(() => {
           :key="star.id"
           class="star-map__guide-action"
           type="button"
+          :style="getNodeClusterStyle(star.id)"
           @click="focusFeaturedStar(star.id)"
         >
           <span class="star-map__guide-icon">
@@ -726,6 +789,7 @@ onUnmounted(() => {
           :key="node.id"
           class="star-map__connected-item"
           type="button"
+          :style="getNodeClusterStyle(node.id)"
           @click="focusOnStar(node.id)"
         >
           <span class="star-map__connected-icon">
@@ -761,6 +825,13 @@ onUnmounted(() => {
       </button>
     </div>
 
+    <ClusterRegions
+      :clusters="clusters"
+      :positions="renderedPositions"
+      :visible-node-ids="visibleNodeIdList"
+      :selected-star-id="selectedStarId"
+    />
+
     <ConstellationLines
       :connections="visibleConnections"
       :positions="renderedPositions"
@@ -773,6 +844,7 @@ onUnmounted(() => {
       :center="starMapView.center"
       :position="centerPosition"
       :selected="selectedStarId === 'you'"
+      :map-focused="Boolean(selectedStar)"
       :detail-level="detailLevel"
       @click="focusOnStar"
     />
@@ -788,6 +860,7 @@ onUnmounted(() => {
         :connected="isConnected(star.id)"
         :muted="isMuted(star.id)"
         :detail-level="detailLevel"
+        :tone="getNodeTone(star.id)"
         @hover="handleStarHover"
         @click="handleStarClick"
         @position-change="handleStarPositionChange"
@@ -851,7 +924,7 @@ onUnmounted(() => {
   right: 1.5rem;
   width: min(20rem, calc(100vw - 3rem));
   padding: 1rem 1.1rem;
-  border-radius: 1.1rem;
+  border-radius: 4px 18px 4px 4px;
 }
 
 .star-map__hud--focus {
@@ -861,7 +934,7 @@ onUnmounted(() => {
   max-height: calc(100vh - 3rem);
   overflow-y: auto;
   padding: 1.15rem;
-  border-radius: 1.2rem;
+  border-radius: 4px 20px 4px 4px;
 }
 
 .star-map__hud--guide {
@@ -869,7 +942,7 @@ onUnmounted(() => {
   bottom: 1.5rem;
   width: min(34rem, calc(100vw - 18rem));
   padding: 1rem;
-  border-radius: 1.3rem;
+  border-radius: 4px 22px 4px 4px;
   transform: translateX(-50%);
 }
 
@@ -940,8 +1013,8 @@ onUnmounted(() => {
   min-width: 0;
   padding: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px 13px 3px 3px;
+  background: linear-gradient(135deg, rgba(var(--cluster-rgb), 0.075), rgba(255, 255, 255, 0.025));
   color: inherit;
   display: grid;
   grid-template-columns: auto 1fr;
@@ -965,9 +1038,10 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(73, 197, 182, 0.24), rgba(90, 167, 255, 0.18));
-  color: rgba(255, 255, 255, 0.96);
+  clip-path: polygon(50% 0%, 59% 34%, 82% 18%, 66% 42%, 100% 50%, 66% 58%, 82% 82%, 59% 66%, 50% 100%, 41% 66%, 18% 82%, 34% 58%, 0% 50%, 34% 42%, 18% 18%, 41% 34%);
+  background: radial-gradient(circle, #fff 0 10%, rgba(var(--cluster-rgb), 0.94) 42%, rgba(var(--cluster-rgb), 0.18) 74%, transparent 76%);
+  color: rgba(5, 15, 24, 0.82);
+  filter: drop-shadow(0 0 8px rgba(var(--cluster-rgb), 0.44));
 }
 
 .star-map__guide-copy-block {
@@ -1096,8 +1170,8 @@ onUnmounted(() => {
   width: 100%;
   padding: 0.75rem 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px 13px 3px 3px;
+  background: linear-gradient(135deg, rgba(var(--cluster-rgb), 0.07), rgba(255, 255, 255, 0.025));
   color: inherit;
   cursor: pointer;
   text-align: left;
@@ -1109,9 +1183,10 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  background: rgba(95, 208, 191, 0.14);
-  color: rgba(255, 255, 255, 0.92);
+  clip-path: polygon(50% 0%, 59% 34%, 82% 18%, 66% 42%, 100% 50%, 66% 58%, 82% 82%, 59% 66%, 50% 100%, 41% 66%, 18% 82%, 34% 58%, 0% 50%, 34% 42%, 18% 18%, 41% 34%);
+  background: radial-gradient(circle, #fff 0 10%, rgba(var(--cluster-rgb), 0.92) 42%, rgba(var(--cluster-rgb), 0.18) 74%, transparent 76%);
+  color: rgba(5, 15, 24, 0.82);
+  filter: drop-shadow(0 0 8px rgba(var(--cluster-rgb), 0.4));
 }
 
 .star-map__connected-copy {
@@ -1135,7 +1210,7 @@ onUnmounted(() => {
   margin-top: 1rem;
   padding: 0.95rem 1rem;
   border: 1px solid rgba(95, 208, 191, 0.28);
-  border-radius: 1rem;
+  border-radius: 3px 13px 3px 3px;
   background: linear-gradient(135deg, rgba(31, 124, 114, 0.24), rgba(47, 110, 168, 0.22));
   color: #fff;
   display: inline-flex;
@@ -1193,7 +1268,7 @@ onUnmounted(() => {
     gap: 1rem;
     padding: 1.1rem;
     border: 1px solid rgba(166, 205, 255, 0.12);
-    border-radius: 1.35rem;
+    border-radius: 4px 20px 4px 4px;
     background:
       linear-gradient(180deg, rgba(7, 16, 28, 0.82), rgba(7, 16, 28, 0.64)),
       radial-gradient(circle at top right, rgba(90, 167, 255, 0.16), transparent 34%);
@@ -1251,16 +1326,87 @@ onUnmounted(() => {
     gap: 0.7rem;
   }
 
+  .star-map__mobile-clusters {
+    position: relative;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .star-map__mobile-cluster {
+    position: relative;
+    padding: 0.85rem;
+    border: 1px solid rgba(var(--cluster-rgb), 0.16);
+    border-left-color: rgba(var(--cluster-rgb), 0.5);
+    border-radius: 4px 16px 4px 4px;
+    background:
+      linear-gradient(130deg, rgba(255, 255, 255, 0.035), transparent 58%),
+      rgba(5, 12, 21, 0.36);
+  }
+
+  .star-map__mobile-cluster::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0.85rem;
+    width: 3.5rem;
+    height: 1px;
+    background: linear-gradient(90deg, var(--cluster-color), transparent);
+    box-shadow: 0 0 10px rgba(var(--cluster-rgb), 0.5);
+  }
+
+  .star-map__mobile-cluster-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.65rem;
+    align-items: start;
+    margin-bottom: 0.75rem;
+  }
+
+  .star-map__mobile-cluster-header > span {
+    padding-top: 0.12rem;
+    font-family: var(--pegger-font-display);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--cluster-color);
+  }
+
+  .star-map__mobile-cluster-header h3 {
+    margin: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(241, 248, 255, 0.88);
+  }
+
+  .star-map__mobile-cluster-header p {
+    margin: 0.18rem 0 0;
+    font-size: 0.64rem;
+    line-height: 1.4;
+    color: rgba(207, 225, 242, 0.5);
+  }
+
+  .star-map__mobile-cluster-header > small {
+    padding-top: 0.12rem;
+    font-size: 0.58rem;
+    color: rgba(207, 225, 242, 0.46);
+    white-space: nowrap;
+  }
+
+  .star-map__mobile-cluster--single .star-map__mobile-grid {
+    grid-template-columns: 1fr;
+  }
+
   .star-map__mobile-node {
     min-width: 0;
-    min-height: 10.5rem;
+    min-height: 9.5rem;
     padding: 0.9rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 1.05rem;
+    border: 1px solid rgba(var(--cluster-rgb), 0.11);
+    border-radius: 3px 13px 3px 3px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025));
+    background: linear-gradient(145deg, rgba(var(--cluster-rgb), 0.07), rgba(255, 255, 255, 0.022));
     color: inherit;
     text-align: left;
     cursor: pointer;
@@ -1271,19 +1417,21 @@ onUnmounted(() => {
   .star-map__mobile-node:focus-visible,
   .star-map__mobile-node--selected {
     transform: translateY(-2px);
-    border-color: rgba(95, 208, 191, 0.34);
-    background: linear-gradient(145deg, rgba(73, 197, 182, 0.13), rgba(90, 167, 255, 0.06));
+    border-color: rgba(var(--cluster-rgb), 0.4);
+    background: linear-gradient(145deg, rgba(var(--cluster-rgb), 0.14), rgba(255, 255, 255, 0.035));
   }
 
   .star-map__mobile-icon {
+    position: relative;
     width: 2.5rem;
     height: 2.5rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.85rem;
-    background: linear-gradient(135deg, rgba(73, 197, 182, 0.26), rgba(90, 167, 255, 0.2));
-    color: rgba(255, 255, 255, 0.96);
+    clip-path: polygon(50% 0%, 59% 34%, 82% 18%, 66% 42%, 100% 50%, 66% 58%, 82% 82%, 59% 66%, 50% 100%, 41% 66%, 18% 82%, 34% 58%, 0% 50%, 34% 42%, 18% 18%, 41% 34%);
+    background: radial-gradient(circle, #fff 0 10%, rgba(var(--cluster-rgb), 0.96) 42%, rgba(var(--cluster-rgb), 0.22) 74%, transparent 76%);
+    color: rgba(5, 15, 24, 0.82);
+    filter: drop-shadow(0 0 8px rgba(var(--cluster-rgb), 0.48));
   }
 
   .star-map__mobile-category {
@@ -1315,12 +1463,12 @@ onUnmounted(() => {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    color: rgba(95, 208, 191, 0.86);
+    color: rgba(var(--cluster-rgb), 0.9);
     font-size: 0.72rem;
     font-weight: 600;
   }
 
-  .star-map__mobile-node:last-child {
+  .star-map__mobile-grid .star-map__mobile-node:last-child:nth-child(odd) {
     grid-column: 1 / -1;
     min-height: 8.75rem;
   }

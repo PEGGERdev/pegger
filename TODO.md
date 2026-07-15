@@ -8,6 +8,12 @@ Personal hub for Patrik Egger featuring an interactive star-map landing page. A 
 
 Status: complete for the current product scope.
 
+### Active Constellation Enhancement
+
+- [x] Replace circular node bubbles with celestial star bodies and a futuristic center beacon
+- [x] Group related products, stack nodes, channels, and infrastructure into legible clusters
+- [x] Reapprove Windows and Linux visual baselines after the redesign
+
 ### Core Features
 
 - [x] **Star Map Constellation**
@@ -62,8 +68,8 @@ Status: complete for the current product scope.
 - [x] Generate the Linux visual baselines used by CI
 - [x] Commit and push the generated Linux visual baselines
 - [x] Merge the verified hub feature branch into `master`
-- [ ] Merge the server-standard `deploy-production` alignment fix
-- [ ] Confirm the automatic production deployment and public revision
+- [x] Merge the server-standard `deploy-production` alignment fix
+- [x] Confirm the automatic production deployment and public revision
 
 ## Future Phase 2: Dev Terminal
 
