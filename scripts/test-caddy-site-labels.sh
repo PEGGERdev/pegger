@@ -65,4 +65,4 @@ CADDY_EXACT_APEX
 assert_label 'pegger.dev' 'present'
 assert_label 'www.pegger.dev' 'absent'
 
-echo 'Caddy site-label tests passed'
+printf '%s\n' 'Caddy site-label tests passed'

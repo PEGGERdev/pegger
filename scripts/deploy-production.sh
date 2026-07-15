@@ -188,6 +188,7 @@ verify_public_revision() {
   return 1
 }
 
+# Keep deployment side effects behind main so parser tests can source this file.
 main() {
   trap handle_exit EXIT
   cd "${ROOT_DIR}"
