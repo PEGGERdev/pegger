@@ -2,12 +2,12 @@
 
 ## Current State
 
-- Current branch: `feature/galactic-constellation`
-- Remote tracking state: local feature branch based on clean `origin/dev` at `82a4ba6`; not pushed yet
+- Current branch: `dev`
+- Remote tracking state: up to date with `origin/dev` at `e2e3463`
 - Last updated: 2026-07-15
-- Current objective: replace card-based star interaction with smooth galaxy-style zoom toward stars; remove panel system
+- Current objective: replace card-based star interaction with smooth galaxy-style zoom toward stars; remove panel system (HUB-007 complete, verified, pushed)
 - Main promotion allowed: no
-- Reason: HUB-007 through HUB-009 are required and not yet complete on remote `dev`
+- Reason: HUB-008 and HUB-009 remain open and required before main promotion
 
 ## Task Tracker
 
@@ -37,6 +37,7 @@
 | 2026-07-15 | HUB-007 | `npm run build` | Build succeeds | Passed | 41 modules, no warnings |
 | 2026-07-15 | HUB-007 | `npm test` | 12 runtime tests | Passed | All 12 passed |
 | 2026-07-15 | HUB-007 | Final typecheck + build after all edits | Clean typecheck and build | Passed | 41 modules, zero errors |
+| 2026-07-15 | HUB-007 | `npm run test:e2e` after test fixes | 12 E2E tests pass | Passed | All 12 pass, 29 baselines (16 stale panel snapshots removed) |
 
 ## Dev Integration Log
 
@@ -46,7 +47,7 @@
 | HUB-005 | `337a475` | yes | present in `origin/dev` | Relationship clusters |
 | HUB-006 | `f799aa5`, `961c5ed` | yes | present in `origin/dev` | Cross-platform approval |
 | OPS-002 | `86f5267`, `30d9740` | yes | present in `origin/dev` | Portable deployment parser |
-| HUB-007 | `f67258b` | yes | present in `origin/dev` | Galaxy zoom interaction |
+| HUB-007 | `f67258b`, `e2e3463` | yes | present in `origin/dev` | Galaxy zoom interaction + E2E baseline refresh |
 
 ## Main Promotion Checklist
 
