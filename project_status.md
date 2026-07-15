@@ -1,64 +1,71 @@
 # Pegger Hub Project Status
 
-## Current Scope
+## Current Branch
 
-| ID | Item | Source | Status | Files | Verification |
+- Feature branch: `feature/futuristic-constellation`
+- Integration branch: `dev`
+- Production branch: `master`
+- Repository: `PEGGERdev/pegger`
+
+## Open Tasks
+
+| ID | Item | Source | Status | Planned files | Verification |
 |---|---|---|---|---|---|
-| HUB-001 | Add deterministic desktop and mobile e2e screenshot coverage for every visible hub state | User request, `TODO.md` technical debt | completed | `playwright.config.js`, `tests/e2e/hub.e2e.spec.js`, `tests/e2e/hub.e2e.spec.js-snapshots/`, `package.json` | 12 scenarios with 20 Windows and 20 generated Linux baselines |
-| HUB-002 | Inspect generated screenshots and correct visible layout, responsive, and polish defects | User request, Phase 1 TODO | completed | `src/App.vue`, `src/components/StarMap.vue`, `src/components/Star.vue`, `src/components/StarPanel.vue`, `src/components/ConstellationLines.vue`, `src/style.css` | Desktop and Pixel 7 states reviewed; interaction assertions passed |
-| HUB-003 | Reconcile Phase 1 TODO state with implemented behavior and record evidence | `opencode.md` | completed | `TODO.md`, `project_status.md` | Completed work and future scope are explicitly separated |
-| OPS-001 | Repair production routing and add gated automatic deployment from `master` | User request | completed | `.github/workflows/deploy.yml`, `scripts/deploy-production.sh`, `deployment/`, `README.md` | Run `29396387223` passed and deployed merge `15480cf5526aacaba59ac50d15e56a67490d7867` |
+| HUB-004 | Replace circular node bubbles and the simple center orb with a celestial, futuristic visual system | User request | completed | `src/components/Star.vue`, `src/components/CenterPresence.vue`, `src/config/theme.js`, `src/style.css` | 12 runtime checks, type check, build, desktop/mobile Playwright, reviewed visual baselines |
+| HUB-005 | Make project relationships legible through restrained cluster regions, labels, and connection states | User request | in_progress | `src/components/StarMap.vue`, `src/components/ClusterRegions.vue`, `src/components/ConstellationLines.vue`, `src/data/starMapData.js` | Semantic assertions, focus-state checks, reviewed desktop/mobile baselines |
+| HUB-006 | Validate deterministic motion, responsive behavior, accessibility, and cross-platform rendering | `opencode.md` quality gates | planned | `tests/`, `playwright.config.js`, visual snapshots | Unit, type, build, Playwright, audit, Linux CI |
 
-## Scope Boundaries
+## In Progress
 
-- Phase 1 star-map presentation and interactions are the active product scope.
-- Phase 2 dev terminal and Phase 3 passkey authentication are explicitly future phases and are not enabled by this frontend.
-- Optional sound effects remain outside the current product scope.
-- Production deployment automation is the active operations scope.
+### HUB-005: Relationship Clusters
 
-## Baseline Verification
+- Request: group related work and stack nodes so the map explains systems rather than presenting an undifferentiated orbit.
+- Direction references: use restrained editorial labels, low-contrast spatial fields, and intentional spectral accents inspired by Awwwards, Dark Mode Design, Refero, and Stack Sorted without copying a specific composition.
+- Scope: explicit cluster metadata, grouped node positions, non-interactive cluster regions, spectral tone assignment, clearer connection hierarchy, and grouped mobile directory sections.
+- Compatibility: preserve current star IDs, canonical edge behavior, panel contracts, semantic buttons, keyboard order, responsive split, and reduced-motion handling.
+- Security and reliability: keep regions decorative and non-focusable, validate every cluster reference, avoid remote assets and new runtime dependencies, and bound all SVG/CSS effects.
+- Test plan: assert schema integrity and cluster semantics, exercise focus/panel flows, inspect default/expanded/focused/mobile states, and run the complete repository gate.
+
+## Completed Work
+
+| ID | Item | Evidence |
+|---|---|---|
+| HUB-001 | Deterministic desktop and mobile screenshot coverage for every visible hub state | 12 scenarios with 20 Windows and 20 Linux baselines |
+| HUB-002 | Responsive, interaction, accessibility, and visual-polish corrections | Desktop, compact desktop, and Pixel 7 states reviewed; all assertions passed |
+| HUB-003 | Phase 1 scope reconciliation and implementation evidence | `TODO.md` separates completed product scope from future phases |
+| HUB-004 | Celestial star bodies, diffraction rays, spectral tokens, spring attraction, and a modern center beacon | Runtime/type/build checks passed; six desktop and six mobile Playwright scenarios passed; default, compact, expanded, and focused states reviewed |
+| OPS-001 | Gated automatic production deployment and repaired apex routing | Run `29396387223` deployed `15480cf5526aacaba59ac50d15e56a67490d7867`; health, revision, TLS, desktop, and mobile checks passed |
+
+## Blocked
+
+- None.
+
+## Verification Results
+
+Latest HUB-004 verification:
 
 ```text
 npm test: 12 passed, 0 failed
 npm run typecheck: passed
 npm run build: passed
-npm run test:e2e:update: 12 passed, 0 failed; 20 Windows baselines generated
-npm run test:e2e: 12 passed, 0 failed; all Windows baselines matched
+npx playwright test --project=desktop: 6 passed, 0 failed
+npx playwright test --project=mobile: 6 passed, 0 failed
 npm audit --audit-level=low: 0 vulnerabilities
+Production /health: ok
+Production /revision.txt: 15480cf5526aacaba59ac50d15e56a67490d7867
 ```
 
-## Risks
+## Known Risks
 
 | ID | Risk | Status | Handling |
 |---|---|---|---|
-| R-001 | Canvas stars and ambient motion can make screenshots nondeterministic. | mitigated | Visual tests use reduced motion and seeded randomness; the canvas renders once in reduced-motion mode. |
-| R-002 | Existing worktree contains broad uncommitted feature/runtime changes. | monitored | New work is isolated on `feature/visual-e2e-coverage`; unrelated changes are preserved. |
-| R-003 | npm reported four dependency vulnerabilities, including high-severity Vite advisories. | mitigated | Vite and affected transitive tooling were updated; `npm audit --audit-level=low` now reports zero vulnerabilities. |
-| R-004 | The apex domain had no Caddy route, so HTTPS failed despite a healthy hub container. | mitigated | The deployment added and validated the apex and `www` routes; both now return HTTP 200 over TLS. |
-| R-005 | Linux visual baselines were required before CI could enforce screenshot comparisons. | mitigated | Twenty Linux baselines were generated in run `29392648821`, reviewed, committed, and passed PR and master CI. |
-| R-006 | Repeated local SSH probes can be throttled during bursts of concurrent connections. | monitored | CI SSH deployment succeeded; use serialized probes and rely on the deploy job's container/public health checks. |
+| R-001 | Ambient motion can make screenshots nondeterministic. | mitigated | Visual tests use seeded randomness and reduced motion. |
+| R-002 | Rich star effects can obscure labels, focus rings, or connection lines. | mitigated | Effects are bounded inside node layers; default, hover, focused, and panel-open states were reviewed. |
+| R-003 | Cluster regions can become visual clutter on compact screens. | active | Use restrained desktop overlays and retain the purpose-built mobile directory. |
+| R-004 | GPU-heavy filters can reduce animation smoothness. | active | Prefer transforms and opacity, cap blur/ray layers, and avoid JavaScript render loops. |
+| R-005 | Windows and Linux font/effect rendering can shift visual snapshots. | monitored | Review both platform baseline sets before promotion. |
+| R-006 | Repeated local SSH probes can be throttled. | monitored | Use serialized probes and rely on deployment health/revision gates. |
 
-## Deployment Continuation Notes
+## Next Recommended Task
 
-- GitHub repository: `PEGGERdev/pegger`; default and production branch: `master`.
-- Working branch: `feature/visual-e2e-coverage`.
-- Production access succeeds with `C:\Users\xxblu\.ssh\spotonsight_deploy` as the configured server user.
-- Production deployment now follows the server-standard SpotOnSight pattern with `VPS_HOST`, `VPS_USER`, and `VPS_SSH_KEY`.
-- The legacy `DEPLOY_PASSWORD` secret remains present but is no longer referenced.
-- Server state before deployment: `pegger-hub` is running and healthy on the `spotonsight_proxy` network; `/health` succeeds inside the container.
-- Public state before deployment: DNS resolves and HTTP redirects to HTTPS, but TLS fails because the shared Caddyfile has subdomain routes only and no apex `pegger.dev` route.
-- Root cause in the old script: `grep -q 'pegger.dev'` matched subdomains such as `portfolio.pegger.dev`, so the apex route was never appended.
-- The `deploy-production` job SSHes into the server checkout, fast-forwards `master`, verifies the exact SHA, and runs `scripts/deploy-production.sh` locally on the VPS.
-- The production script builds an immutable Nginx image, creates a migration-safe rollback image from the legacy bind-mounted site, checks container health, validates and reloads Caddy with a backup, and verifies `/revision.txt` equals `GITHUB_SHA`.
-- Deploy jobs are serialized, and each job rechecks that its SHA is still the current `master` head after acquiring the deployment slot.
-- Pull requests and pushes run unit tests, type checks, production build, and Playwright. CI uses Linux visual baselines; local development uses Windows baselines.
-- GitHub baseline generation run `29392648821` passed all 12 scenarios and produced the 20 Linux snapshots; deployment was skipped as designed.
-- PR `#1` merged as `2f409472a5304a7f0d4fc210e18816fc02e7df79`; run `29393060094` passed CI but failed before the release swap because the original multiline SSH secret was rejected.
-- Run `29393060094` did not change server files because SSH failed before the server-standard key-agent pattern was restored.
-- PR `#2` merged as `15480cf5526aacaba59ac50d15e56a67490d7867`; run `29396387223` passed all CI checks and completed `deploy-production` in 47 seconds.
-- Independent checks confirmed `https://pegger.dev/health` returns `ok`, `/revision.txt` matches the merge SHA, `https://www.pegger.dev` returns 200, and desktop/mobile browser views render their expected headings.
-- The app now bundles fonts locally, restores modal focus, traps keyboard focus, locks document scrolling, preserves mobile wheel scrolling, redraws reduced-motion stars after resize, and avoids compact-height overlay collisions.
-
-## Remaining Release Sequence
-
-No active release steps remain. Future pushes to `master` automatically run the complete CI gate and the serialized `deploy-production` job.
+Complete HUB-005 by adding explicit relationship clusters and grouped geometry without changing the established interaction contracts.

@@ -773,6 +773,7 @@ onUnmounted(() => {
       :center="starMapView.center"
       :position="centerPosition"
       :selected="selectedStarId === 'you'"
+      :map-focused="Boolean(selectedStar)"
       :detail-level="detailLevel"
       @click="focusOnStar"
     />
