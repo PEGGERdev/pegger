@@ -60,8 +60,9 @@ Status: complete for the current product scope.
 - [x] Add staged release swaps, automatic rollback, and validated Caddy reloads
 - [x] Pin the production SSH host keys in repository secrets
 - [x] Generate the Linux visual baselines used by CI
-- [ ] Commit and push the generated Linux visual baselines
-- [ ] Merge the verified feature branch into `master`
+- [x] Commit and push the generated Linux visual baselines
+- [x] Merge the verified hub feature branch into `master`
+- [ ] Merge the server-standard `deploy-production` alignment fix
 - [ ] Confirm the automatic production deployment and public revision
 
 ## Future Phase 2: Dev Terminal

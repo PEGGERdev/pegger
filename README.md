@@ -173,10 +173,10 @@ npm run typecheck
 
 ```
 /opt/
-├── pegger-hub/           # pegger.dev landing page
-│   ├── dist/
-│   ├── config/
-│   └── docker-compose.yml
+├── pegger-hub/           # master branch checkout for pegger.dev
+│   ├── deployment/
+│   ├── scripts/
+│   └── src/
 ├── pegger-dev/           # dev.pegger.dev terminal
 │   ├── frontend/
 │   ├── server/
@@ -202,17 +202,13 @@ dev.pegger.dev {
 
 Pull requests targeting `master` run unit tests, type checks, a production build, and Linux Playwright visual comparisons. A successful push to `master` repeats those checks and deploys the exact Git revision to the production Nginx container over SSH.
 
-The `production` GitHub environment uses these repository secrets:
+The `deploy-production` job follows the same VPS pattern as SpotOnSight and uses these repository secrets:
 
-- `DEPLOY_HOST`
-- `DEPLOY_PORT`
-- `DEPLOY_USER`
-- `DEPLOY_SSH_KEY`
-- `DEPLOY_KNOWN_HOSTS`
-- `DEPLOY_APP_DIR`
-- `DEPLOY_CADDYFILE_PATH`
+- `VPS_HOST`
+- `VPS_USER`
+- `VPS_SSH_KEY`
 
-The deploy script validates the container health, reloads the Caddy route, and confirms `https://pegger.dev/revision.txt` matches the triggering commit.
+The job fast-forwards `/opt/pegger-hub` to the tested `master` SHA and runs `scripts/deploy-production.sh` on the VPS. The script builds the Nginx image, validates container health, reloads the Caddy route, supports image rollback, and confirms `https://pegger.dev/revision.txt` matches the triggering commit.
 
 ## Design Specifications
 

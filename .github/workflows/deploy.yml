@@ -65,12 +65,12 @@ jobs:
           path: tests/e2e/hub.e2e.spec.js-snapshots/*-linux.png
           retention-days: 1
 
-  deploy:
+  deploy-production:
     name: Deploy production
     needs: verify
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.update_snapshots != true)
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.update_snapshots != true)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     permissions:
       contents: read
       deployments: write
@@ -97,48 +97,40 @@ jobs:
             echo "Skipping superseded revision $GITHUB_SHA; master is $current_sha"
           fi
 
-      - name: Setup Node
+      - name: Start SSH agent
         if: steps.release.outputs.deploy == 'true'
-        uses: actions/setup-node@v7
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          node-version: 22
-          cache: npm
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: Install dependencies
-        if: steps.release.outputs.deploy == 'true'
-        run: npm ci
-
-      - name: Configure deployment SSH
+      - name: Add VPS to known_hosts
         if: steps.release.outputs.deploy == 'true'
         env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_APP_DIR: ${{ secrets.DEPLOY_APP_DIR }}
-          DEPLOY_CADDYFILE_PATH: ${{ secrets.DEPLOY_CADDYFILE_PATH }}
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          EXPECTED_VPS_FINGERPRINT: SHA256:Feh0miKZx7Upiy4pYYqr6MaskLED8K1MDbkALuJ3kB8
         run: |
-          : "${DEPLOY_HOST:?DEPLOY_HOST secret is required}"
-          : "${DEPLOY_PORT:?DEPLOY_PORT secret is required}"
-          : "${DEPLOY_USER:?DEPLOY_USER secret is required}"
-          : "${DEPLOY_APP_DIR:?DEPLOY_APP_DIR secret is required}"
-          : "${DEPLOY_CADDYFILE_PATH:?DEPLOY_CADDYFILE_PATH secret is required}"
-          : "${DEPLOY_KNOWN_HOSTS:?DEPLOY_KNOWN_HOSTS secret is required}"
-          : "${DEPLOY_SSH_KEY:?DEPLOY_SSH_KEY secret is required}"
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/known_hosts
+          : "${VPS_HOST:?VPS_HOST secret is required}"
+          mkdir -p ~/.ssh
+          ssh-keygen -R "$VPS_HOST" || true
+          ssh-keyscan -H "$VPS_HOST" > /tmp/vps_known_hosts
+          ssh-keygen -lf /tmp/vps_known_hosts | awk '{print $2}' | grep -Fx "$EXPECTED_VPS_FINGERPRINT"
+          cat /tmp/vps_known_hosts >> ~/.ssh/known_hosts
 
-      - name: Deploy to production server
+      - name: Deploy to VPS
         if: steps.release.outputs.deploy == 'true'
         env:
-          REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
-          REMOTE_USER: ${{ secrets.DEPLOY_USER }}
-          REMOTE_PORT: ${{ secrets.DEPLOY_PORT }}
-          REMOTE_DIR: ${{ secrets.DEPLOY_APP_DIR }}
-          CADDYFILE_PATH: ${{ secrets.DEPLOY_CADDYFILE_PATH }}
-          SSH_KEY_PATH: /home/runner/.ssh/id_ed25519
-        run: bash ./scripts/deploy-hub.sh
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          : "${VPS_HOST:?VPS_HOST secret is required}"
+          : "${VPS_USER:?VPS_USER secret is required}"
+          ssh "$VPS_USER@$VPS_HOST" "
+            set -eu
+            cd /opt/pegger-hub
+            git fetch origin master --prune
+            git checkout master
+            git pull --ff-only origin master
+            test \"\$(git rev-parse HEAD)\" = \"$GITHUB_SHA\"
+            test -z \"\$(git status --porcelain --untracked-files=no)\"
+            DEPLOY_REVISION=\"$GITHUB_SHA\" bash ./scripts/deploy-production.sh
+          "
