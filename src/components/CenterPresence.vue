@@ -55,26 +55,21 @@ const ariaLabel = computed(() => [
     :style="style"
   >
     <button
-      class="center-presence__beacon"
+      class="center-presence__nucleus"
       type="button"
       :aria-label="ariaLabel"
       :aria-pressed="selected"
       @click="emit('click', center.id)"
     >
-      <span class="center-presence__aura" aria-hidden="true" />
-      <span class="center-presence__rays" aria-hidden="true">
-        <span class="center-presence__ray center-presence__ray--horizontal" />
-        <span class="center-presence__ray center-presence__ray--vertical" />
-        <span class="center-presence__ray center-presence__ray--diagonal-a" />
-        <span class="center-presence__ray center-presence__ray--diagonal-b" />
+      <span class="center-presence__halo" aria-hidden="true" />
+      <span class="center-presence__accretion" aria-hidden="true">
+        <span class="center-presence__accretion-ring center-presence__accretion-ring--inner" />
+        <span class="center-presence__accretion-ring center-presence__accretion-ring--mid" />
+        <span class="center-presence__accretion-ring center-presence__accretion-ring--outer" />
       </span>
-      <span class="center-presence__orbits" aria-hidden="true">
-        <span class="center-presence__orbit center-presence__orbit--1" />
-        <span class="center-presence__orbit center-presence__orbit--2" />
-        <span class="center-presence__orbit center-presence__orbit--3" />
-      </span>
-      <span class="center-presence__aperture" aria-hidden="true">
-        <span class="center-presence__lens">
+      <span class="center-presence__core" aria-hidden="true">
+        <span class="center-presence__core-glow" />
+        <span class="center-presence__core-body">
           <span class="center-presence__monogram">{{ initials }}</span>
         </span>
       </span>
@@ -110,7 +105,7 @@ const ariaLabel = computed(() => [
   pointer-events: none;
 }
 
-.center-presence__beacon {
+.center-presence__nucleus {
   position: relative;
   width: 7.5rem;
   height: 7.5rem;
@@ -122,133 +117,106 @@ const ariaLabel = computed(() => [
   pointer-events: auto;
 }
 
-.center-presence__beacon:focus-visible {
+.center-presence__nucleus:focus-visible {
   outline: none;
 }
 
-.center-presence__aura,
-.center-presence__rays,
-.center-presence__orbits,
-.center-presence__aperture,
-.center-presence__lens,
-.center-presence__orbit {
+.center-presence__halo,
+.center-presence__accretion,
+.center-presence__core,
+.center-presence__core-glow,
+.center-presence__core-body,
+.center-presence__accretion-ring {
   position: absolute;
   pointer-events: none;
 }
 
-.center-presence__aura {
-  inset: -34%;
+.center-presence__halo {
+  inset: -40%;
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.24), rgba(101, 227, 209, 0.22) 20%, rgba(90, 167, 255, 0.1) 46%, transparent 70%);
-  filter: blur(7px);
-  animation: beaconAura 5.8s ease-in-out infinite;
+    radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(101, 227, 209, 0.15) 18%, rgba(90, 167, 255, 0.08) 40%, transparent 68%);
+  filter: blur(10px);
+  animation: nucleusHalo 6s ease-in-out infinite;
 }
 
-.center-presence__rays {
-  inset: -28%;
-  animation: beaconRays 13s ease-in-out infinite;
+.center-presence__accretion {
+  inset: -10%;
 }
 
-.center-presence__ray {
-  position: absolute;
+.center-presence__accretion-ring {
   top: 50%;
   left: 50%;
-  transform-origin: center;
-  background: linear-gradient(90deg, transparent, rgba(101, 227, 209, 0.34), rgba(255, 255, 255, 0.92), rgba(90, 167, 255, 0.34), transparent);
-}
-
-.center-presence__ray--horizontal,
-.center-presence__ray--vertical {
-  width: 100%;
-  height: 1px;
-  transform: translate(-50%, -50%);
-}
-
-.center-presence__ray--vertical {
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-.center-presence__ray--diagonal-a,
-.center-presence__ray--diagonal-b {
-  width: 64%;
-  height: 1px;
-  opacity: 0.54;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.center-presence__ray--diagonal-b {
-  transform: translate(-50%, -50%) rotate(-45deg);
-}
-
-.center-presence__orbits {
-  inset: -14%;
-}
-
-.center-presence__orbit {
-  top: 50%;
-  left: 50%;
-  border: 1px solid rgba(122, 214, 229, 0.3);
+  border: 1px solid;
   border-radius: 50%;
+  opacity: 0.4;
 }
 
-.center-presence__orbit::after {
+.center-presence__accretion-ring::after {
   content: '';
   position: absolute;
-  top: 12%;
-  right: 14%;
-  width: 4px;
-  height: 4px;
+  top: 10%;
+  right: 16%;
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 10px rgba(101, 227, 209, 0.9);
+  box-shadow: 0 0 8px rgba(101, 227, 209, 0.9);
 }
 
-.center-presence__orbit--1 {
-  width: 8.2rem;
-  height: 5.2rem;
-  transform: translate(-50%, -50%) rotate(22deg);
-  animation: orbitOne 11s linear infinite;
+.center-presence__accretion-ring--inner {
+  width: 6.5rem;
+  height: 4.2rem;
+  border-color: rgba(101, 227, 209, 0.35);
+  transform: translate(-50%, -50%) rotate(25deg);
+  animation: accretionSpin 10s linear infinite;
 }
 
-.center-presence__orbit--2 {
-  width: 6rem;
-  height: 8.5rem;
+.center-presence__accretion-ring--mid {
+  width: 8rem;
+  height: 6rem;
+  border-color: rgba(90, 167, 255, 0.2);
   border-style: dashed;
-  border-color: rgba(90, 167, 255, 0.22);
-  transform: translate(-50%, -50%) rotate(-28deg);
-  animation: orbitTwo 15s linear infinite reverse;
+  transform: translate(-50%, -50%) rotate(-20deg);
+  animation: accretionSpin 14s linear infinite reverse;
 }
 
-.center-presence__orbit--3 {
+.center-presence__accretion-ring--outer {
   width: 9.5rem;
   height: 9.5rem;
-  border-color: rgba(101, 227, 209, 0.12);
+  border-color: rgba(101, 227, 209, 0.1);
   transform: translate(-50%, -50%);
 }
 
-.center-presence__aperture {
-  inset: 20%;
+.center-presence__core {
+  inset: 18%;
   display: grid;
   place-items: center;
-  clip-path: polygon(50% 0%, 61% 34%, 85% 15%, 66% 39%, 100% 50%, 66% 61%, 85% 85%, 61% 66%, 50% 100%, 39% 66%, 15% 85%, 34% 61%, 0% 50%, 34% 39%, 15% 15%, 39% 34%);
-  background: radial-gradient(circle, #fff 0 8%, #c8fff6 17%, #65e3d1 40%, rgba(90, 167, 255, 0.55) 66%, transparent 68%);
-  filter:
-    drop-shadow(0 0 7px rgba(255, 255, 255, 0.84))
-    drop-shadow(0 0 22px rgba(101, 227, 209, 0.7))
-    drop-shadow(0 0 44px rgba(90, 167, 255, 0.35));
-  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 300ms ease;
-  animation: beaconCore 5.8s ease-in-out infinite;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 40% 36%, #fff 0%, #c8fff6 12%, #65e3d1 34%, rgba(90, 167, 255, 0.5) 60%, transparent 64%);
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 28px rgba(101, 227, 209, 0.65),
+    0 0 50px rgba(90, 167, 255, 0.3);
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 300ms ease;
+  animation: nucleusPulse 5.8s ease-in-out infinite;
 }
 
-.center-presence__lens {
-  inset: 29%;
+.center-presence__core-glow {
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 40%, rgba(255, 255, 255, 0.3), transparent 60%);
+  mix-blend-mode: screen;
+}
+
+.center-presence__core-body {
+  inset: 28%;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.68);
-  background: linear-gradient(145deg, rgba(5, 16, 25, 0.96), rgba(13, 38, 52, 0.88));
-  transform: rotate(45deg);
-  box-shadow: inset 0 0 18px rgba(101, 227, 209, 0.18);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(5, 16, 25, 0.95), rgba(13, 38, 52, 0.85));
+  box-shadow: inset 0 0 16px rgba(101, 227, 209, 0.15);
 }
 
 .center-presence__monogram {
@@ -257,24 +225,23 @@ const ariaLabel = computed(() => [
   font-weight: 700;
   letter-spacing: 0.08em;
   color: rgba(239, 255, 252, 0.94);
-  transform: rotate(-45deg);
 }
 
-.center-presence__beacon:hover .center-presence__aperture,
-.center-presence__beacon:focus-visible .center-presence__aperture,
-.center-presence--selected .center-presence__aperture {
-  transform: scale(1.1) rotate(2deg);
-  filter:
-    drop-shadow(0 0 9px rgba(255, 255, 255, 0.94))
-    drop-shadow(0 0 30px rgba(101, 227, 209, 0.9))
-    drop-shadow(0 0 56px rgba(90, 167, 255, 0.48));
+.center-presence__nucleus:hover .center-presence__core,
+.center-presence__nucleus:focus-visible .center-presence__core,
+.center-presence--selected .center-presence__core {
+  transform: scale(1.08);
+  box-shadow:
+    0 0 12px rgba(255, 255, 255, 0.9),
+    0 0 34px rgba(101, 227, 209, 0.85),
+    0 0 60px rgba(90, 167, 255, 0.42);
 }
 
-.center-presence__beacon:focus-visible .center-presence__orbit--3,
-.center-presence--selected .center-presence__orbit--3 {
+.center-presence__nucleus:focus-visible .center-presence__accretion-ring--outer,
+.center-presence--selected .center-presence__accretion-ring--outer {
   border-width: 2px;
-  border-color: rgba(112, 184, 255, 0.72);
-  box-shadow: 0 0 26px rgba(90, 167, 255, 0.24);
+  border-color: rgba(112, 184, 255, 0.55);
+  opacity: 0.7;
 }
 
 .center-presence__info {
@@ -407,51 +374,35 @@ const ariaLabel = computed(() => [
   color: rgba(220, 235, 249, 0.58);
 }
 
-@keyframes beaconAura {
+@keyframes nucleusHalo {
   0%, 100% {
-    opacity: 0.68;
-    transform: scale(0.94);
+    opacity: 0.6;
+    transform: scale(0.96);
   }
   50% {
-    opacity: 1;
-    transform: scale(1.08);
+    opacity: 0.9;
+    transform: scale(1.06);
   }
 }
 
-@keyframes beaconRays {
+@keyframes nucleusPulse {
   0%, 100% {
-    opacity: 0.64;
-    transform: rotate(-3deg) scale(0.94);
+    box-shadow:
+      0 0 10px rgba(255, 255, 255, 0.75),
+      0 0 28px rgba(101, 227, 209, 0.6),
+      0 0 50px rgba(90, 167, 255, 0.28);
   }
   50% {
-    opacity: 0.96;
-    transform: rotate(3deg) scale(1.06);
+    box-shadow:
+      0 0 12px rgba(255, 255, 255, 0.88),
+      0 0 34px rgba(101, 227, 209, 0.78),
+      0 0 60px rgba(90, 167, 255, 0.4);
   }
 }
 
-@keyframes beaconCore {
-  0%, 100% {
-    filter:
-      drop-shadow(0 0 7px rgba(255, 255, 255, 0.8))
-      drop-shadow(0 0 22px rgba(101, 227, 209, 0.68))
-      drop-shadow(0 0 44px rgba(90, 167, 255, 0.32));
-  }
-  50% {
-    filter:
-      drop-shadow(0 0 9px rgba(255, 255, 255, 0.92))
-      drop-shadow(0 0 28px rgba(101, 227, 209, 0.82))
-      drop-shadow(0 0 54px rgba(90, 167, 255, 0.44));
-  }
-}
-
-@keyframes orbitOne {
-  from { transform: translate(-50%, -50%) rotate(22deg); }
-  to { transform: translate(-50%, -50%) rotate(382deg); }
-}
-
-@keyframes orbitTwo {
-  from { transform: translate(-50%, -50%) rotate(-28deg); }
-  to { transform: translate(-50%, -50%) rotate(332deg); }
+@keyframes accretionSpin {
+  from { transform: translate(-50%, -50%) rotate(25deg); }
+  to { transform: translate(-50%, -50%) rotate(385deg); }
 }
 
 @media (min-width: 901px) and (max-height: 820px) {

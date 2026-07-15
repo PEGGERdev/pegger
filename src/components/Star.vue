@@ -48,9 +48,7 @@ const offset = ref({ x: 0, y: 0 })
 const isHovered = ref(false)
 const driftSeed = [...props.star.id].reduce((total, character) => total + character.charCodeAt(0), 0)
 const driftDuration = `${(props.star.type === 'bright' ? 6.4 : 7.8) + (driftSeed % 7) * 0.24}s`
-const rayDuration = `${(props.star.type === 'bright' ? 10.8 : 12.4) + (driftSeed % 5) * 0.42}s`
 const driftDelay = `-${(driftSeed % 6) * 0.38}s`
-const rayRotation = `${(driftSeed % 72) - 36}deg`
 
 const MAGNETIC_RANGE = theme.animations.magneticRange * 1.15
 const ATTRACTION_STRENGTH = theme.animations.magneticStrength * 0.95
@@ -106,9 +104,7 @@ const style = computed(() => ({
   height: `${hitSize.value}px`,
   transform: `translate(-50%, -50%)`,
   '--drift-duration': driftDuration,
-  '--ray-duration': rayDuration,
   '--drift-delay': driftDelay,
-  '--ray-rotation': rayRotation,
   '--star-size': `${size.value}px`,
   '--star-color': toneToken.value.color,
   '--star-rgb': toneToken.value.rgb,
@@ -285,15 +281,11 @@ onUnmounted(() => {
       aria-hidden="true"
     >
       <span class="star__corona" />
-      <span class="star__rays">
-        <span class="star__ray star__ray--horizontal" />
-        <span class="star__ray star__ray--vertical" />
-        <span class="star__ray star__ray--diagonal-a" />
-        <span class="star__ray star__ray--diagonal-b" />
-      </span>
+      <span class="star__glow" />
       <span class="star__orbit" />
       <span class="star__body">
-        <span class="star__facet" />
+        <span class="star__core-sphere" />
+        <span class="star__core-highlight" />
         <i v-if="star.icon" :class="['star__icon', star.icon]" />
       </span>
       <span v-if="star.badge || star.data?.badge" class="star__badge">{{ star.badge || star.data?.badge }}</span>
@@ -372,10 +364,11 @@ onUnmounted(() => {
 }
 
 .star__corona,
-.star__rays,
+.star__glow,
 .star__orbit,
 .star__body,
-.star__facet {
+.star__core-sphere,
+.star__core-highlight {
   position: absolute;
   pointer-events: none;
 }
@@ -384,53 +377,30 @@ onUnmounted(() => {
   inset: -44%;
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.24), rgba(var(--star-rgb), 0.2) 24%, rgba(var(--star-rgb), 0.07) 48%, transparent 72%);
-  filter: blur(5px);
+    radial-gradient(circle, rgba(255, 255, 255, 0.2), rgba(var(--star-rgb), 0.18) 24%, rgba(var(--star-rgb), 0.06) 48%, transparent 72%);
+  filter: blur(6px);
   animation: stellarCorona var(--drift-duration, 7s) ease-in-out infinite;
   animation-delay: var(--drift-delay, 0s);
 }
 
-.star__rays {
-  inset: -46%;
-  transform: rotate(var(--ray-rotation));
-  animation: stellarRays var(--ray-duration, 11s) ease-in-out infinite;
-  animation-delay: var(--drift-delay, 0s);
+.star__glow {
+  inset: -20%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), rgba(var(--star-rgb), 0.08) 30%, transparent 70%);
+  filter: blur(4px);
+  opacity: 0;
+  transition: opacity 220ms ease;
 }
 
-.star__ray {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  background: linear-gradient(90deg, transparent, rgba(var(--star-rgb), 0.28), rgba(255, 255, 255, 0.86), rgba(var(--star-rgb), 0.28), transparent);
-  transform-origin: center;
-}
-
-.star__ray--horizontal,
-.star__ray--vertical {
-  width: 100%;
-  height: 1px;
-  transform: translate(-50%, -50%);
-}
-
-.star__ray--vertical {
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-.star__ray--diagonal-a,
-.star__ray--diagonal-b {
-  width: 68%;
-  height: 1px;
-  opacity: 0.55;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.star__ray--diagonal-b {
-  transform: translate(-50%, -50%) rotate(-45deg);
+.star--hovered .star__glow,
+.star--selected .star__glow,
+.star--connected .star__glow {
+  opacity: 1;
 }
 
 .star__orbit {
   inset: -18%;
-  border: 1px solid rgba(var(--star-rgb), 0.54);
+  border: 1px solid rgba(var(--star-rgb), 0.5);
   border-radius: 50%;
   opacity: 0;
   transform: scale(0.72) rotate(-18deg);
@@ -463,35 +433,36 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  clip-path: polygon(50% 0%, 58% 35%, 82% 18%, 65% 42%, 100% 50%, 65% 58%, 82% 82%, 58% 65%, 50% 100%, 42% 65%, 18% 82%, 35% 58%, 0% 50%, 35% 42%, 18% 18%, 42% 35%);
+  border-radius: 50%;
   background:
-    radial-gradient(circle at 43% 38%, #fff 0 12%, rgba(255, 255, 255, 0.96) 18%, rgba(var(--star-rgb), 0.96) 48%, rgba(var(--star-rgb), 0.3) 76%, transparent 78%);
-  filter:
-    drop-shadow(0 0 5px rgba(255, 255, 255, 0.72))
-    drop-shadow(0 0 13px rgba(var(--star-rgb), 0.82))
-    drop-shadow(0 0 28px rgba(var(--star-rgb), 0.42));
+    radial-gradient(circle at 38% 35%, #fff 0 10%, rgba(255, 255, 255, 0.95) 16%, rgba(var(--star-rgb), 0.92) 42%, rgba(var(--star-rgb), 0.25) 72%, transparent 74%);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 0.7),
+    0 0 16px rgba(var(--star-rgb), 0.8),
+    0 0 32px rgba(var(--star-rgb), 0.35);
   animation: stellarCore var(--drift-duration, 7s) ease-in-out infinite;
   animation-delay: var(--drift-delay, 0s);
 }
 
-.star__facet {
-  inset: 22%;
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  border: 1px solid rgba(255, 255, 255, 0.48);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.58), transparent 48%, rgba(5, 13, 23, 0.3));
+.star__core-sphere {
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 40%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.4) 30%, transparent 70%);
   mix-blend-mode: screen;
+}
+
+.star__core-highlight {
+  inset: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 42%, rgba(255, 255, 255, 0.6), transparent 60%);
+  mix-blend-mode: overlay;
 }
 
 .star__core--dim .star__body {
   inset: 13%;
-  filter:
-    drop-shadow(0 0 4px rgba(255, 255, 255, 0.58))
-    drop-shadow(0 0 10px rgba(var(--star-rgb), 0.52));
-}
-
-.star__core--dim .star__rays {
-  inset: -24%;
-  opacity: 0.52;
+  box-shadow:
+    0 0 4px rgba(255, 255, 255, 0.5),
+    0 0 10px rgba(var(--star-rgb), 0.5);
 }
 
 .star__core--dim .star__corona {
@@ -626,40 +597,29 @@ onUnmounted(() => {
 
 @keyframes stellarCorona {
   0%, 100% {
-    opacity: 0.62;
-    transform: scale(0.92);
+    opacity: 0.58;
+    transform: scale(0.94);
   }
   50% {
-    opacity: 0.9;
-    transform: scale(1.06);
-  }
-}
-
-@keyframes stellarRays {
-  0%, 100% {
-    opacity: 0.62;
-    transform: rotate(var(--ray-rotation)) scale(0.94);
-  }
-  50% {
-    opacity: 0.94;
-    transform: rotate(calc(var(--ray-rotation) + 4deg)) scale(1.08);
+    opacity: 0.86;
+    transform: scale(1.08);
   }
 }
 
 @keyframes stellarCore {
   0%, 100% {
     transform: scale(0.96);
-    filter:
-      drop-shadow(0 0 5px rgba(255, 255, 255, 0.68))
-      drop-shadow(0 0 13px rgba(var(--star-rgb), 0.78))
-      drop-shadow(0 0 28px rgba(var(--star-rgb), 0.38));
+    box-shadow:
+      0 0 6px rgba(255, 255, 255, 0.65),
+      0 0 16px rgba(var(--star-rgb), 0.75),
+      0 0 32px rgba(var(--star-rgb), 0.32);
   }
   50% {
     transform: scale(1.04);
-    filter:
-      drop-shadow(0 0 7px rgba(255, 255, 255, 0.82))
-      drop-shadow(0 0 17px rgba(var(--star-rgb), 0.92))
-      drop-shadow(0 0 34px rgba(var(--star-rgb), 0.5));
+    box-shadow:
+      0 0 8px rgba(255, 255, 255, 0.8),
+      0 0 20px rgba(var(--star-rgb), 0.9),
+      0 0 40px rgba(var(--star-rgb), 0.45);
   }
 }
 </style>

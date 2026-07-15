@@ -98,11 +98,12 @@ const regions = computed(() => props.clusters.map((cluster, index) => {
         :ry="Math.max(1, region.radiusY - 10)"
         pathLength="1"
       />
-      <g class="cluster-region__label" :transform="`translate(${region.labelX} ${region.labelY})`">
-        <rect :width="LABEL_WIDTH" height="30" rx="4" />
-        <line x1="0" y1="0" x2="40" y2="0" />
-        <text class="cluster-region__sequence" x="10" y="19">{{ region.sequence }}</text>
-        <text class="cluster-region__name" x="38" y="19">{{ region.label }}</text>
+      <g class="cluster-region__asterism" :transform="`translate(${region.labelX} ${region.labelY})`">
+        <rect :width="LABEL_WIDTH" height="34" rx="5" />
+        <line x1="0" y1="0" x2="44" y2="0" />
+        <text class="cluster-region__sequence" x="10" y="14">{{ region.sequence }}</text>
+        <text class="cluster-region__name" x="38" y="14" dy="0">{{ region.label }}</text>
+        <text class="cluster-region__stars" x="10" y="28">{{ region.memberIds.length }} stars</text>
       </g>
     </g>
   </svg>
@@ -140,20 +141,19 @@ const regions = computed(() => props.clusters.map((cluster, index) => {
   vector-effect: non-scaling-stroke;
 }
 
-.cluster-region__label rect {
-  fill: rgba(5, 11, 20, 0.82);
-  stroke: rgba(var(--cluster-rgb), 0.2);
+.cluster-region__asterism rect {
+  fill: rgba(5, 11, 20, 0.85);
+  stroke: rgba(var(--cluster-rgb), 0.22);
   stroke-width: 1;
 }
 
-.cluster-region__label line {
+.cluster-region__asterism line {
   stroke: var(--cluster-color);
   stroke-width: 1;
-  filter: drop-shadow(0 0 5px rgba(var(--cluster-rgb), 0.7));
+  filter: drop-shadow(0 0 5px rgba(var(--cluster-rgb), 0.6));
 }
 
-.cluster-region__label text {
-  dominant-baseline: auto;
+.cluster-region__asterism text {
   font-family: var(--pegger-font-display);
   text-transform: uppercase;
 }
@@ -192,13 +192,20 @@ const regions = computed(() => props.clusters.map((cluster, index) => {
   animation: clusterSignal 8s linear infinite;
 }
 
-.cluster-region--active .cluster-region__label rect {
+.cluster-region--active .cluster-region__asterism rect {
   fill: rgba(5, 11, 20, 0.94);
   stroke: rgba(var(--cluster-rgb), 0.46);
 }
 
 .cluster-region--active .cluster-region__name {
   fill: rgba(239, 248, 255, 0.86);
+}
+
+.cluster-region__stars {
+  fill: rgba(192, 214, 234, 0.42);
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 @keyframes clusterSignal {

@@ -115,56 +115,58 @@ function isHighlighted(conn) {
 }
 
 .constellation-line__track {
-  stroke: rgba(159, 197, 228, 0.055);
-  stroke-width: 2;
+  stroke: rgba(159, 197, 228, 0.04);
+  stroke-width: 1.5;
   stroke-linecap: round;
 }
 
 .constellation-line {
   stroke-linecap: round;
   transition: opacity 320ms ease, stroke-width 320ms ease, filter 320ms ease;
-  filter: drop-shadow(0 0 8px rgba(101, 227, 209, 0.1));
 }
 
 .constellation-line--primary {
-  stroke: rgba(101, 227, 209, 0.7);
-  stroke-width: 1.6;
-  opacity: 0.54;
+  stroke: rgba(101, 227, 209, 0.65);
+  stroke-width: 1.4;
+  opacity: 0.5;
+  filter: drop-shadow(0 0 6px rgba(101, 227, 209, 0.08));
 }
 
 .constellation-line--secondary {
-  stroke: rgba(112, 184, 255, 0.68);
-  stroke-width: 1.25;
-  opacity: 0.36;
+  stroke: rgba(112, 184, 255, 0.6);
+  stroke-width: 1.1;
+  opacity: 0.32;
+  stroke-dasharray: 0.04 0.03;
+  filter: drop-shadow(0 0 4px rgba(90, 167, 255, 0.06));
 }
 
 .constellation-line--tertiary {
-  stroke: rgba(181, 207, 232, 0.64);
-  stroke-width: 0.9;
-  opacity: 0.2;
-  stroke-dasharray: 0.025 0.055;
+  stroke: rgba(181, 207, 232, 0.5);
+  stroke-width: 0.7;
+  opacity: 0.18;
+  stroke-dasharray: 0.015 0.045;
 }
 
 .constellation-line--active {
-  stroke: rgba(174, 255, 242, 0.96);
-  stroke-width: 2.2px;
-  stroke-dasharray: 0.1 0.035;
+  stroke: rgba(174, 255, 242, 0.92);
+  stroke-width: 2px;
+  stroke-dasharray: 0.08 0.03;
   opacity: 1;
-  filter: drop-shadow(0 0 10px rgba(101, 227, 209, 0.48));
-  animation: lineSignal 2.8s linear infinite;
+  filter: drop-shadow(0 0 12px rgba(101, 227, 209, 0.4));
+  animation: lineSignal 3.2s linear infinite;
 }
 
 .constellation-line--selected {
-  stroke-width: 2.4px;
+  stroke-width: 2.2px;
 }
 
 .constellation-line__signal {
   fill: #effffc;
-  stroke: rgba(101, 227, 209, 0.72);
-  stroke-width: 4;
-  opacity: 0.92;
-  filter: drop-shadow(0 0 8px rgba(101, 227, 209, 0.9));
-  animation: endpointPulse 1.8s ease-in-out infinite;
+  stroke: rgba(101, 227, 209, 0.6);
+  stroke-width: 3;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 6px rgba(101, 227, 209, 0.8));
+  animation: endpointPulse 2s ease-in-out infinite;
 }
 
 @keyframes lineSignal {
