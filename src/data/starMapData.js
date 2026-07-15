@@ -18,12 +18,60 @@ export const starMapData = {
     }
   },
 
+  clusters: [
+    {
+      id: 'product-craft',
+      sequence: '01',
+      label: 'Product craft',
+      description: 'Portfolio interfaces and delivery tooling',
+      anchorId: 'portfolio',
+      memberIds: ['portfolio', 'typescript', 'react', 'vite'],
+      tone: 'mint'
+    },
+    {
+      id: 'platform-stack',
+      sequence: '02',
+      label: 'Platform stack',
+      description: 'Application, API, data, and deployment layers',
+      anchorId: 'spotonsight',
+      memberIds: ['spotonsight', 'vue', 'fastapi', 'mongodb', 'python', 'docker'],
+      tone: 'blue'
+    },
+    {
+      id: 'payment-flow',
+      sequence: '03',
+      label: 'Payment flow',
+      description: 'Checkout experience and transaction runtime',
+      anchorId: 'payqr',
+      memberIds: ['payqr', 'stripe', 'nodejs'],
+      tone: 'amber'
+    },
+    {
+      id: 'public-presence',
+      sequence: '04',
+      label: 'Public presence',
+      description: 'Direct contact and professional channels',
+      anchorId: 'contact',
+      memberIds: ['contact', 'github', 'linkedin'],
+      tone: 'violet'
+    },
+    {
+      id: 'operations',
+      sequence: '05',
+      label: 'Operations',
+      description: 'Infrastructure, access, and release automation',
+      anchorId: 'dev',
+      memberIds: ['dev', 'linux', 'ssh', 'cicd', 'githubactions'],
+      tone: 'orange'
+    }
+  ],
+
   brightStars: [
     {
       id: 'portfolio',
       label: 'Portfolio',
       type: 'bright',
-      position: { x: -25, y: -20 },
+      position: { x: -29, y: -19 },
       connections: ['typescript', 'react', 'cicd'],
       panel: 'apps',
       icon: 'bi-briefcase-fill',
@@ -39,7 +87,7 @@ export const starMapData = {
       id: 'spotonsight',
       label: 'SpotOnSight',
       type: 'bright',
-      position: { x: 30, y: -15 },
+      position: { x: 28, y: -17 },
       connections: ['vue', 'fastapi', 'mongodb', 'docker'],
       panel: 'apps',
       icon: 'bi-compass-fill',
@@ -55,7 +103,7 @@ export const starMapData = {
       id: 'payqr',
       label: 'Pay QR',
       type: 'bright',
-      position: { x: 15, y: -35 },
+      position: { x: 3, y: -38 },
       connections: ['vue', 'stripe', 'nodejs'],
       panel: 'apps',
       icon: 'bi-qr-code',
@@ -71,7 +119,7 @@ export const starMapData = {
       id: 'contact',
       label: 'Contact',
       type: 'bright',
-      position: { x: -35, y: 25 },
+      position: { x: -34, y: 21 },
       connections: ['you'],
       panel: 'contact',
       icon: 'bi-envelope-fill',
@@ -88,7 +136,7 @@ export const starMapData = {
       id: 'github',
       label: 'GitHub',
       type: 'bright',
-      position: { x: -20, y: 35 },
+      position: { x: -45, y: 34 },
       connections: ['you'],
       panel: 'socials',
       icon: 'bi-github',
@@ -104,7 +152,7 @@ export const starMapData = {
       id: 'linkedin',
       label: 'LinkedIn',
       type: 'bright',
-      position: { x: 25, y: 30 },
+      position: { x: -22, y: 37 },
       connections: ['you'],
       panel: 'socials',
       icon: 'bi-linkedin',
@@ -120,7 +168,7 @@ export const starMapData = {
       id: 'dev',
       label: 'Dev Terminal',
       type: 'bright',
-      position: { x: 40, y: 10 },
+      position: { x: 31, y: 25 },
       connections: ['you', 'linux', 'ssh'],
       panel: 'private',
       icon: 'bi-terminal-fill',
@@ -137,20 +185,20 @@ export const starMapData = {
   ],
 
   dimStars: [
-    { id: 'vue', type: 'dim', label: 'Vue.js', icon: 'bi-triangle-fill', category: 'Frontend', position: { x: 45, y: -25 }, connections: ['spotonsight', 'payqr'], data: { description: 'Reactive UI architecture and component systems.', detail: 'Primary frontend system behind interactive product interfaces in this map.', facts: ['Component-driven UI', 'Used in multiple products', 'Strong fit for reactive flows'] } },
-    { id: 'fastapi', type: 'dim', label: 'FastAPI', icon: 'bi-lightning-charge-fill', category: 'Backend', position: { x: 50, y: -5 }, connections: ['spotonsight'], data: { description: 'Typed API delivery and async services.', detail: 'Backend layer used for reliable service interfaces and structured endpoints.', facts: ['Typed request models', 'Async-friendly', 'Good for product APIs'] } },
-    { id: 'mongodb', type: 'dim', label: 'MongoDB', icon: 'bi-database-fill', category: 'Database', position: { x: 55, y: 15 }, connections: ['spotonsight'], data: { description: 'Document storage for flexible product data.', detail: 'Supports evolving data structures for real product features and social content.', facts: ['Flexible schema', 'Good for iterative products', 'Used in app data flows'] } },
-    { id: 'stripe', type: 'dim', label: 'Stripe', icon: 'bi-credit-card-2-front-fill', category: 'Payments', position: { x: 20, y: -45 }, connections: ['payqr'], data: { description: 'Payments, invoicing, and transaction flows.', detail: 'Payments capability node tied directly to the Pay QR product concept.', facts: ['Checkout support', 'Billing workflows', 'Payment platform integration'] } },
-    { id: 'typescript', type: 'dim', label: 'TypeScript', icon: 'bi-filetype-tsx', category: 'Language', position: { x: -50, y: -30 }, connections: ['portfolio'], data: { description: 'Reliable typed interfaces across frontend systems.', detail: 'Adds structure and confidence to fast-moving UI codebases.', facts: ['Safer refactors', 'Shared contracts', 'Better editor feedback'] } },
-    { id: 'react', type: 'dim', label: 'React', icon: 'bi-stars', category: 'Frontend', position: { x: -40, y: -25 }, connections: ['portfolio'], data: { description: 'Component-driven interface building and prototyping.', detail: 'Alternative frontend stack represented in the portfolio node.', facts: ['Reusable UI patterns', 'Good for product experimentation', 'Strong ecosystem'] } },
-    { id: 'python', type: 'dim', label: 'Python', icon: 'bi-filetype-py', category: 'Language', position: { x: 55, y: -20 }, connections: ['fastapi'], data: { description: 'Service logic, APIs, and automation tooling.', detail: 'Language node backing service work and scripting-oriented tasks.', facts: ['Readable backend code', 'Good for automation', 'Pairs naturally with FastAPI'] } },
-    { id: 'docker', type: 'dim', label: 'Docker', icon: 'bi-box-seam-fill', category: 'DevOps', position: { x: 15, y: 45 }, connections: ['spotonsight', 'portfolio'], data: { description: 'Consistent delivery environments and deployment packaging.', detail: 'Delivery node that keeps environments reproducible across projects.', facts: ['Containerized services', 'Consistent local/prod setup', 'Useful in deployment workflows'] } },
-    { id: 'cicd', type: 'dim', label: 'CI/CD', icon: 'bi-diagram-3-fill', category: 'DevOps', position: { x: -45, y: 40 }, connections: ['portfolio', 'spotonsight'], data: { description: 'Automated validation, delivery, and release pipelines.', detail: 'Process node connecting implementation quality to deployment reliability.', facts: ['Automated checks', 'Repeatable releases', 'Supports faster iteration'] } },
-    { id: 'nodejs', type: 'dim', label: 'Node.js', icon: 'bi-terminal-fill', category: 'Runtime', position: { x: 35, y: 40 }, connections: ['payqr'], data: { description: 'Runtime for server workflows and toolchains.', detail: 'Execution layer behind backend tooling and JavaScript server logic.', facts: ['Common web runtime', 'Useful for services and tools', 'Supports fast prototyping'] } },
-    { id: 'linux', type: 'dim', label: 'Linux', icon: 'bi-hdd-rack-fill', category: 'Infrastructure', position: { x: -35, y: 50 }, connections: ['dev'], data: { description: 'Server administration and command-line operations.', detail: 'Infrastructure node representing operational comfort and remote system work.', facts: ['Server-oriented', 'CLI workflows', 'Pairs with SSH access'] } },
-    { id: 'ssh', type: 'dim', label: 'SSH', icon: 'bi-shield-lock-fill', category: 'Access', position: { x: 50, y: 25 }, connections: ['dev', 'linux'], data: { description: 'Secure remote sessions and infrastructure access.', detail: 'Access layer for secure operational control of remote systems.', facts: ['Encrypted sessions', 'Infrastructure access', 'Used in maintenance workflows'] } },
-    { id: 'vite', type: 'dim', label: 'Vite', icon: 'bi-lightning-fill', category: 'Tooling', position: { x: -55, y: -15 }, connections: ['portfolio', 'spotonsight'], data: { description: 'Fast local feedback loops and bundling.', detail: 'Tooling node focused on developer speed and front-end iteration.', facts: ['Fast dev startup', 'Modern bundling', 'Smooth local workflow'] } },
-    { id: 'githubactions', type: 'dim', label: 'GitHub Actions', icon: 'bi-git', category: 'Automation', position: { x: -30, y: 55 }, connections: ['cicd'], data: { description: 'Workflow automation for verification and deployment.', detail: 'Automation node that turns CI/CD intent into executable workflows.', facts: ['Automated pipelines', 'Repo-native workflows', 'Supports shipping discipline'] } }
+    { id: 'vue', type: 'dim', label: 'Vue.js', icon: 'bi-triangle-fill', category: 'Frontend', position: { x: 44, y: -26 }, connections: ['spotonsight', 'payqr'], data: { description: 'Reactive UI architecture and component systems.', detail: 'Primary frontend system behind interactive product interfaces in this map.', facts: ['Component-driven UI', 'Used in multiple products', 'Strong fit for reactive flows'] } },
+    { id: 'fastapi', type: 'dim', label: 'FastAPI', icon: 'bi-lightning-charge-fill', category: 'Backend', position: { x: 47, y: -13 }, connections: ['spotonsight'], data: { description: 'Typed API delivery and async services.', detail: 'Backend layer used for reliable service interfaces and structured endpoints.', facts: ['Typed request models', 'Async-friendly', 'Good for product APIs'] } },
+    { id: 'mongodb', type: 'dim', label: 'MongoDB', icon: 'bi-database-fill', category: 'Database', position: { x: 48, y: 1 }, connections: ['spotonsight'], data: { description: 'Document storage for flexible product data.', detail: 'Supports evolving data structures for real product features and social content.', facts: ['Flexible schema', 'Good for iterative products', 'Used in app data flows'] } },
+    { id: 'stripe', type: 'dim', label: 'Stripe', icon: 'bi-credit-card-2-front-fill', category: 'Payments', position: { x: 11, y: -49 }, connections: ['payqr'], data: { description: 'Payments, invoicing, and transaction flows.', detail: 'Payments capability node tied directly to the Pay QR product concept.', facts: ['Checkout support', 'Billing workflows', 'Payment platform integration'] } },
+    { id: 'typescript', type: 'dim', label: 'TypeScript', icon: 'bi-filetype-tsx', category: 'Language', position: { x: -49, y: -30 }, connections: ['portfolio'], data: { description: 'Reliable typed interfaces across frontend systems.', detail: 'Adds structure and confidence to fast-moving UI codebases.', facts: ['Safer refactors', 'Shared contracts', 'Better editor feedback'] } },
+    { id: 'react', type: 'dim', label: 'React', icon: 'bi-stars', category: 'Frontend', position: { x: -43, y: -17 }, connections: ['portfolio'], data: { description: 'Component-driven interface building and prototyping.', detail: 'Alternative frontend stack represented in the portfolio node.', facts: ['Reusable UI patterns', 'Good for product experimentation', 'Strong ecosystem'] } },
+    { id: 'python', type: 'dim', label: 'Python', icon: 'bi-filetype-py', category: 'Language', position: { x: 58, y: -8 }, connections: ['fastapi'], data: { description: 'Service logic, APIs, and automation tooling.', detail: 'Language node backing service work and scripting-oriented tasks.', facts: ['Readable backend code', 'Good for automation', 'Pairs naturally with FastAPI'] } },
+    { id: 'docker', type: 'dim', label: 'Docker', icon: 'bi-box-seam-fill', category: 'DevOps', position: { x: 32, y: 7 }, connections: ['spotonsight', 'portfolio'], data: { description: 'Consistent delivery environments and deployment packaging.', detail: 'Delivery node that keeps environments reproducible across projects.', facts: ['Containerized services', 'Consistent local/prod setup', 'Useful in deployment workflows'] } },
+    { id: 'cicd', type: 'dim', label: 'CI/CD', icon: 'bi-diagram-3-fill', category: 'DevOps', position: { x: 22, y: 48 }, connections: ['portfolio', 'spotonsight'], data: { description: 'Automated validation, delivery, and release pipelines.', detail: 'Process node connecting implementation quality to deployment reliability.', facts: ['Automated checks', 'Repeatable releases', 'Supports faster iteration'] } },
+    { id: 'nodejs', type: 'dim', label: 'Node.js', icon: 'bi-terminal-fill', category: 'Runtime', position: { x: 18, y: -43 }, connections: ['payqr'], data: { description: 'Runtime for server workflows and toolchains.', detail: 'Execution layer behind backend tooling and JavaScript server logic.', facts: ['Common web runtime', 'Useful for services and tools', 'Supports fast prototyping'] } },
+    { id: 'linux', type: 'dim', label: 'Linux', icon: 'bi-hdd-rack-fill', category: 'Infrastructure', position: { x: 18, y: 38 }, connections: ['dev'], data: { description: 'Server administration and command-line operations.', detail: 'Infrastructure node representing operational comfort and remote system work.', facts: ['Server-oriented', 'CLI workflows', 'Pairs with SSH access'] } },
+    { id: 'ssh', type: 'dim', label: 'SSH', icon: 'bi-shield-lock-fill', category: 'Access', position: { x: 43, y: 36 }, connections: ['dev', 'linux'], data: { description: 'Secure remote sessions and infrastructure access.', detail: 'Access layer for secure operational control of remote systems.', facts: ['Encrypted sessions', 'Infrastructure access', 'Used in maintenance workflows'] } },
+    { id: 'vite', type: 'dim', label: 'Vite', icon: 'bi-lightning-fill', category: 'Tooling', position: { x: -53, y: -7 }, connections: ['portfolio', 'spotonsight'], data: { description: 'Fast local feedback loops and bundling.', detail: 'Tooling node focused on developer speed and front-end iteration.', facts: ['Fast dev startup', 'Modern bundling', 'Smooth local workflow'] } },
+    { id: 'githubactions', type: 'dim', label: 'GitHub Actions', icon: 'bi-git', category: 'Automation', position: { x: 8, y: 47 }, connections: ['cicd'], data: { description: 'Workflow automation for verification and deployment.', detail: 'Automation node that turns CI/CD intent into executable workflows.', facts: ['Automated pipelines', 'Repo-native workflows', 'Supports shipping discipline'] } }
   ],
 
   connections: [

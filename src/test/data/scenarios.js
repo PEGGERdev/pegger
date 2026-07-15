@@ -7,8 +7,12 @@ export const testScenarios = {
         starCount: 21,
         brightStars: 7,
         dimStars: 14,
+        clusters: 5,
+        clusteredStars: 21,
         connections: 26,
-        typedDimStars: true
+        typedDimStars: true,
+        validClusters: true,
+        validConnections: true
       }
     },
     'panel.view': {
@@ -69,7 +73,7 @@ export const testScenarios = {
   projectors: {
     'star-map-view': {
       description: 'Project the star map source into a view model',
-      expected: { starCount: 21, brightStars: 7 }
+      expected: { starCount: 21, brightStars: 7, clusters: 5 }
     },
     'panel-view': {
       description: 'Project selected panel data for display',

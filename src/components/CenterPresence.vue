@@ -453,4 +453,11 @@ const ariaLabel = computed(() => [
   from { transform: translate(-50%, -50%) rotate(-28deg); }
   to { transform: translate(-50%, -50%) rotate(332deg); }
 }
+
+@media (min-width: 901px) and (max-height: 820px) {
+  .center-presence:not(.center-presence--map-focused) .center-presence__info {
+    width: 15.5rem;
+    transform: translateX(-8rem);
+  }
+}
 </style>

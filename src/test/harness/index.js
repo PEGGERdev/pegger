@@ -28,11 +28,34 @@ export class TestHarness {
     const output = result.output
 
     if (name === 'star-map.view') {
+      const nodeIds = [output.center?.id, ...output.allStars.map(star => star.id)]
+      const nodeIdSet = new Set(nodeIds)
+      const clusterMemberIds = output.clusters.flatMap(cluster => cluster.memberIds)
+      const uniqueClusterMemberIds = new Set(clusterMemberIds)
+      const edgeKeys = new Set(output.connections.map(connection => (
+        [connection.from, connection.to].sort().join(':')
+      )))
+      const validClusters = output.clusters.every(cluster => (
+        cluster.memberIds.includes(cluster.anchorId)
+        && cluster.memberIds.every(id => nodeIdSet.has(id))
+        && theme.clusterTones[cluster.tone]
+      ))
+      const validConnections = output.connections.every(connection => (
+        connection.from !== connection.to
+        && nodeIdSet.has(connection.from)
+        && nodeIdSet.has(connection.to)
+      )) && edgeKeys.size === output.connections.length
       const passed = output.allStars.length === scenario.expected.starCount
         && output.brightStars.length === scenario.expected.brightStars
         && output.dimStars.length === scenario.expected.dimStars
+        && output.clusters.length === scenario.expected.clusters
+        && clusterMemberIds.length === scenario.expected.clusteredStars
+        && uniqueClusterMemberIds.size === scenario.expected.clusteredStars
+        && output.allStars.every(star => uniqueClusterMemberIds.has(star.id))
         && output.connections.length === scenario.expected.connections
         && output.dimStars.every(star => star.type === 'dim') === scenario.expected.typedDimStars
+        && validClusters === scenario.expected.validClusters
+        && validConnections === scenario.expected.validConnections
       this.results.push({
         type: 'workflow',
         name,
@@ -101,6 +124,7 @@ export class TestHarness {
     if (name === 'star-map-view') {
       passed = output.allStars.length === scenario.expected.starCount
         && output.brightStars.length === scenario.expected.brightStars
+        && output.clusters.length === scenario.expected.clusters
     } else if (name === 'panel-view') {
       passed = output.variant === scenario.expected.variant
         && Array.isArray(output.items) === scenario.expected.hasItems

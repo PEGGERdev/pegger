@@ -62,14 +62,27 @@ function isHighlighted(conn) {
 </script>
 
 <template>
-  <svg class="constellation-lines">
-    <line
+  <svg class="constellation-lines" aria-hidden="true" focusable="false">
+    <g
       v-for="conn in visibleConnections"
       :key="`${conn.from}-${conn.to}`"
-      :x1="conn.x1"
-      :y1="conn.y1"
-      :x2="conn.x2"
-      :y2="conn.y2"
+      class="constellation-connection"
+    >
+      <line
+        class="constellation-line__track"
+        :x1="conn.x1"
+        :y1="conn.y1"
+        :x2="conn.x2"
+        :y2="conn.y2"
+        vector-effect="non-scaling-stroke"
+      />
+      <line
+        :x1="conn.x1"
+        :y1="conn.y1"
+        :x2="conn.x2"
+        :y2="conn.y2"
+        pathLength="1"
+        vector-effect="non-scaling-stroke"
         :class="[
           'constellation-line',
           `constellation-line--${conn.strength}`,
@@ -79,7 +92,14 @@ function isHighlighted(conn) {
           }
         ]"
       />
-
+      <circle
+        v-if="conn.isActive"
+        class="constellation-line__signal"
+        :cx="conn.x2"
+        :cy="conn.y2"
+        r="2.4"
+      />
+    </g>
   </svg>
 </template>
 
@@ -89,52 +109,78 @@ function isHighlighted(conn) {
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 2;
   pointer-events: none;
   overflow: visible;
 }
 
+.constellation-line__track {
+  stroke: rgba(159, 197, 228, 0.055);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
 .constellation-line {
   stroke-linecap: round;
-  transition: opacity 300ms ease, stroke-width 300ms ease, filter 300ms ease;
-  filter: drop-shadow(0 0 8px rgba(31, 124, 114, 0.15));
+  transition: opacity 320ms ease, stroke-width 320ms ease, filter 320ms ease;
+  filter: drop-shadow(0 0 8px rgba(101, 227, 209, 0.1));
 }
 
 .constellation-line--primary {
-  stroke: #1f7c72;
-  stroke-width: 2;
-  opacity: 0.5;
+  stroke: rgba(101, 227, 209, 0.7);
+  stroke-width: 1.6;
+  opacity: 0.54;
 }
 
 .constellation-line--secondary {
-  stroke: #1f7c72;
-  stroke-width: 1.5;
-  opacity: 0.3;
+  stroke: rgba(112, 184, 255, 0.68);
+  stroke-width: 1.25;
+  opacity: 0.36;
 }
 
 .constellation-line--tertiary {
-  stroke: rgba(165, 194, 222, 0.55);
-  stroke-width: 1;
-  opacity: 0.15;
-  stroke-dasharray: 3 8;
+  stroke: rgba(181, 207, 232, 0.64);
+  stroke-width: 0.9;
+  opacity: 0.2;
+  stroke-dasharray: 0.025 0.055;
 }
 
 .constellation-line--active {
-  opacity: 1 !important;
-  stroke-width: 3px !important;
-  filter: drop-shadow(0 0 14px rgba(95, 208, 191, 0.28));
-  animation: linePulse 1.5s ease-in-out infinite;
+  stroke: rgba(174, 255, 242, 0.96);
+  stroke-width: 2.2px;
+  stroke-dasharray: 0.1 0.035;
+  opacity: 1;
+  filter: drop-shadow(0 0 10px rgba(101, 227, 209, 0.48));
+  animation: lineSignal 2.8s linear infinite;
 }
 
 .constellation-line--selected {
-  stroke-width: 2.6px;
+  stroke-width: 2.4px;
 }
 
-@keyframes linePulse {
+.constellation-line__signal {
+  fill: #effffc;
+  stroke: rgba(101, 227, 209, 0.72);
+  stroke-width: 4;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 8px rgba(101, 227, 209, 0.9));
+  animation: endpointPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes lineSignal {
+  to {
+    stroke-dashoffset: -0.135;
+  }
+}
+
+@keyframes endpointPulse {
   0%, 100% {
-    opacity: 0.8;
+    opacity: 0.58;
+    r: 2px;
   }
   50% {
     opacity: 1;
+    r: 3px;
   }
 }
 </style>

@@ -11,7 +11,7 @@ Status: complete for the current product scope.
 ### Active Constellation Enhancement
 
 - [x] Replace circular node bubbles with celestial star bodies and a futuristic center beacon
-- [ ] Group related products, stack nodes, channels, and infrastructure into legible clusters
+- [x] Group related products, stack nodes, channels, and infrastructure into legible clusters
 - [ ] Reapprove Windows and Linux visual baselines after the redesign
 
 ### Core Features

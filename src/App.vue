@@ -125,7 +125,7 @@ function handleFocusChange(starId) {
   width: min(34rem, calc(100vw - 3rem));
   padding: 1.4rem;
   border: 1px solid rgba(166, 205, 255, 0.12);
-  border-radius: 1.5rem;
+  border-radius: 4px 28px 4px 4px;
   background:
     linear-gradient(180deg, rgba(7, 16, 28, 0.9), rgba(7, 16, 28, 0.58)),
     radial-gradient(circle at top left, rgba(73, 197, 182, 0.14), transparent 38%);
@@ -133,6 +133,17 @@ function handleFocusChange(starId) {
   -webkit-backdrop-filter: blur(22px);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
   transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.hero-panel::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 1.4rem;
+  width: 5rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--pegger-primary), transparent);
+  box-shadow: 0 0 14px rgba(var(--pegger-primary-rgb), 0.55);
 }
 
 .hero-panel__eyebrow {
@@ -170,7 +181,7 @@ function handleFocusChange(starId) {
 .hero-panel__action {
   min-height: 3rem;
   padding: 0.85rem 1rem;
-  border-radius: 999px;
+  border-radius: 3px 14px 3px 3px;
   border: 1px solid transparent;
   display: inline-flex;
   align-items: center;
@@ -206,7 +217,7 @@ function handleFocusChange(starId) {
 
 .hero-panel__meta span {
   padding: 0.45rem 0.75rem;
-  border-radius: 999px;
+  border-radius: 3px 10px 3px 3px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(232, 242, 255, 0.8);
@@ -237,7 +248,7 @@ function handleFocusChange(starId) {
     width: auto;
     margin: 0.75rem;
     padding: 1.1rem;
-    border-radius: 1.25rem;
+    border-radius: 4px 20px 4px 4px;
   }
 
   .star-map-container {
