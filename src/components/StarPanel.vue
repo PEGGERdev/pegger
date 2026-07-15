@@ -36,6 +36,10 @@ let previousActiveElement = null
 let previousAriaHidden = null
 let previousBodyOverflow = ''
 let previousHtmlOverflow = ''
+let previousBodyPosition = ''
+let previousBodyTop = ''
+let previousBodyWidth = ''
+let previousScrollY = 0
 let previousInert = false
 
 function requestClose() {
@@ -95,7 +99,14 @@ onMounted(() => {
   previousActiveElement = props.returnFocus || document.activeElement
   previousBodyOverflow = document.body.style.overflow
   previousHtmlOverflow = document.documentElement.style.overflow
+  previousBodyPosition = document.body.style.position
+  previousBodyTop = document.body.style.top
+  previousBodyWidth = document.body.style.width
+  previousScrollY = window.scrollY
   document.body.style.overflow = 'hidden'
+  document.body.style.position = 'fixed'
+  document.body.style.top = `-${previousScrollY}px`
+  document.body.style.width = '100%'
   document.documentElement.style.overflow = 'hidden'
 
   appShell = document.querySelector('.app-shell')
@@ -113,7 +124,11 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
   document.body.style.overflow = previousBodyOverflow
+  document.body.style.position = previousBodyPosition
+  document.body.style.top = previousBodyTop
+  document.body.style.width = previousBodyWidth
   document.documentElement.style.overflow = previousHtmlOverflow
+  window.scrollTo({ top: previousScrollY, left: 0, behavior: 'auto' })
 
   if (appShell) {
     appShell.inert = previousInert

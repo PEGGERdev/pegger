@@ -18,6 +18,14 @@ export const theme = {
     textLightMuted: 'rgba(255, 255, 255, 0.7)'
   },
 
+  clusterTones: {
+    mint: { color: '#65e3d1', rgb: '101, 227, 209' },
+    blue: { color: '#70b8ff', rgb: '112, 184, 255' },
+    amber: { color: '#ffc15c', rgb: '255, 193, 92' },
+    violet: { color: '#b49aff', rgb: '180, 154, 255' },
+    orange: { color: '#ff8a62', rgb: '255, 138, 98' },
+  },
+
   typography: {
     fontDisplay: "'Space Grotesk', sans-serif",
     fontBody: "'Plus Jakarta Sans', sans-serif"

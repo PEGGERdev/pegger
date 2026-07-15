@@ -34,6 +34,10 @@ const props = defineProps({
   detailLevel: {
     type: String,
     default: 'overview'
+  },
+  tone: {
+    type: String,
+    default: 'mint'
   }
 })
 
@@ -43,8 +47,10 @@ const starRef = ref(null)
 const offset = ref({ x: 0, y: 0 })
 const isHovered = ref(false)
 const driftSeed = [...props.star.id].reduce((total, character) => total + character.charCodeAt(0), 0)
-const driftDuration = `${(props.star.type === 'bright' ? 3.6 : 4.4) + (driftSeed % 7) * 0.18}s`
-const driftDelay = `${(driftSeed % 5) * 0.22}s`
+const driftDuration = `${(props.star.type === 'bright' ? 6.4 : 7.8) + (driftSeed % 7) * 0.24}s`
+const rayDuration = `${(props.star.type === 'bright' ? 10.8 : 12.4) + (driftSeed % 5) * 0.42}s`
+const driftDelay = `-${(driftSeed % 6) * 0.38}s`
+const rayRotation = `${(driftSeed % 72) - 36}deg`
 
 const MAGNETIC_RANGE = theme.animations.magneticRange * 1.15
 const ATTRACTION_STRENGTH = theme.animations.magneticStrength * 0.95
@@ -53,6 +59,13 @@ const position = computed(() => {
   return {
     x: props.position.x + offset.value.x,
     y: props.position.y + offset.value.y
+  }
+})
+
+const toneToken = computed(() => {
+  return theme.clusterTones?.[props.tone] || theme.clusterTones?.mint || {
+    color: theme.colors.primary,
+    rgb: theme.colors.primaryRgb,
   }
 })
 
@@ -84,12 +97,21 @@ const size = computed(() => {
   return theme.starSizes.dim
 })
 
+const hitSize = computed(() => Math.max(44, size.value + (props.star.type === 'bright' ? 8 : 14)))
+
 const style = computed(() => ({
   left: `${position.value.x}px`,
   top: `${position.value.y}px`,
+  width: `${hitSize.value}px`,
+  height: `${hitSize.value}px`,
   transform: `translate(-50%, -50%)`,
   '--drift-duration': driftDuration,
+  '--ray-duration': rayDuration,
   '--drift-delay': driftDelay,
+  '--ray-rotation': rayRotation,
+  '--star-size': `${size.value}px`,
+  '--star-color': toneToken.value.color,
+  '--star-rgb': toneToken.value.rgb,
   '--star-opacity': props.muted ? 0.24 : 1,
 }))
 
@@ -141,6 +163,11 @@ function calculateDistance(x1, y1, x2, y2) {
 
 let animationFrame = null
 let reducedMotion = false
+let velocity = { x: 0, y: 0 }
+
+function clamp(value, limit) {
+  return Math.max(-limit, Math.min(limit, value))
+}
 
 function updateAttraction() {
   if (!starRef.value) {
@@ -155,23 +182,41 @@ function updateAttraction() {
   const deltaX = props.mouseX - starX
   const deltaY = props.mouseY - starY
   const distance = calculateDistance(props.mouseX, props.mouseY, starX, starY)
+  let targetX = 0
+  let targetY = 0
 
   if (distance < MAGNETIC_RANGE) {
     const normalizedDistance = 1 - (distance / MAGNETIC_RANGE)
-    const followFactor = Math.min(0.6, normalizedDistance * (0.55 + ATTRACTION_STRENGTH * 3.2))
-    const easedFactor = followFactor ** 1.85
-    offset.value = {
-      x: deltaX * easedFactor,
-      y: deltaY * easedFactor
-    }
-  } else {
-    offset.value = {
-      x: offset.value.x * 0.88,
-      y: offset.value.y * 0.88
-    }
+    const followFactor = normalizedDistance ** 1.8 * (0.16 + ATTRACTION_STRENGTH * 1.5)
+    const maxOffset = props.star.type === 'bright' ? 32 : 22
+    targetX = clamp(deltaX * followFactor, maxOffset)
+    targetY = clamp(deltaY * followFactor, maxOffset)
   }
 
-  emitPosition()
+  const stiffness = distance < MAGNETIC_RANGE ? 0.16 : 0.1
+  const damping = 0.72
+  velocity.x = (velocity.x + (targetX - offset.value.x) * stiffness) * damping
+  velocity.y = (velocity.y + (targetY - offset.value.y) * stiffness) * damping
+
+  const nextOffset = {
+    x: offset.value.x + velocity.x,
+    y: offset.value.y + velocity.y,
+  }
+
+  if (Math.abs(nextOffset.x) < 0.01 && Math.abs(velocity.x) < 0.01) {
+    nextOffset.x = 0
+    velocity.x = 0
+  }
+
+  if (Math.abs(nextOffset.y) < 0.01 && Math.abs(velocity.y) < 0.01) {
+    nextOffset.y = 0
+    velocity.y = 0
+  }
+
+  if (nextOffset.x !== offset.value.x || nextOffset.y !== offset.value.y) {
+    offset.value = nextOffset
+    emitPosition()
+  }
 
   animationFrame = requestAnimationFrame(updateAttraction)
 }
@@ -216,6 +261,7 @@ onUnmounted(() => {
     type="button"
     :style="style"
     :aria-label="ariaLabel"
+    :aria-pressed="selected"
     class="star"
     :class="[
       `star--${star.type}`,
@@ -232,19 +278,27 @@ onUnmounted(() => {
     @blur="handleMouseLeave"
     @click="handleClick"
   >
-    <div
+    <span
       class="star__core-wrapper"
       :class="coreClass"
-      :style="{
-        width: `${size}px`,
-        height: `${size}px`,
-        opacity: brightness
-      }"
+      :style="{ opacity: brightness }"
+      aria-hidden="true"
     >
-      <i v-if="star.icon" :class="['star__icon', star.icon]" />
+      <span class="star__corona" />
+      <span class="star__rays">
+        <span class="star__ray star__ray--horizontal" />
+        <span class="star__ray star__ray--vertical" />
+        <span class="star__ray star__ray--diagonal-a" />
+        <span class="star__ray star__ray--diagonal-b" />
+      </span>
+      <span class="star__orbit" />
+      <span class="star__body">
+        <span class="star__facet" />
+        <i v-if="star.icon" :class="['star__icon', star.icon]" />
+      </span>
       <span v-if="star.badge || star.data?.badge" class="star__badge">{{ star.badge || star.data?.badge }}</span>
       <span v-if="star.category && showMeta" class="star__kicker">{{ star.category }}</span>
-    </div>
+    </span>
     <div v-if="showLabel" class="star__label" :class="{ 'star__label--selected': selected }">
       <span class="star__label-title">{{ star.label }}</span>
       <span v-if="showMeta && detailText" class="star__label-meta">{{ detailText }}</span>
@@ -259,10 +313,12 @@ onUnmounted(() => {
   border: 0;
   background: transparent;
   cursor: pointer;
-  transition: opacity 200ms ease, left 420ms cubic-bezier(0.22, 1, 0.36, 1), top 420ms cubic-bezier(0.22, 1, 0.36, 1), transform 220ms ease;
+  transition:
+    opacity 240ms ease,
+    left 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 240ms ease;
   will-change: transform;
-  animation: starDrift var(--drift-duration, 4s) ease-in-out infinite;
-  animation-delay: var(--drift-delay, 0s);
   z-index: 4;
   opacity: var(--star-opacity, 1);
 }
@@ -272,10 +328,11 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 4rem;
-  height: 4rem;
+  width: calc(var(--star-size) * 1.2);
+  height: calc(var(--star-size) * 1.2);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(73, 197, 182, 0.36), rgba(90, 167, 255, 0.12) 46%, transparent 72%);
+  border: 1px solid rgba(var(--star-rgb), 0.5);
+  box-shadow: 0 0 28px rgba(var(--star-rgb), 0.25);
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0.4);
@@ -304,115 +361,235 @@ onUnmounted(() => {
   z-index: 6;
 }
 
-@keyframes starDrift {
-  0%, 100% {
-    filter: brightness(1);
-  }
-  25% {
-    filter: brightness(1.05);
-  }
-  50% {
-    filter: brightness(0.95);
-  }
-  75% {
-    filter: brightness(1.02);
-  }
+.star__core-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--star-size);
+  height: var(--star-size);
+  transform: translate(-50%, -50%);
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 260ms ease, filter 260ms ease;
 }
 
-.star__core-wrapper {
-  position: relative;
+.star__corona,
+.star__rays,
+.star__orbit,
+.star__body,
+.star__facet {
+  position: absolute;
+  pointer-events: none;
+}
+
+.star__corona {
+  inset: -44%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.24), rgba(var(--star-rgb), 0.2) 24%, rgba(var(--star-rgb), 0.07) 48%, transparent 72%);
+  filter: blur(5px);
+  animation: stellarCorona var(--drift-duration, 7s) ease-in-out infinite;
+  animation-delay: var(--drift-delay, 0s);
+}
+
+.star__rays {
+  inset: -46%;
+  transform: rotate(var(--ray-rotation));
+  animation: stellarRays var(--ray-duration, 11s) ease-in-out infinite;
+  animation-delay: var(--drift-delay, 0s);
+}
+
+.star__ray {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: linear-gradient(90deg, transparent, rgba(var(--star-rgb), 0.28), rgba(255, 255, 255, 0.86), rgba(var(--star-rgb), 0.28), transparent);
+  transform-origin: center;
+}
+
+.star__ray--horizontal,
+.star__ray--vertical {
+  width: 100%;
+  height: 1px;
+  transform: translate(-50%, -50%);
+}
+
+.star__ray--vertical {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.star__ray--diagonal-a,
+.star__ray--diagonal-b {
+  width: 68%;
+  height: 1px;
+  opacity: 0.55;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.star__ray--diagonal-b {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.star__orbit {
+  inset: -18%;
+  border: 1px solid rgba(var(--star-rgb), 0.54);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.72) rotate(-18deg);
+  transition: opacity 220ms ease, transform 320ms ease;
+}
+
+.star__orbit::before,
+.star__orbit::after {
+  content: '';
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(var(--star-rgb), 0.9);
+}
+
+.star__orbit::before {
+  top: 12%;
+  right: 12%;
+}
+
+.star__orbit::after {
+  bottom: 12%;
+  left: 12%;
+}
+
+.star__body {
+  inset: 7%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: transform 200ms ease, box-shadow 300ms ease, filter 300ms ease;
+  clip-path: polygon(50% 0%, 58% 35%, 82% 18%, 65% 42%, 100% 50%, 65% 58%, 82% 82%, 58% 65%, 50% 100%, 42% 65%, 18% 82%, 35% 58%, 0% 50%, 35% 42%, 18% 18%, 42% 35%);
+  background:
+    radial-gradient(circle at 43% 38%, #fff 0 12%, rgba(255, 255, 255, 0.96) 18%, rgba(var(--star-rgb), 0.96) 48%, rgba(var(--star-rgb), 0.3) 76%, transparent 78%);
+  filter:
+    drop-shadow(0 0 5px rgba(255, 255, 255, 0.72))
+    drop-shadow(0 0 13px rgba(var(--star-rgb), 0.82))
+    drop-shadow(0 0 28px rgba(var(--star-rgb), 0.42));
+  animation: stellarCore var(--drift-duration, 7s) ease-in-out infinite;
+  animation-delay: var(--drift-delay, 0s);
 }
 
-.star--selected .star__core-wrapper {
-  box-shadow: 0 0 30px rgba(95, 208, 191, 0.45), 0 0 80px rgba(47, 110, 168, 0.24);
+.star__facet {
+  inset: 22%;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.58), transparent 48%, rgba(5, 13, 23, 0.3));
+  mix-blend-mode: screen;
 }
 
-.star--connected .star__core-wrapper {
-  box-shadow: 0 0 24px rgba(95, 208, 191, 0.24), 0 0 48px rgba(95, 208, 191, 0.12);
+.star__core--dim .star__body {
+  inset: 13%;
+  filter:
+    drop-shadow(0 0 4px rgba(255, 255, 255, 0.58))
+    drop-shadow(0 0 10px rgba(var(--star-rgb), 0.52));
 }
 
-.star__core--bright {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, rgba(95, 208, 191, 0.92) 22%, rgba(31, 124, 114, 0.86) 58%, transparent 78%);
-  box-shadow: 0 0 20px rgba(31, 124, 114, 0.5), 0 0 46px rgba(31, 124, 114, 0.28), 0 0 80px rgba(47, 110, 168, 0.12);
+.star__core--dim .star__rays {
+  inset: -24%;
+  opacity: 0.52;
 }
 
-.star__core--dim {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(138, 176, 221, 0.22) 40%, transparent 74%);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.18), 0 0 28px rgba(98, 142, 190, 0.08);
+.star__core--dim .star__corona {
+  inset: -26%;
+  opacity: 0.58;
 }
 
+.star--selected .star__core-wrapper,
 .star:hover .star__core-wrapper {
-  transform: scale(1.15);
-  filter: saturate(1.15);
+  transform: translate(-50%, -50%) scale(1.14);
+  filter: saturate(1.18);
+}
+
+.star--connected .star__orbit,
+.star--selected .star__orbit,
+.star:hover .star__orbit,
+.star:focus-visible .star__orbit {
+  opacity: 0.7;
+  transform: scale(1) rotate(12deg);
+}
+
+.star--selected .star__orbit,
+.star:focus-visible .star__orbit {
+  border-width: 2px;
+  opacity: 1;
+  box-shadow: 0 0 20px rgba(var(--star-rgb), 0.24);
 }
 
 .star:focus-visible .star__core-wrapper {
-  transform: scale(1.12);
-  box-shadow: 0 0 0 3px rgba(90, 167, 255, 0.42), 0 0 30px rgba(90, 167, 255, 0.2);
-}
-
-.star:hover .star__core--bright {
-  box-shadow: 0 0 30px rgba(31, 124, 114, 0.7), 0 0 60px rgba(31, 124, 114, 0.5);
-}
-
-.star:hover .star__core--dim {
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%) scale(1.12);
 }
 
 .star__icon {
-  font-size: 1rem;
-  color: #fff;
+  position: relative;
+  z-index: 2;
+  font-size: clamp(0.65rem, calc(var(--star-size) * 0.31), 1rem);
+  color: rgba(4, 15, 24, 0.84);
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.24));
+}
+
+.star__core--dim .star__icon {
+  font-size: clamp(0.48rem, calc(var(--star-size) * 0.3), 0.72rem);
+  color: rgba(4, 15, 24, 0.78);
 }
 
 .star__badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  padding: 2px 6px;
-  font-size: 0.6rem;
+  z-index: 4;
+  top: -7px;
+  right: -10px;
+  padding: 3px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px 8px 3px 3px;
+  background: rgba(8, 14, 24, 0.92);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.38);
+  font-size: 0.56rem;
   font-weight: 700;
-  background: var(--pegger-orange, #ea580c);
-  color: #fff;
-  border-radius: 4px;
+  letter-spacing: 0.08em;
+  color: rgb(var(--star-rgb));
 }
 
 .star__kicker {
   position: absolute;
-  top: 50%;
+  z-index: 5;
+  top: -1rem;
   left: 50%;
-  transform: translate(-50%, calc(-50% - 2rem));
-  padding: 0.2rem 0.45rem;
-  border-radius: 999px;
-  background: rgba(7, 12, 22, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
+  transform: translateX(-50%);
+  padding: 0.18rem 0.4rem;
+  border: 1px solid rgba(var(--star-rgb), 0.26);
+  border-radius: 2px 7px 2px 2px;
+  background: rgba(5, 10, 18, 0.88);
+  font-size: 0.54rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.74);
+  color: rgba(230, 243, 255, 0.72);
 }
 
 .star__label {
   position: absolute;
-  top: calc(100% + 8px);
+  z-index: 7;
+  top: calc(50% + (var(--star-size) / 2) + 0.65rem);
   left: 50%;
   transform: translateX(-50%);
   min-width: max-content;
   max-width: 16rem;
-  padding: 0.35rem 0.55rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
+  padding: 0.36rem 0.58rem 0.38rem 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 2px solid rgba(var(--star-rgb), 0.72);
+  border-radius: 3px 11px 3px 3px;
   display: grid;
   gap: 0.15rem;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.84);
-  background: rgba(7, 12, 22, 0.68);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
+  color: rgba(242, 248, 255, 0.9);
+  background: linear-gradient(110deg, rgba(5, 10, 18, 0.92), rgba(10, 18, 30, 0.7));
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.3);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   pointer-events: none;
   opacity: 1;
@@ -420,9 +597,8 @@ onUnmounted(() => {
 }
 
 .star__label--selected {
-  padding: 0.55rem 0.8rem;
-  border-radius: 1rem;
-  background: rgba(7, 12, 22, 0.82);
+  padding: 0.58rem 0.78rem;
+  background: linear-gradient(110deg, rgba(5, 10, 18, 0.96), rgba(var(--star-rgb), 0.12));
 }
 
 .star__label-title {
@@ -445,6 +621,45 @@ onUnmounted(() => {
 }
 
 .star--dim .star__label {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
+}
+
+@keyframes stellarCorona {
+  0%, 100% {
+    opacity: 0.62;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes stellarRays {
+  0%, 100% {
+    opacity: 0.62;
+    transform: rotate(var(--ray-rotation)) scale(0.94);
+  }
+  50% {
+    opacity: 0.94;
+    transform: rotate(calc(var(--ray-rotation) + 4deg)) scale(1.08);
+  }
+}
+
+@keyframes stellarCore {
+  0%, 100% {
+    transform: scale(0.96);
+    filter:
+      drop-shadow(0 0 5px rgba(255, 255, 255, 0.68))
+      drop-shadow(0 0 13px rgba(var(--star-rgb), 0.78))
+      drop-shadow(0 0 28px rgba(var(--star-rgb), 0.38));
+  }
+  50% {
+    transform: scale(1.04);
+    filter:
+      drop-shadow(0 0 7px rgba(255, 255, 255, 0.82))
+      drop-shadow(0 0 17px rgba(var(--star-rgb), 0.92))
+      drop-shadow(0 0 34px rgba(var(--star-rgb), 0.5));
+  }
 }
 </style>
