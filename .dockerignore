@@ -1,0 +1,14 @@
+.git
+.github
+.env
+.env.*
+node_modules
+dist
+/config
+/docker-compose.yml
+playwright-report
+test-results
+tests
+docs
+project_status.md
+TODO.md
