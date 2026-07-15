@@ -87,14 +87,16 @@ test('keeps compact desktop overlays clear and mobile scrolling available', asyn
 })
 
 test('captures keyboard focus and the expanded constellation', async ({ page }, testInfo) => {
-  await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Dismiss guide' })).toBeFocused()
-  await capture(page, 'landing-keyboard-focus.png')
-
   if (testInfo.project.name === 'mobile') {
     await capture(page, 'mobile-directory.png')
     return
   }
+
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('region', { name: 'Interactive constellation map' })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('button', { name: 'Dismiss guide' })).toBeFocused()
+  await capture(page, 'landing-keyboard-focus.png')
 
   await page.getByRole('button', { name: 'Dismiss guide' }).click()
   await zoomToAllBrightStars(page)
@@ -153,12 +155,15 @@ test('captures contact zoom and social star focus', async ({ page }, testInfo) =
   await page.locator('button.star[aria-label^="Contact."]').click()
   await expect(page.getByText('Focused node')).toBeVisible()
   await expect(page.getByText('Contact').first()).toBeVisible()
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(1400)
   await capture(page, 'focus-contact.png', { fullPage: false })
 
+  await page.locator('.star-map__control--wide').click()
+  await page.waitForTimeout(1400)
+  await zoomToAllBrightStars(page)
   await page.locator('button.star[aria-label^="GitHub."]').click()
   await expect(page.getByText('GitHub').first()).toBeVisible()
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(1400)
   await capture(page, 'focus-github.png', { fullPage: false })
 })
 
@@ -175,6 +180,6 @@ test('captures dev terminal zoom and focus state', async ({ page }, testInfo) =>
   await page.locator('button.star[aria-label^="Dev Terminal."]').click()
   await expect(page.getByText('Focused node')).toBeVisible()
   await expect(page.getByText('Dev Terminal').first()).toBeVisible()
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(1400)
   await capture(page, 'focus-dev-terminal.png', { fullPage: false })
 })

@@ -21,7 +21,7 @@
 | HUB-006 | Cross-platform visual and security approval | `opencode.md` | completed | `feature/futuristic-constellation` | Tests and 40 snapshots | Windows and Linux comparison, audit | `f799aa5`, `961c5ed` | yes | None |
 | OPS-001 | Gated production deployment | Prior user request | completed | `feature/visual-e2e-coverage` | Workflow and deployment scripts | Health, revision, TLS, rollback | `4e4f3d7`, `ebe27c8` | yes | None |
 | OPS-002 | Portable Caddy label detection | Production regression | completed | `fix/caddy-site-label-detection` | Deployment parser and fixture test | Ubuntu fixture, CI, successful VPS releases | `86f5267`, `30d9740` | yes | None |
-| HUB-007 | Replace card-based star interaction with smooth galaxy zoom | Current user request | verified | `feature/galactic-constellation` | `StarMap.vue`, `App.vue`, `hub.e2e.spec.js` | Type check, build, npm test, E2E zoom/focus/hover tests | pending | no | Animation timing and snapshot variance |
+| HUB-007 | Replace card-based star interaction with smooth galaxy zoom | Current user request | completed | `feature/galactic-constellation` | `StarMap.vue`, `App.vue`, `hub.e2e.spec.js` | Type check, build, npm test, E2E zoom/focus/hover tests | `f67258b` | yes | Animation timing and snapshot variance |
 | HUB-008 | Galaxy field depth, natural stellar light, center nucleus, and asterism paths | Current user request | open | `feature/galactic-constellation` | `StarField.vue`, `Star.vue`, `CenterPresence.vue`, `ClusterRegions.vue`, `ConstellationLines.vue` | Runtime/type/build, reduced motion, desktop/mobile visual review | pending | no | GPU cost and visual determinism |
 | HUB-009 | Cross-platform galactic visual approval and production promotion | `opencode.md` | open | `feature/galactic-constellation` | Tests, snapshots, status files | Full local gates, 20 Windows and 20 Linux baselines, audit, production checks | pending | no | Platform rendering drift |
 
@@ -46,6 +46,7 @@
 | HUB-005 | `337a475` | yes | present in `origin/dev` | Relationship clusters |
 | HUB-006 | `f799aa5`, `961c5ed` | yes | present in `origin/dev` | Cross-platform approval |
 | OPS-002 | `86f5267`, `30d9740` | yes | present in `origin/dev` | Portable deployment parser |
+| HUB-007 | `f67258b` | yes | present in `origin/dev` | Galaxy zoom interaction |
 
 ## Main Promotion Checklist
 
