@@ -22,7 +22,7 @@
 | OPS-001 | Gated production deployment | Prior user request | completed | `feature/visual-e2e-coverage` | Workflow and deployment scripts | Health, revision, TLS, rollback | `4e4f3d7`, `ebe27c8` | yes | None |
 | OPS-002 | Portable Caddy label detection | Production regression | completed | `fix/caddy-site-label-detection` | Deployment parser and fixture test | Ubuntu fixture, CI, successful VPS releases | `86f5267`, `30d9740` | yes | None |
 | HUB-007 | Replace card-based star interaction with smooth galaxy zoom | Current user request | completed | `feature/galactic-constellation` | `StarMap.vue`, `App.vue`, `hub.e2e.spec.js` | Type check, build, npm test, E2E zoom/focus/hover tests | `f67258b` | yes | Animation timing and snapshot variance |
-| HUB-008 | Galaxy field depth, natural stellar light, center nucleus, and asterism paths | Current user request | verified | `feature/galactic-constellation` | `StarField.vue`, `Star.vue`, `CenterPresence.vue`, `ClusterRegions.vue`, `ConstellationLines.vue` | Runtime/type/build, 12 npm tests, 12 E2E (29 updated snapshots) | pending | no | GPU cost and visual determinism |
+| HUB-008 | Galaxy field depth, natural stellar light, center nucleus, and asterism paths | Current user request | completed | `feature/galactic-constellation` | `StarField.vue`, `Star.vue`, `CenterPresence.vue`, `ClusterRegions.vue`, `ConstellationLines.vue` | Runtime/type/build, 12 npm tests, 12 E2E (29 updated snapshots) | `11fdc0e` | yes | GPU cost and visual determinism |
 | HUB-009 | Cross-platform galactic visual approval and production promotion | `opencode.md` | open | `feature/galactic-constellation` | Tests, snapshots, status files | Full local gates, 20 Windows and 20 Linux baselines, audit, production checks | pending | no | Platform rendering drift |
 
 ## Verification Log
@@ -52,6 +52,7 @@
 | HUB-006 | `f799aa5`, `961c5ed` | yes | present in `origin/dev` | Cross-platform approval |
 | OPS-002 | `86f5267`, `30d9740` | yes | present in `origin/dev` | Portable deployment parser |
 | HUB-007 | `f67258b`, `e2e3463` | yes | present in `origin/dev` | Galaxy zoom interaction + E2E baseline refresh |
+| HUB-008 | `11fdc0e` | yes | present in `origin/dev` | Spiral galaxy field, circular star spheres, galactic nucleus, asterism paths |
 
 ## Main Promotion Checklist
 
