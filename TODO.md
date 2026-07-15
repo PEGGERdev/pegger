@@ -62,8 +62,8 @@ Status: complete for the current product scope.
 - [x] Generate the Linux visual baselines used by CI
 - [x] Commit and push the generated Linux visual baselines
 - [x] Merge the verified hub feature branch into `master`
-- [ ] Merge the server-standard `deploy-production` alignment fix
-- [ ] Confirm the automatic production deployment and public revision
+- [x] Merge the server-standard `deploy-production` alignment fix
+- [x] Confirm the automatic production deployment and public revision
 
 ## Future Phase 2: Dev Terminal
 
