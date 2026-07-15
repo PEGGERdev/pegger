@@ -70,6 +70,8 @@ Status: complete for the current product scope.
 - [x] Merge the verified hub feature branch into `master`
 - [x] Merge the server-standard `deploy-production` alignment fix
 - [x] Confirm the automatic production deployment and public revision
+- [x] Deploy the futuristic constellation redesign and verify desktop/mobile production states
+- [x] Add portable Caddy label detection coverage after the rollback-safe deployment rejection
 
 ## Future Phase 2: Dev Terminal
 
