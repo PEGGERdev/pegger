@@ -113,8 +113,6 @@ handle_exit() {
   exit "${status}"
 }
 
-trap handle_exit EXIT
-
 site_label_exists() {
   local expected_host="$1"
 
@@ -125,8 +123,8 @@ site_label_exists() {
       sub(/[[:space:]]*\{[[:space:]]*$/, "", line)
       gsub(/,/, " ", line)
       count = split(line, labels, /[[:space:]]+/)
-      for (index = 1; index <= count; index++) {
-        label = labels[index]
+      for (label_index = 1; label_index <= count; label_index++) {
+        label = labels[label_index]
         sub(/^https?:\/\//, "", label)
         sub(/:[0-9]+$/, "", label)
         if (label == expected_host) found = 1
@@ -190,20 +188,28 @@ verify_public_revision() {
   return 1
 }
 
-cd "${ROOT_DIR}"
+# Keep deployment side effects behind main so parser tests can source this file.
+main() {
+  trap handle_exit EXIT
+  cd "${ROOT_DIR}"
 
-docker network inspect spotonsight_proxy >/dev/null 2>&1 || docker network create spotonsight_proxy >/dev/null
-prepare_rollback_image
+  docker network inspect spotonsight_proxy >/dev/null 2>&1 || docker network create spotonsight_proxy >/dev/null
+  prepare_rollback_image
 
-docker compose -p pegger-hub -f "${COMPOSE_FILE}" build --pull pegger-hub
-deployment_started=true
-docker compose -p pegger-hub -f "${COMPOSE_FILE}" up -d --force-recreate --remove-orphans
-wait_for_health
-configure_caddy
-verify_public_revision
+  docker compose -p pegger-hub -f "${COMPOSE_FILE}" build --pull pegger-hub
+  deployment_started=true
+  docker compose -p pegger-hub -f "${COMPOSE_FILE}" up -d --force-recreate --remove-orphans
+  wait_for_health
+  configure_caddy
+  verify_public_revision
 
-deployment_started=false
-docker image rm pegger-hub:rollback >/dev/null 2>&1 || true
-rm -rf "${ROOT_DIR}/dist" "${ROOT_DIR}/config"
-rm -f "${ROOT_DIR}/docker-compose.yml"
-echo "Deployment verified at ${PUBLIC_URL} (${DEPLOY_REVISION})"
+  deployment_started=false
+  docker image rm pegger-hub:rollback >/dev/null 2>&1 || true
+  rm -rf "${ROOT_DIR}/dist" "${ROOT_DIR}/config"
+  rm -f "${ROOT_DIR}/docker-compose.yml"
+  echo "Deployment verified at ${PUBLIC_URL} (${DEPLOY_REVISION})"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
+fi
