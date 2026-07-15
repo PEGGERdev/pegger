@@ -59,7 +59,8 @@ Status: complete for the current product scope.
 - [x] Add test, type-check, build, browser, health, and revision gates
 - [x] Add staged release swaps, automatic rollback, and validated Caddy reloads
 - [x] Pin the production SSH host keys in repository secrets
-- [ ] Generate and commit the Linux visual baselines used by CI
+- [x] Generate the Linux visual baselines used by CI
+- [ ] Commit and push the generated Linux visual baselines
 - [ ] Merge the verified feature branch into `master`
 - [ ] Confirm the automatic production deployment and public revision
 

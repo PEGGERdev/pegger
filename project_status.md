@@ -4,7 +4,7 @@
 
 | ID | Item | Source | Status | Files | Verification |
 |---|---|---|---|---|---|
-| HUB-001 | Add deterministic desktop and mobile e2e screenshot coverage for every visible hub state | User request, `TODO.md` technical debt | completed | `playwright.config.js`, `tests/e2e/hub.e2e.spec.js`, `tests/e2e/hub.e2e.spec.js-snapshots/`, `package.json` | 12 scenarios and 20 reviewed Windows baselines; Linux CI baselines pending |
+| HUB-001 | Add deterministic desktop and mobile e2e screenshot coverage for every visible hub state | User request, `TODO.md` technical debt | completed | `playwright.config.js`, `tests/e2e/hub.e2e.spec.js`, `tests/e2e/hub.e2e.spec.js-snapshots/`, `package.json` | 12 scenarios with 20 Windows and 20 generated Linux baselines |
 | HUB-002 | Inspect generated screenshots and correct visible layout, responsive, and polish defects | User request, Phase 1 TODO | completed | `src/App.vue`, `src/components/StarMap.vue`, `src/components/Star.vue`, `src/components/StarPanel.vue`, `src/components/ConstellationLines.vue`, `src/style.css` | Desktop and Pixel 7 states reviewed; interaction assertions passed |
 | HUB-003 | Reconcile Phase 1 TODO state with implemented behavior and record evidence | `opencode.md` | completed | `TODO.md`, `project_status.md` | Completed work and future scope are explicitly separated |
 | OPS-001 | Repair production routing and add gated automatic deployment from `master` | User request | in_progress | `.github/workflows/deploy.yml`, `scripts/deploy-hub.sh`, `README.md` | Local gates pass; branch push, Linux baselines, merge, and production verification pending |
@@ -35,7 +35,7 @@ npm audit --audit-level=low: 0 vulnerabilities
 | R-002 | Existing worktree contains broad uncommitted feature/runtime changes. | monitored | New work is isolated on `feature/visual-e2e-coverage`; unrelated changes are preserved. |
 | R-003 | npm reported four dependency vulnerabilities, including high-severity Vite advisories. | mitigated | Vite and affected transitive tooling were updated; `npm audit --audit-level=low` now reports zero vulnerabilities. |
 | R-004 | The apex domain has no Caddy route, so HTTPS currently fails despite a healthy hub container. | active | Deployment now detects the apex route exactly, validates Caddy, reloads it, and verifies the deployed revision publicly. |
-| R-005 | Linux visual baselines are not committed yet, so the final CI visual gate cannot pass. | active | Push the feature branch, dispatch baseline generation, download the artifact into `tests/e2e`, and commit the Linux images before merge. |
+| R-005 | Linux visual baselines are generated but not committed yet, so the final CI visual gate cannot pass. | active | Baseline run `29392648821` passed; commit and push the downloaded Linux images before merge. |
 
 ## Deployment Continuation Notes
 
@@ -50,6 +50,7 @@ npm audit --audit-level=low: 0 vulnerabilities
 - The new deployment stages `dist.next`, swaps only after upload, preserves `dist.previous`, rolls back bundle/config/Compose failures, checks container health, validates and reloads Caddy with a backup trap, and verifies `/revision.txt` equals `GITHUB_SHA`.
 - Deploy jobs are serialized, and each job rechecks that its SHA is still the current `master` head after acquiring the deployment slot.
 - Pull requests and pushes run unit tests, type checks, production build, and Playwright. CI uses Linux visual baselines; local development uses Windows baselines.
+- GitHub baseline generation run `29392648821` passed all 12 scenarios and produced the 20 Linux snapshots; deployment was skipped as designed.
 - The app now bundles fonts locally, restores modal focus, traps keyboard focus, locks document scrolling, preserves mobile wheel scrolling, redraws reduced-motion stars after resize, and avoids compact-height overlay collisions.
 
 ## Remaining Release Sequence

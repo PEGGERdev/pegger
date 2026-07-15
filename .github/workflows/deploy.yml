@@ -26,10 +26,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -59,10 +59,10 @@ jobs:
 
       - name: Upload Linux visual baselines
         if: github.event_name == 'workflow_dispatch' && inputs.update_snapshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pegger-linux-visual-baselines
-          path: tests/e2e
+          path: tests/e2e/hub.e2e.spec.js-snapshots/*-linux.png
           retention-days: 1
 
   deploy:
@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Check release is current
         id: release
@@ -99,7 +99,7 @@ jobs:
 
       - name: Setup Node
         if: steps.release.outputs.deploy == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
