@@ -282,7 +282,6 @@ onUnmounted(() => {
     >
       <span class="star__corona" />
       <span class="star__glow" />
-      <span class="star__orbit" />
       <span class="star__body">
         <span class="star__core-sphere" />
         <span class="star__core-highlight" />
@@ -374,121 +373,83 @@ onUnmounted(() => {
 }
 
 .star__corona {
-  inset: -44%;
+  inset: -60%;
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.2), rgba(var(--star-rgb), 0.18) 24%, rgba(var(--star-rgb), 0.06) 48%, transparent 72%);
-  filter: blur(6px);
-  animation: stellarCorona var(--drift-duration, 7s) ease-in-out infinite;
-  animation-delay: var(--drift-delay, 0s);
+    radial-gradient(circle, rgba(255, 255, 255, 0.06), rgba(var(--star-rgb), 0.04) 18%, rgba(var(--star-rgb), 0.02) 40%, transparent 65%);
+  filter: blur(12px);
+  opacity: 0.35;
+  transition: opacity 300ms ease;
+}
+
+.star--selected .star__corona,
+.star--connected .star__corona,
+.star--hovered .star__corona {
+  opacity: 0.5;
 }
 
 .star__glow {
-  inset: -20%;
+  inset: -28%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), rgba(var(--star-rgb), 0.08) 30%, transparent 70%);
-  filter: blur(4px);
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.05), rgba(var(--star-rgb), 0.03) 24%, transparent 64%);
+  filter: blur(8px);
   opacity: 0;
-  transition: opacity 220ms ease;
+  transition: opacity 300ms ease;
 }
 
-.star--hovered .star__glow,
 .star--selected .star__glow,
-.star--connected .star__glow {
-  opacity: 1;
-}
-
-.star__orbit {
-  inset: -18%;
-  border: 1px solid rgba(var(--star-rgb), 0.5);
-  border-radius: 50%;
-  opacity: 0;
-  transform: scale(0.72) rotate(-18deg);
-  transition: opacity 220ms ease, transform 320ms ease;
-}
-
-.star__orbit::before,
-.star__orbit::after {
-  content: '';
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 8px rgba(var(--star-rgb), 0.9);
-}
-
-.star__orbit::before {
-  top: 12%;
-  right: 12%;
-}
-
-.star__orbit::after {
-  bottom: 12%;
-  left: 12%;
+.star--connected .star__glow,
+.star--hovered .star__glow {
+  opacity: 0.5;
 }
 
 .star__body {
-  inset: 7%;
+  inset: 5%;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 38% 35%, #fff 0 10%, rgba(255, 255, 255, 0.95) 16%, rgba(var(--star-rgb), 0.92) 42%, rgba(var(--star-rgb), 0.25) 72%, transparent 74%);
+    radial-gradient(circle at 34% 30%, #fff 0 6%, rgba(255, 255, 255, 0.98) 10%, rgba(var(--star-rgb), 0.96) 28%, rgba(var(--star-rgb), 0.5) 50%, rgba(var(--star-rgb), 0.08) 74%, transparent 78%);
   box-shadow:
-    0 0 6px rgba(255, 255, 255, 0.7),
-    0 0 16px rgba(var(--star-rgb), 0.8),
-    0 0 32px rgba(var(--star-rgb), 0.35);
+    0 0 4px rgba(255, 255, 255, 0.5),
+    0 0 10px rgba(var(--star-rgb), 0.5),
+    0 0 22px rgba(var(--star-rgb), 0.2);
   animation: stellarCore var(--drift-duration, 7s) ease-in-out infinite;
   animation-delay: var(--drift-delay, 0s);
 }
 
 .star__core-sphere {
-  inset: 12%;
+  inset: 8%;
   border-radius: 50%;
-  background: radial-gradient(circle at 42% 40%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.4) 30%, transparent 70%);
+  background: radial-gradient(circle at 38% 36%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.2) 26%, transparent 64%);
   mix-blend-mode: screen;
 }
 
 .star__core-highlight {
-  inset: 30%;
+  inset: 26%;
   border-radius: 50%;
-  background: radial-gradient(circle at 45% 42%, rgba(255, 255, 255, 0.6), transparent 60%);
+  background: radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.45), transparent 56%);
   mix-blend-mode: overlay;
 }
 
 .star__core--dim .star__body {
-  inset: 13%;
+  inset: 10%;
   box-shadow:
-    0 0 4px rgba(255, 255, 255, 0.5),
-    0 0 10px rgba(var(--star-rgb), 0.5);
+    0 0 2px rgba(255, 255, 255, 0.3),
+    0 0 6px rgba(var(--star-rgb), 0.3);
 }
 
 .star__core--dim .star__corona {
-  inset: -26%;
-  opacity: 0.58;
+  inset: -40%;
+  opacity: 0.25;
 }
 
 .star--selected .star__core-wrapper,
 .star:hover .star__core-wrapper {
-  transform: translate(-50%, -50%) scale(1.14);
-  filter: saturate(1.18);
-}
-
-.star--connected .star__orbit,
-.star--selected .star__orbit,
-.star:hover .star__orbit,
-.star:focus-visible .star__orbit {
-  opacity: 0.7;
-  transform: scale(1) rotate(12deg);
-}
-
-.star--selected .star__orbit,
-.star:focus-visible .star__orbit {
-  border-width: 2px;
-  opacity: 1;
-  box-shadow: 0 0 20px rgba(var(--star-rgb), 0.24);
+  transform: translate(-50%, -50%) scale(1.08);
+  filter: saturate(1.1);
 }
 
 .star:focus-visible .star__core-wrapper {

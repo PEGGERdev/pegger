@@ -3,9 +3,9 @@
 ## Current State
 
 - Current branch: `dev`
-- Remote tracking state: up to date with `origin/dev` at `0dedead`
+- Remote tracking state: up to date with `origin/dev` at `8c084f2`
 - Last updated: 2026-07-15
-- Current objective: promote galaxy constellation to main
+- Current objective: camera transform, realistic galaxy rendering, polished star/nucleus visuals
 - Main promotion allowed: yes
 - Reason: HUB-001 through HUB-008 completed and pushed; HUB-009 deferred per user instruction (Linux baseline generation requires Linux CI environment, unavailable from Windows development session)
 
@@ -42,6 +42,13 @@
 | 2026-07-15 | HUB-008 | `npm run build` | Build succeeds | Passed | 41 modules, no warnings |
 | 2026-07-15 | HUB-008 | `npm test` | 12 runtime tests pass | Passed | All 12 passed |
 | 2026-07-15 | HUB-008 | `npm run test:e2e:update` | 12 E2E scenarios regenerate baselines | Passed | 12 passed, 29 updated snapshots (all Windows) |
+| 2026-07-15 | visual | `npm run typecheck && npm run build` | Clean compile | Passed | 41 modules, zero errors |
+| 2026-07-15 | visual | `npm test` | 12 runtime tests | Passed | All 12 passed |
+| 2026-07-15 | visual | `npm run test:e2e:update` | 12 E2E scenarios with camera transform | Passed | 12 passed, 29 updated baselines |
+| 2026-07-15 | visual | Camera transform verification | Stars at fixed positions, CSS transform moves viewport | Passed | Transform-origin 62% 50%, wrapper translate+scale |
+| 2026-07-15 | visual | Realistic galaxy verification | 1000 stars, 9 spectral classes, dust lanes, bulge core, gaussian scatter | Passed | Canvas rendering with stellar population model |
+| 2026-07-15 | visual | Realistic star verification | Limb darkening, specular highlight, true color temperature | Passed | Radial gradient body, screen blend highlight |
+| 2026-07-15 | visual | AGN nucleus verification | Warmer core glow, continuous accretion disk gradient, extended halo | Passed | AGN color model (white → orange → violet) |
 
 ## Dev Integration Log
 

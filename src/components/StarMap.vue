@@ -181,9 +181,18 @@ const orbitSize = computed(() => {
   }
 })
 
+const cameraOrigin = computed(() => ({
+  x: containerSize.value.width * (isMobile.value ? 0.5 : 0.62),
+  y: containerSize.value.height / 2,
+}))
+
 const cameraCenter = computed(() => ({
-  x: containerSize.value.width * (isMobile.value ? 0.5 : 0.62) + viewport.value.x,
-  y: containerSize.value.height / 2 + viewport.value.y,
+  x: containerSize.value.width * (isMobile.value ? 0.5 : 0.62),
+  y: containerSize.value.height / 2,
+}))
+
+const cameraTransform = computed(() => ({
+  transform: `translate(${viewport.value.x}px, ${viewport.value.y}px) scale(${viewport.value.scale})`,
 }))
 
 const focusAnchor = computed(() => {
@@ -192,8 +201,8 @@ const focusAnchor = computed(() => {
   const mobile = width < 900
 
   return {
-    x: width * (mobile ? 0.5 : 0.58) + viewport.value.x,
-    y: height * 0.52 + viewport.value.y,
+    x: width * (mobile ? 0.5 : 0.58),
+    y: height * 0.52,
   }
 })
 
@@ -220,8 +229,8 @@ const defaultPositions = computed(() => {
 
   allStars.value.forEach(star => {
     positions[star.id] = {
-      x: cameraCenter.value.x + (star.position.x / 100) * orbitSize.value.x * viewport.value.scale,
-      y: cameraCenter.value.y + (star.position.y / 100) * orbitSize.value.y * viewport.value.scale,
+      x: cameraCenter.value.x + (star.position.x / 100) * orbitSize.value.x,
+      y: cameraCenter.value.y + (star.position.y / 100) * orbitSize.value.y,
     }
   })
 
@@ -294,12 +303,12 @@ function getWorldPoint(clientX, clientY) {
   }
 
   const rect = containerRef.value.getBoundingClientRect()
-  const centerX = rect.width / 2
-  const centerY = rect.height / 2
+  const ox = rect.width * (isMobile.value ? 0.5 : 0.62)
+  const oy = rect.height / 2
 
   return {
-    x: (clientX - rect.left - centerX - viewport.value.x) / viewport.value.scale,
-    y: (clientY - rect.top - centerY - viewport.value.y) / viewport.value.scale,
+    x: ox + (clientX - rect.left - ox - viewport.value.x) / viewport.value.scale,
+    y: oy + (clientY - rect.top - oy - viewport.value.y) / viewport.value.scale,
   }
 }
 
@@ -312,16 +321,17 @@ function zoomAtPoint(nextScale, clientX, clientY) {
     return
   }
 
-  const scale = clampScale(nextScale)
+  const S = viewport.value.scale
+  const S2 = clampScale(nextScale)
   const worldPoint = getWorldPoint(clientX, clientY)
   const rect = containerRef.value.getBoundingClientRect()
-  const centerX = rect.width / 2
-  const centerY = rect.height / 2
+  const ox = rect.width * (isMobile.value ? 0.5 : 0.62)
+  const oy = rect.height / 2
 
   viewport.value = {
-    x: clientX - rect.left - centerX - worldPoint.x * scale,
-    y: clientY - rect.top - centerY - worldPoint.y * scale,
-    scale,
+    x: (worldPoint.x - ox) * (S - S2) + viewport.value.x,
+    y: (worldPoint.y - oy) * (S - S2) + viewport.value.y,
+    scale: S2,
   }
 }
 
@@ -351,10 +361,14 @@ function calculateZoomTarget(starId) {
     return { x: viewport.value.x, y: viewport.value.y, scale: FOCUS_SCALE }
   }
 
+  const ox = cameraCenter.value.x
+  const oy = cameraCenter.value.y
+  const S = FOCUS_SCALE
+
   return {
-    x: -(containerSize.value.width * 0.12) - (starMapData.brightStars.find(s => s.id === starId)?.position.x || 0) / 100 * orbitSize.value.x * FOCUS_SCALE,
-    y: -(starMapData.brightStars.find(s => s.id === starId)?.position.y || 0) / 100 * orbitSize.value.y * FOCUS_SCALE,
-    scale: FOCUS_SCALE,
+    x: -(pos.x - ox) * S,
+    y: -(pos.y - oy) * S,
+    scale: S,
   }
 }
 
@@ -631,9 +645,6 @@ onUnmounted(() => {
     </section>
 
     <template v-else>
-      <div class="star-map__grid" />
-      <div class="star-map__vignette" />
-
     <aside class="star-map__hud star-map__hud--status" @pointerdown.stop @wheel.stop>
       <p class="star-map__eyebrow">Explorer</p>
       <h2 class="star-map__title">Guided constellation</h2>
@@ -763,6 +774,10 @@ onUnmounted(() => {
       </button>
     </div>
 
+    <div class="star-map__camera" :style="cameraTransform">
+      <div class="star-map__grid" />
+      <div class="star-map__vignette" />
+
     <ClusterRegions
       :clusters="clusters"
       :positions="renderedPositions"
@@ -803,6 +818,7 @@ onUnmounted(() => {
         @click="handleStarClick"
         @position-change="handleStarPositionChange"
       />
+    </div>
     </template>
   </div>
 </template>
@@ -819,6 +835,13 @@ onUnmounted(() => {
 
 .star-map--dragging {
   cursor: grabbing;
+}
+
+.star-map__camera {
+  position: absolute;
+  inset: 0;
+  transform-origin: 62% 50%;
+  will-change: transform;
 }
 
 .star-map__grid,

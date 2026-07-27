@@ -4,10 +4,10 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 const canvasRef = ref(null)
 
 const SEED = 1731
-const FIELD_STARS = 500
-const NEBULA_CLOUDS = 6
+const FIELD_STARS = 1000
+const NEBULA_CLOUDS = 10
 const SPIRAL_ARMS = 3
-const ARM_TIGHTNESS = 3.2
+const ARM_TIGHTNESS = 3.6
 
 let animationId = null
 let handleResize = null
@@ -20,12 +20,41 @@ function createRng(seed) {
   }
 }
 
-const stellarTemperatures = [
-  { r: 155, g: 176, b: 255, label: 'hot' },
-  { r: 200, g: 220, b: 255, label: 'warm' },
-  { r: 255, g: 235, b: 200, label: 'cool' },
-  { r: 255, g: 200, b: 150, label: 'cool' },
+function gaussianRng(rng) {
+  const u1 = rng()
+  const u2 = rng()
+  return Math.sqrt(-2 * Math.log(u1 + 0.0001)) * Math.cos(2 * Math.PI * u2)
+}
+
+const stellarClasses = [
+  { r: 170, g: 190, b: 255, label: 'O', weight: 0.03 },
+  { r: 200, g: 215, b: 255, label: 'B', weight: 0.08 },
+  { r: 225, g: 235, b: 255, label: 'A', weight: 0.12 },
+  { r: 245, g: 245, b: 255, label: 'F', weight: 0.15 },
+  { r: 255, g: 245, b: 230, label: 'G', weight: 0.20 },
+  { r: 255, g: 225, b: 190, label: 'K', weight: 0.22 },
+  { r: 255, g: 190, b: 140, label: 'M', weight: 0.15 },
+  { r: 210, g: 140, b: 255, label: 'rare-hg', weight: 0.03 },
+  { r: 255, g: 140, b: 180, label: 'rare-sg', weight: 0.02 },
 ]
+
+function pickStellarClass(rng) {
+  const roll = rng()
+  let cumulative = 0
+  for (const cls of stellarClasses) {
+    cumulative += cls.weight
+    if (roll < cumulative) return cls
+  }
+  return stellarClasses[stellarClasses.length - 1]
+}
+
+function dustAttenuation(angle, armCount) {
+  const armWidth = (Math.PI * 2) / armCount
+  const distToArm = Math.abs(((angle % armWidth) + armWidth) % armWidth - armWidth / 2)
+  const normalized = distToArm / (armWidth / 2)
+  const dust = Math.pow(normalized, 1.6) * 0.55
+  return Math.min(dust, 0.5)
+}
 
 onMounted(() => {
   const canvas = canvasRef.value
@@ -34,85 +63,113 @@ onMounted(() => {
   const ctx = canvas.getContext('2d')
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const rng = createRng(SEED)
-  const centerX = window.innerWidth * 0.55
-  const centerY = window.innerHeight * 0.48
-  const galaxyRadius = Math.min(window.innerWidth, window.innerHeight) * 0.5
 
   let stars = []
   let nebulae = []
+  let coreGlow = null
+  let dustMap = []
 
   function generateGalaxy(cx, cy, radius) {
-    nebulaColors.forEach((color, i) => {
-      const angle = (i / NEBULA_CLOUDS) * Math.PI * 2 + rng() * 0.6
-      const dist = radius * (0.2 + rng() * 0.5)
+    nebulae = []
+    dustMap = []
+
+    for (let i = 0; i < NEBULA_CLOUDS; i++) {
+      const angle = (i / NEBULA_CLOUDS) * Math.PI * 2 + rng() * 0.5
+      const dist = radius * (0.15 + rng() * 0.55)
+      const r = 30 + rng() * 80 | 0
+      const g = 20 + rng() * 60 | 0
+      const b = 60 + rng() * 100 | 0
+      const layerCount = 2 + Math.floor(rng() * 3)
+      const layers = []
+
+      for (let j = 0; j < layerCount; j++) {
+        const spread = 0.12 + rng() * 0.3
+        layers.push({
+          ox: (rng() - 0.5) * spread * radius * 0.3,
+          oy: (rng() - 0.5) * spread * radius * 0.3,
+          r: radius * (0.08 + rng() * 0.22 + j * 0.04),
+          opacity: 0.025 + rng() * 0.04 + j * 0.01,
+        })
+      }
+
       nebulae.push({
         x: cx + Math.cos(angle) * dist,
         y: cy + Math.sin(angle) * dist,
-        radius: radius * (0.15 + rng() * 0.25),
-        r: color.r,
-        g: color.g,
-        b: color.b,
-        opacity: 0.03 + rng() * 0.04,
+        r, g, b,
+        layers,
       })
-    })
-
-    for (let i = 0; i < FIELD_STARS; i++) {
-      const armIndex = Math.floor(rng() * SPIRAL_ARMS)
-      const armAngle = (armIndex / SPIRAL_ARMS) * Math.PI * 2
-      const radiusFraction = Math.pow(rng(), 0.6)
-      const scatter = (1 - radiusFraction * 0.6) * 0.25 + 0.05
-      const angleOffset = (rng() - 0.5) * scatter * Math.PI * 2
-      const angle = armAngle + radiusFraction * ARM_TIGHTNESS + angleOffset
-      const dist = radius * radiusFraction * (0.85 + rng() * 0.15)
-
-      const x = cx + Math.cos(angle) * dist
-      const y = cy + Math.sin(angle) * dist
-      const coreDist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2) / radius
-      const size = (0.4 + rng() * 0.8) * (1.4 - coreDist * 0.6)
-      const temp = stellarTemperatures[Math.floor(rng() * stellarTemperatures.length)]
-      const twinkleSpeed = 0.005 + rng() * 0.015
-      const twinkleOffset = rng() * Math.PI * 2
-
-      stars.push({ x, y, size, r: temp.r, g: temp.g, b: temp.b, twinkleSpeed, twinkleOffset })
     }
 
-    for (let i = 0; i < 60; i++) {
-      const angle = rng() * Math.PI * 2
-      const dist = galaxyRadius * Math.pow(rng(), 0.3) * 0.15
-      const x = cx + Math.cos(angle) * dist
-      const y = cy + Math.sin(angle) * dist
-      const size = 0.3 + rng() * 0.5
-      const temp = stellarTemperatures[Math.floor(rng() * 3)]
+    for (let i = 0; i < FIELD_STARS; i++) {
+      const isBulge = i < FIELD_STARS * 0.15
+      let x, y, coreDist
+
+      if (isBulge) {
+        const bulgeRadius = radius * 0.12
+        const gx = gaussianRng(rng)
+        const gy = gaussianRng(rng)
+        x = cx + gx * bulgeRadius * 0.3
+        y = cy + gy * bulgeRadius * 0.3
+        coreDist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2) / radius
+      } else {
+        const armIndex = Math.floor(rng() * SPIRAL_ARMS)
+        const armAngle = (armIndex / SPIRAL_ARMS) * Math.PI * 2
+        const radiusFraction = Math.pow(rng(), 0.55)
+        const scatter = (1 - radiusFraction * 0.5) * 0.18 + 0.04
+        const angleOffset = (rng() - 0.5) * scatter * Math.PI * 2
+        const angle = armAngle + radiusFraction * ARM_TIGHTNESS + angleOffset
+        const dist = radius * radiusFraction * (0.88 + rng() * 0.12)
+        x = cx + Math.cos(angle) * dist
+        y = cy + Math.sin(angle) * dist
+        coreDist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2) / radius
+      }
+
+      const cls = pickStellarClass(rng)
+      const sizeVariation = 0.4 + rng() * 0.9
+      const coreFactor = Math.max(0.3, 1.4 - coreDist * 0.7)
+      const size = sizeVariation * coreFactor * 0.6
+
+      const rVariation = (rng() - 0.5) * 20
+      const gVariation = (rng() - 0.5) * 20
+      const bVariation = (rng() - 0.5) * 20
+
+      const starAngle = Math.atan2(y - cy, x - cx)
+      const dust = isBulge ? 0 : dustAttenuation(starAngle, SPIRAL_ARMS)
+      const opacity = Math.max(0.2, 1 - dust * 1.8)
+
       stars.push({
         x, y, size,
-        r: Math.min(255, temp.r + 40),
-        g: Math.min(255, temp.g + 30),
-        b: 255,
-        twinkleSpeed: 0.008 + rng() * 0.012,
+        r: Math.max(0, Math.min(255, cls.r + rVariation)) | 0,
+        g: Math.max(0, Math.min(255, cls.g + gVariation)) | 0,
+        b: Math.max(0, Math.min(255, cls.b + bVariation)) | 0,
+        twinkleSpeed: 0.004 + rng() * 0.018,
         twinkleOffset: rng() * Math.PI * 2,
+        opacity,
+        isBulge,
+        coreDist,
       })
+    }
+
+    stars.sort((a, b) => a.size - b.size)
+
+    coreGlow = {
+      x: cx,
+      y: cy,
+      radius: radius * 0.18,
+      r: 255, g: 230, b: 200,
+      opacity: 1,
     }
   }
 
-  const nebulaColors = [
-    { r: 80, g: 40, b: 120 },
-    { r: 40, g: 60, b: 140 },
-    { r: 120, g: 50, b: 80 },
-    { r: 60, g: 30, b: 100 },
-    { r: 30, g: 50, b: 130 },
-    { r: 100, g: 40, b: 100 },
-    { r: 50, g: 80, b: 120 },
-    { r: 90, g: 35, b: 110 },
-  ]
-
   function resize() {
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-    const cx = window.innerWidth * 0.55
-    const cy = window.innerHeight * 0.48
-    const radius = Math.min(window.innerWidth, window.innerHeight) * 0.5
+    const w = window.innerWidth
+    const h = window.innerHeight
+    canvas.width = w
+    canvas.height = h
+    const cx = w * 0.55
+    const cy = h * 0.48
+    const radius = Math.min(w, h) * 0.5
     stars = []
-    nebulae = []
     generateGalaxy(cx, cy, radius)
     if (reducedMotion) {
       drawFrame(0)
@@ -129,30 +186,65 @@ onMounted(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     time += 16
 
+    ctx.fillStyle = 'rgba(3, 6, 14, 1)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
     nebulae.forEach(n => {
-      const gradient = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.radius)
-      gradient.addColorStop(0, `rgba(${n.r}, ${n.g}, ${n.b}, ${n.opacity * 1.5})`)
-      gradient.addColorStop(0.4, `rgba(${n.r}, ${n.g}, ${n.b}, ${n.opacity})`)
-      gradient.addColorStop(1, `rgba(${n.r}, ${n.g}, ${n.b}, 0)`)
-      ctx.fillStyle = gradient
-      ctx.fillRect(n.x - n.radius, n.y - n.radius, n.radius * 2, n.radius * 2)
+      n.layers.forEach(layer => {
+        const gradient = ctx.createRadialGradient(
+          n.x + layer.ox, n.y + layer.oy, 0,
+          n.x + layer.ox, n.y + layer.oy, layer.r,
+        )
+        gradient.addColorStop(0, `rgba(${n.r}, ${n.g}, ${n.b}, ${layer.opacity * 1.4})`)
+        gradient.addColorStop(0.3, `rgba(${n.r}, ${n.g}, ${n.b}, ${layer.opacity})`)
+        gradient.addColorStop(0.7, `rgba(${n.r + 20}, ${n.g + 15}, ${n.b + 30}, ${layer.opacity * 0.3})`)
+        gradient.addColorStop(1, `rgba(${n.r}, ${n.g}, ${n.b}, 0)`)
+        ctx.fillStyle = gradient
+        ctx.fillRect(n.x + layer.ox - layer.r, n.y + layer.oy - layer.r, layer.r * 2, layer.r * 2)
+      })
     })
+
+    if (coreGlow) {
+      const cg = coreGlow
+      const coreGrad = ctx.createRadialGradient(cg.x, cg.y, 0, cg.x, cg.y, cg.radius)
+      coreGrad.addColorStop(0, 'rgba(255, 240, 220, 0.25)')
+      coreGrad.addColorStop(0.2, 'rgba(255, 220, 180, 0.15)')
+      coreGrad.addColorStop(0.5, 'rgba(200, 180, 220, 0.06)')
+      coreGrad.addColorStop(1, 'rgba(150, 140, 200, 0)')
+      ctx.fillStyle = coreGrad
+      ctx.fillRect(cg.x - cg.radius, cg.y - cg.radius, cg.radius * 2, cg.radius * 2)
+
+      const brightGrad = ctx.createRadialGradient(cg.x, cg.y, 0, cg.x, cg.y, cg.radius * 0.3)
+      brightGrad.addColorStop(0, 'rgba(255, 245, 230, 0.4)')
+      brightGrad.addColorStop(0.5, 'rgba(255, 220, 190, 0.1)')
+      brightGrad.addColorStop(1, 'rgba(255, 200, 180, 0)')
+      ctx.fillStyle = brightGrad
+      ctx.fillRect(cg.x - cg.radius * 0.3, cg.y - cg.radius * 0.3, cg.radius * 0.6, cg.radius * 0.6)
+    }
 
     const timeInSec = now ? now / 1000 : time / 1000
 
     stars.forEach(star => {
-      const twinkle = reducedMotion ? 1 : Math.sin(timeInSec * star.twinkleSpeed * 10 + star.twinkleOffset) * 0.25 + 0.75
-      const alpha = Math.max(0.15, twinkle * 0.7)
+      const twinkle = reducedMotion ? 1 : Math.sin(timeInSec * star.twinkleSpeed * 10 + star.twinkleOffset) * 0.2 + 0.8
+      const alpha = Math.max(0.08, star.opacity * twinkle * 0.85)
+      const drawSize = Math.max(0.2, star.size * (0.85 + twinkle * 0.15))
 
       ctx.beginPath()
-      ctx.arc(star.x, star.y, Math.max(0.3, star.size * (0.8 + twinkle * 0.2)), 0, Math.PI * 2)
+      ctx.arc(star.x, star.y, drawSize, 0, Math.PI * 2)
       ctx.fillStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha})`
       ctx.fill()
 
-      if (star.size > 0.7) {
+      if (star.size > 0.5) {
         ctx.beginPath()
-        ctx.arc(star.x, star.y, star.size * 1.8, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha * 0.08})`
+        ctx.arc(star.x, star.y, drawSize * 2.5, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha * 0.06})`
+        ctx.fill()
+      }
+
+      if (star.size > 0.8) {
+        ctx.beginPath()
+        ctx.arc(star.x, star.y, drawSize * 5, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${star.r}, ${star.g}, ${star.b}, ${alpha * 0.015})`
         ctx.fill()
       }
     })

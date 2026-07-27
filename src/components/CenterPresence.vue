@@ -132,116 +132,101 @@ const ariaLabel = computed(() => [
 }
 
 .center-presence__halo {
-  inset: -40%;
+  inset: -60%;
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(101, 227, 209, 0.15) 18%, rgba(90, 167, 255, 0.08) 40%, transparent 68%);
-  filter: blur(10px);
-  animation: nucleusHalo 6s ease-in-out infinite;
+    radial-gradient(circle, rgba(255, 255, 255, 0.08), rgba(101, 227, 209, 0.06) 14%, rgba(90, 167, 255, 0.03) 36%, transparent 62%);
+  filter: blur(16px);
+  opacity: 0.7;
+  animation: nucleusHalo 8s ease-in-out infinite;
 }
 
 .center-presence__accretion {
-  inset: -10%;
+  inset: -8%;
 }
 
 .center-presence__accretion-ring {
   top: 50%;
   left: 50%;
-  border: 1px solid;
   border-radius: 50%;
-  opacity: 0.4;
-}
-
-.center-presence__accretion-ring::after {
-  content: '';
-  position: absolute;
-  top: 10%;
-  right: 16%;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 8px rgba(101, 227, 209, 0.9);
+  opacity: 0.3;
+  background: radial-gradient(circle, transparent 40%, rgba(101, 227, 209, 0.04) 50%, transparent 70%);
 }
 
 .center-presence__accretion-ring--inner {
-  width: 6.5rem;
-  height: 4.2rem;
-  border-color: rgba(101, 227, 209, 0.35);
-  transform: translate(-50%, -50%) rotate(25deg);
-  animation: accretionSpin 10s linear infinite;
+  width: 6rem;
+  height: 4rem;
+  transform: translate(-50%, -50%) rotate(22deg);
+  animation: accretionSpin 12s linear infinite;
 }
 
 .center-presence__accretion-ring--mid {
-  width: 8rem;
-  height: 6rem;
-  border-color: rgba(90, 167, 255, 0.2);
-  border-style: dashed;
-  transform: translate(-50%, -50%) rotate(-20deg);
-  animation: accretionSpin 14s linear infinite reverse;
+  width: 7.5rem;
+  height: 5.5rem;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  animation: accretionSpin 16s linear infinite reverse;
 }
 
 .center-presence__accretion-ring--outer {
-  width: 9.5rem;
-  height: 9.5rem;
-  border-color: rgba(101, 227, 209, 0.1);
+  width: 9rem;
+  height: 9rem;
   transform: translate(-50%, -50%);
 }
 
 .center-presence__core {
-  inset: 18%;
+  inset: 14%;
   display: grid;
   place-items: center;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 40% 36%, #fff 0%, #c8fff6 12%, #65e3d1 34%, rgba(90, 167, 255, 0.5) 60%, transparent 64%);
+    radial-gradient(circle at 38% 34%, #fff 0%, #ffe8d0 6%, #f0c8a0 14%, rgba(255, 200, 150, 0.6) 30%, rgba(150, 120, 200, 0.15) 56%, transparent 64%);
   box-shadow:
-    0 0 10px rgba(255, 255, 255, 0.8),
-    0 0 28px rgba(101, 227, 209, 0.65),
-    0 0 50px rgba(90, 167, 255, 0.3);
+    0 0 8px rgba(255, 255, 255, 0.9),
+    0 0 22px rgba(255, 220, 180, 0.5),
+    0 0 44px rgba(180, 150, 220, 0.2);
   transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 300ms ease;
-  animation: nucleusPulse 5.8s ease-in-out infinite;
+  animation: nucleusPulse 6s ease-in-out infinite;
 }
 
 .center-presence__core-glow {
-  inset: 8%;
+  inset: 6%;
   border-radius: 50%;
-  background: radial-gradient(circle at 45% 40%, rgba(255, 255, 255, 0.3), transparent 60%);
+  background: radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.5), transparent 55%);
   mix-blend-mode: screen;
 }
 
 .center-presence__core-body {
-  inset: 28%;
+  inset: 24%;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: linear-gradient(145deg, rgba(5, 16, 25, 0.95), rgba(13, 38, 52, 0.85));
-  box-shadow: inset 0 0 16px rgba(101, 227, 209, 0.15);
+  background:
+    radial-gradient(circle at 40% 36%, rgba(255, 255, 255, 0.2), rgba(5, 16, 25, 0.95) 60%);
+  box-shadow: inset 0 0 12px rgba(101, 227, 209, 0.1);
 }
 
 .center-presence__monogram {
   font-family: var(--pegger-font-display);
-  font-size: 0.74rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: rgba(239, 255, 252, 0.94);
+  color: rgba(239, 255, 252, 0.8);
+  opacity: 0.6;
 }
 
 .center-presence__nucleus:hover .center-presence__core,
 .center-presence__nucleus:focus-visible .center-presence__core,
 .center-presence--selected .center-presence__core {
-  transform: scale(1.08);
+  transform: scale(1.06);
   box-shadow:
-    0 0 12px rgba(255, 255, 255, 0.9),
-    0 0 34px rgba(101, 227, 209, 0.85),
-    0 0 60px rgba(90, 167, 255, 0.42);
+    0 0 10px rgba(255, 255, 255, 1),
+    0 0 28px rgba(255, 220, 180, 0.6),
+    0 0 50px rgba(180, 150, 220, 0.28);
 }
 
 .center-presence__nucleus:focus-visible .center-presence__accretion-ring--outer,
 .center-presence--selected .center-presence__accretion-ring--outer {
-  border-width: 2px;
-  border-color: rgba(112, 184, 255, 0.55);
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .center-presence__info {
