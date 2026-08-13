@@ -2,10 +2,10 @@
 
 ## Current State
 
-- Current branch: `dev`
-- Remote tracking state: `origin/dev` and `origin/main` synchronized at promoted application commit `ff4adbf`; this final history update will advance both branches together
+- Current branch: `main` (final reported checkout after this dev-first tracking update is promoted)
+- Remote tracking state: `origin/dev` and `origin/main` synchronized at `afb84f8`; this final state correction will advance both branches together
 - Last updated: 2026-08-13
-- Current objective: record completed promotion history and synchronize final tracking on `dev` and `main`
+- Current objective: completed; preserve synchronized verified `dev` and `main`
 - Main promotion allowed: yes
 - Reason: all tracked work is completed on `origin/dev`; local and Ubuntu full-scope gates pass; 16 Windows and 16 Linux visual states are approved; `origin/main` is an ancestor of `origin/dev`
 
