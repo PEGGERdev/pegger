@@ -22,7 +22,7 @@ Status: complete for the current product scope.
 - [x] Add deterministic galaxy field with spiral structure, dust, and nebula depth
 - [x] Turn the center beacon into a luminous galactic nucleus with an accretion plane
 - [x] Connect related nodes as named asterisms with orbital and cross-system paths
-- [ ] Reapprove Windows and Linux visual baselines and deploy the completed enhancement
+- [x] Reapprove Windows and Linux visual baselines for the completed enhancement
 
 ### Core Features
 
