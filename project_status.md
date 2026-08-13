@@ -3,9 +3,9 @@
 ## Current State
 
 - Current branch: `dev`
-- Remote tracking state: up to date with `origin/dev` at `4a6eeff`
+- Remote tracking state: `origin/dev` and `origin/main` synchronized at promoted application commit `ff4adbf`; this final history update will advance both branches together
 - Last updated: 2026-08-13
-- Current objective: perform the approved fast-forward promotion of verified `dev` to `main`
+- Current objective: record completed promotion history and synchronize final tracking on `dev` and `main`
 - Main promotion allowed: yes
 - Reason: all tracked work is completed on `origin/dev`; local and Ubuntu full-scope gates pass; 16 Windows and 16 Linux visual states are approved; `origin/main` is an ancestor of `origin/dev`
 
@@ -60,6 +60,8 @@
 | 2026-08-13 | HUB-009 | Final local gate on `4a6eeff`: `npm audit --audit-level=high`; `npm test`; `npm run test:deployment`; `npm run typecheck`; `npm run build`; `npm run test:e2e` | Complete local verification passes against committed baselines | Passed | 0 vulnerabilities; 12/12 runtime; Caddy fixtures pass; zero type errors; 41-module build; 12/12 Playwright |
 | 2026-08-13 | HUB-009 | GitHub run `31678765926` on `dev` with `update_snapshots=false` | Ubuntu compares committed Linux baselines and all gates pass | Passed | Verify job completed in 1m14s, including 12/12 browser visual comparisons |
 | 2026-08-13 | HUB-009 | Repository scan for `TODO`, `FIXME`, isolated, and skipped tests in `src`, `tests`, `scripts`, `.github` | No temporary or disabled checks | Passed | No matches found |
+| 2026-08-13 | HUB-009 | Exact `main` tree verification after fast-forward to `ff4adbf` | Audit, runtime, deployment, type, build, and Windows E2E pass | Passed | 0 vulnerabilities; 12/12 runtime; Caddy fixtures pass; zero type errors; 41-module build; 12/12 Playwright |
+| 2026-08-13 | HUB-009 | GitHub run `31679191824` on `main` with `update_snapshots=false` | Ubuntu validates promoted `main` and committed Linux baselines | Passed | Verify job completed in 1m6s with all browser visual comparisons passing |
 
 ## Dev Integration Log
 
@@ -102,6 +104,7 @@
 | 2026-07-15 | `7d86202` | `936a4d2` | Application CI passed; deployment rolled back safely | Initial constellation promotion exposed the awk parser defect |
 | 2026-07-15 | `0d96c4c` | `7b75383` | Run `29405478802` passed CI and deployment | Corrected constellation release |
 | 2026-07-15 | `82a4ba6` | `54270bd` | Run `29406945221` passed CI and deployment | Stable evidence tracking release |
+| 2026-08-13 | `ff4adbf` | `ff4adbf` | Local full gate, Windows 12/12 E2E, Linux run `31679191824` | Fast-forward promotion of realistic constellation; user explicitly approved replacing stale `main` if required, but no force was needed |
 
 ## Known Risks
 
