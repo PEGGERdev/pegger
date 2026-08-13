@@ -35,6 +35,10 @@ const props = defineProps({
     type: String,
     default: 'overview'
   },
+  focusMode: {
+    type: Boolean,
+    default: false
+  },
   tone: {
     type: String,
     default: 'mint'
@@ -124,10 +128,12 @@ const brightness = computed(() => {
 })
 
 const showLabel = computed(() => {
+  if (props.focusMode) return false
   return props.detailLevel !== 'overview' || isHovered.value || props.selected || props.connected
 })
 
 const showMeta = computed(() => {
+  if (props.focusMode) return false
   return props.selected || (props.connected && isHovered.value)
 })
 
@@ -282,10 +288,13 @@ onUnmounted(() => {
     >
       <span class="star__corona" />
       <span class="star__glow" />
+      <span class="star__spikes" aria-hidden="true">
+        <i class="star__spike star__spike--h" />
+        <i class="star__spike star__spike--v" />
+      </span>
       <span class="star__body">
         <span class="star__core-sphere" />
         <span class="star__core-highlight" />
-        <i v-if="star.icon" :class="['star__icon', star.icon]" />
       </span>
       <span v-if="star.badge || star.data?.badge" class="star__badge">{{ star.badge || star.data?.badge }}</span>
       <span v-if="star.category && showMeta" class="star__kicker">{{ star.category }}</span>
@@ -364,7 +373,7 @@ onUnmounted(() => {
 
 .star__corona,
 .star__glow,
-.star__orbit,
+.star__spikes,
 .star__body,
 .star__core-sphere,
 .star__core-highlight {
@@ -402,6 +411,40 @@ onUnmounted(() => {
 .star--connected .star__glow,
 .star--hovered .star__glow {
   opacity: 0.5;
+}
+
+.star__spikes {
+  inset: -70%;
+  display: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.star--bright .star__spikes {
+  display: block;
+  opacity: 1;
+}
+
+.star--dim .star__spikes {
+  display: none;
+}
+
+.star__spike {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1) 40%, rgba(255, 255, 255, 0.34) 50%, rgba(255, 255, 255, 0.1) 60%, transparent);
+}
+
+.star__spike--h {
+  width: 120%;
+  transform: translate(-50%, -50%);
+}
+
+.star__spike--v {
+  width: 120%;
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .star__body {
@@ -454,19 +497,6 @@ onUnmounted(() => {
 
 .star:focus-visible .star__core-wrapper {
   transform: translate(-50%, -50%) scale(1.12);
-}
-
-.star__icon {
-  position: relative;
-  z-index: 2;
-  font-size: clamp(0.65rem, calc(var(--star-size) * 0.31), 1rem);
-  color: rgba(4, 15, 24, 0.84);
-  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.24));
-}
-
-.star__core--dim .star__icon {
-  font-size: clamp(0.48rem, calc(var(--star-size) * 0.3), 0.72rem);
-  color: rgba(4, 15, 24, 0.78);
 }
 
 .star__badge {

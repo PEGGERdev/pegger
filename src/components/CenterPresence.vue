@@ -75,7 +75,7 @@ const ariaLabel = computed(() => [
       </span>
     </button>
 
-    <div class="center-presence__info">
+    <div v-if="!mapFocused" class="center-presence__info">
       <div class="center-presence__info-header">
         <p class="center-presence__eyebrow">System origin</p>
         <span class="center-presence__index">00</span>
@@ -262,11 +262,6 @@ const ariaLabel = computed(() => [
   border-left-color: rgba(101, 227, 209, 0.82);
 }
 
-.center-presence--map-focused .center-presence__info {
-  width: 15.5rem;
-  transform: translateX(-5rem);
-}
-
 .center-presence__info-header {
   display: flex;
   align-items: center;
@@ -391,7 +386,7 @@ const ariaLabel = computed(() => [
 }
 
 @media (min-width: 901px) and (max-height: 820px) {
-  .center-presence:not(.center-presence--map-focused) .center-presence__info {
+  .center-presence__info {
     width: 15.5rem;
     transform: translateX(-8rem);
   }

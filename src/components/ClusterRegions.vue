@@ -19,6 +19,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  showLabels: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const LABEL_WIDTH = 150
@@ -98,7 +102,7 @@ const regions = computed(() => props.clusters.map((cluster, index) => {
         :ry="Math.max(1, region.radiusY - 10)"
         pathLength="1"
       />
-      <g class="cluster-region__asterism" :transform="`translate(${region.labelX} ${region.labelY})`">
+      <g v-if="showLabels" class="cluster-region__asterism" :transform="`translate(${region.labelX} ${region.labelY})`">
         <rect :width="LABEL_WIDTH" height="34" rx="5" />
         <line x1="0" y1="0" x2="44" y2="0" />
         <text class="cluster-region__sequence" x="10" y="14">{{ region.sequence }}</text>

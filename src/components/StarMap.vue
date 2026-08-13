@@ -181,11 +181,6 @@ const orbitSize = computed(() => {
   }
 })
 
-const cameraOrigin = computed(() => ({
-  x: containerSize.value.width * (isMobile.value ? 0.5 : 0.62),
-  y: containerSize.value.height / 2,
-}))
-
 const cameraCenter = computed(() => ({
   x: containerSize.value.width * (isMobile.value ? 0.5 : 0.62),
   y: containerSize.value.height / 2,
@@ -195,34 +190,7 @@ const cameraTransform = computed(() => ({
   transform: `translate(${viewport.value.x}px, ${viewport.value.y}px) scale(${viewport.value.scale})`,
 }))
 
-const focusAnchor = computed(() => {
-  const width = containerSize.value.width || window.innerWidth
-  const height = containerSize.value.height || window.innerHeight
-  const mobile = width < 900
-
-  return {
-    x: width * (mobile ? 0.5 : 0.58),
-    y: height * 0.52,
-  }
-})
-
-const centerPosition = computed(() => {
-  if (selectedStar.value?.id === 'you') {
-    return focusAnchor.value
-  }
-
-  if (selectedStar.value) {
-    const width = containerSize.value.width || window.innerWidth
-    const height = containerSize.value.height || window.innerHeight
-
-    return {
-      x: focusAnchor.value.x - Math.min(width * 0.16, 160),
-      y: focusAnchor.value.y - Math.min(height * 0.18, 160),
-    }
-  }
-
-  return cameraCenter.value
-})
+const centerPosition = computed(() => cameraCenter.value)
 
 const defaultPositions = computed(() => {
   const positions = {}
@@ -783,6 +751,7 @@ onUnmounted(() => {
       :positions="renderedPositions"
       :visible-node-ids="visibleNodeIdList"
       :selected-star-id="selectedStarId"
+      :show-labels="!selectedStar"
     />
 
     <ConstellationLines
@@ -813,6 +782,7 @@ onUnmounted(() => {
         :connected="isConnected(star.id)"
         :muted="isMuted(star.id)"
         :detail-level="detailLevel"
+        :focus-mode="Boolean(selectedStar)"
         :tone="getNodeTone(star.id)"
         @hover="handleStarHover"
         @click="handleStarClick"
@@ -999,10 +969,11 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  clip-path: polygon(50% 0%, 59% 34%, 82% 18%, 66% 42%, 100% 50%, 66% 58%, 82% 82%, 59% 66%, 50% 100%, 41% 66%, 18% 82%, 34% 58%, 0% 50%, 34% 42%, 18% 18%, 41% 34%);
-  background: radial-gradient(circle, #fff 0 10%, rgba(var(--cluster-rgb), 0.94) 42%, rgba(var(--cluster-rgb), 0.18) 74%, transparent 76%);
+  border: 1px solid rgba(var(--cluster-rgb), 0.36);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 5%, rgba(var(--cluster-rgb), 0.92) 22%, rgba(var(--cluster-rgb), 0.28) 50%, rgba(5, 15, 24, 0.94) 76%);
   color: rgba(5, 15, 24, 0.82);
-  filter: drop-shadow(0 0 8px rgba(var(--cluster-rgb), 0.44));
+  box-shadow: 0 0 12px rgba(var(--cluster-rgb), 0.24), inset -5px -5px 12px rgba(0, 0, 0, 0.32);
 }
 
 .star-map__guide-copy-block {
@@ -1144,10 +1115,11 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  clip-path: polygon(50% 0%, 59% 34%, 82% 18%, 66% 42%, 100% 50%, 66% 58%, 82% 82%, 59% 66%, 50% 100%, 41% 66%, 18% 82%, 34% 58%, 0% 50%, 34% 42%, 18% 18%, 41% 34%);
-  background: radial-gradient(circle, #fff 0 10%, rgba(var(--cluster-rgb), 0.92) 42%, rgba(var(--cluster-rgb), 0.18) 74%, transparent 76%);
+  border: 1px solid rgba(var(--cluster-rgb), 0.34);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 5%, rgba(var(--cluster-rgb), 0.9) 22%, rgba(var(--cluster-rgb), 0.26) 50%, rgba(5, 15, 24, 0.94) 76%);
   color: rgba(5, 15, 24, 0.82);
-  filter: drop-shadow(0 0 8px rgba(var(--cluster-rgb), 0.4));
+  box-shadow: 0 0 12px rgba(var(--cluster-rgb), 0.22), inset -5px -5px 12px rgba(0, 0, 0, 0.32);
 }
 
 .star-map__connected-copy {
@@ -1389,10 +1361,11 @@ onUnmounted(() => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    clip-path: polygon(50% 0%, 59% 34%, 82% 18%, 66% 42%, 100% 50%, 66% 58%, 82% 82%, 59% 66%, 50% 100%, 41% 66%, 18% 82%, 34% 58%, 0% 50%, 34% 42%, 18% 18%, 41% 34%);
-    background: radial-gradient(circle, #fff 0 10%, rgba(var(--cluster-rgb), 0.96) 42%, rgba(var(--cluster-rgb), 0.22) 74%, transparent 76%);
+    border: 1px solid rgba(var(--cluster-rgb), 0.38);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff 0 5%, rgba(var(--cluster-rgb), 0.94) 22%, rgba(var(--cluster-rgb), 0.3) 50%, rgba(5, 15, 24, 0.94) 76%);
     color: rgba(5, 15, 24, 0.82);
-    filter: drop-shadow(0 0 8px rgba(var(--cluster-rgb), 0.48));
+    box-shadow: 0 0 14px rgba(var(--cluster-rgb), 0.26), inset -5px -5px 12px rgba(0, 0, 0, 0.32);
   }
 
   .star-map__mobile-category {
