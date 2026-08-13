@@ -3,11 +3,11 @@
 ## Current State
 
 - Current branch: `dev`
-- Remote tracking state: `origin/dev` and `origin/main` synchronized at `6b2d5ed`
+- Remote tracking state: `origin/dev` at `1935b40`; `origin/main` remains at `6b2d5ed`
 - Last updated: 2026-08-13
-- Current objective: implement and verify an accessible Vue 3 fractional star rating component (HUB-011)
+- Current objective: completed HUB-011 on `dev`; await explicit product integration or main-promotion request
 - Main promotion allowed: no
-- Reason: HUB-011 is in progress and must be verified, committed, and pushed to `dev`
+- Reason: HUB-011 is complete on `dev`, but `main` promotion was not requested
 
 ## Task Tracker
 
@@ -26,7 +26,7 @@
 | HUB-009 | Cross-platform galactic visual approval and promotion readiness | `opencode.md` | completed | `dev` | Tests, 32 snapshots, status files | Full local gates, 16 Windows and 16 Linux baselines, audit, deployment fixtures | `4a6eeff` | yes | None |
 | HUB-010 | Realistic visual QA, focus-mode scene cleanup, and approved main replacement | Current user request and visual review | completed | `dev` | `StarMap.vue`, `Star.vue`, `ClusterRegions.vue`, `CenterPresence.vue`, snapshots, `TODO.md`, `project_status.md` | Manual review of 16 active Windows snapshots; type/build/runtime/E2E after correction | `5c0a29d` | yes | None; user approved replacing stale `main` with verified `dev` |
 | SEC-001 | Remediate high-severity frontend dependency advisories | Final promotion audit | completed | `dev` | `package-lock.json` | `npm audit --audit-level=high`, typecheck, build, 12 runtime tests | `71a9a45` | yes | None |
-| HUB-011 | Accessible SVG star rating with fractional selection | Current user request | verified | `dev` | `StarRating.vue`, fixture, focused browser tests, `project_status.md` | Typecheck/build, 12 runtime tests, 6 cross-device component scenarios, 18-test full Playwright matrix | pending | no | Standalone reusable component; not yet integrated into a product screen |
+| HUB-011 | Accessible SVG star rating with fractional selection | Current user request | completed | `dev` | `StarRating.vue`, fixture, focused browser tests, `project_status.md` | Local and Ubuntu type/build/runtime/deployment plus 6 cross-device component scenarios and 18-test full Playwright matrix | `1935b40` | yes | Standalone reusable component; not yet integrated into a product screen |
 
 ## Verification Log
 
@@ -66,6 +66,7 @@
 | 2026-08-13 | HUB-011 | `npm run typecheck`; `npm run build`; `npm test`; `npm audit --audit-level=high` | Component compiles and existing application remains healthy | Passed | Zero type errors; 41-module application build; 12/12 runtime; 0 vulnerabilities |
 | 2026-08-13 | HUB-011 | `npx playwright test tests/e2e/star-rating.e2e.spec.js --project=desktop` | Pointer, keyboard, fractional, disabled, and read-only behavior passes | Passed | 3/3 desktop component scenarios |
 | 2026-08-13 | HUB-011 | `npm run test:e2e` | Component works on desktop/mobile and hub visuals do not regress | Passed | 18/18 tests: 6 component scenarios plus 12 existing hub scenarios |
+| 2026-08-13 | HUB-011 | GitHub run `31697748071` on `dev` | Ubuntu unit/deployment/type/build and all browser scenarios pass | Passed | Verify job completed in 1m6s, including 18/18 Playwright scenarios |
 
 ## Dev Integration Log
 
@@ -80,6 +81,7 @@
 | SEC-001 | `71a9a45` | yes | present in `origin/dev` | Patched transitive dependency advisories; audit reports zero vulnerabilities |
 | HUB-010 | `5c0a29d` | yes | present in `origin/dev` | Realistic star language and clean focus-mode scene hierarchy |
 | HUB-009 | `4a6eeff` | yes | present in `origin/dev` | Reviewed 16-state Linux baseline set and cross-platform approval |
+| HUB-011 | `1935b40` | yes | present in `origin/dev` | Vue 3 fractional star rating and cross-device interaction coverage |
 
 ## Main Promotion Checklist
 
