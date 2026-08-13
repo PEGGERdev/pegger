@@ -5,7 +5,7 @@
 - Current branch: `dev`
 - Remote tracking state: up to date with `origin/dev` at `71a9a45`
 - Last updated: 2026-07-15
-- Current objective: generate and approve Linux visual baselines for the reviewed realistic constellation, then complete promotion (HUB-009)
+- Current objective: complete final full-scope verification, then perform the approved `dev` replacement of stale `main` (HUB-009)
 - Main promotion allowed: no
 - Reason: visual inspection found enlarged world-space annotations colliding in focused camera states; HUB-010 is in progress
 
@@ -23,7 +23,7 @@
 | OPS-002 | Portable Caddy label detection | Production regression | completed | `fix/caddy-site-label-detection` | Deployment parser and fixture test | Ubuntu fixture, CI, successful VPS releases | `86f5267`, `30d9740` | yes | None |
 | HUB-007 | Replace card-based star interaction with smooth galaxy zoom | Current user request | completed | `feature/galactic-constellation` | `StarMap.vue`, `App.vue`, `hub.e2e.spec.js` | Type check, build, npm test, E2E zoom/focus/hover tests | `f67258b` | yes | Animation timing and snapshot variance |
 | HUB-008 | Galaxy field depth, natural stellar light, center nucleus, and asterism paths | Current user request | completed | `feature/galactic-constellation` | `StarField.vue`, `Star.vue`, `CenterPresence.vue`, `ClusterRegions.vue`, `ConstellationLines.vue` | Runtime/type/build, 12 npm tests, 12 E2E (29 updated snapshots) | `11fdc0e` | yes | GPU cost and visual determinism |
-| HUB-009 | Cross-platform galactic visual approval and production promotion | `opencode.md` | in_progress | `dev` | Tests, snapshots, status files | Full local gates, 16 Windows and 16 Linux baselines, audit, production checks | pending | no | Linux baselines must be regenerated from the reviewed visual commit before promotion |
+| HUB-009 | Cross-platform galactic visual approval and production promotion | `opencode.md` | implemented | `dev` | Tests, 32 snapshots, status files | Full local gates, 16 Windows and 16 Linux baselines, audit, production checks | pending | no | Final full-scope verification and deployment checks remain before promotion |
 | HUB-010 | Realistic visual QA, focus-mode scene cleanup, and approved main replacement | Current user request and visual review | verified | `dev` | `StarMap.vue`, `Star.vue`, `ClusterRegions.vue`, `CenterPresence.vue`, snapshots, `TODO.md`, `project_status.md` | Manual review of 16 active Windows snapshots; type/build/runtime/E2E after correction | pending | no | None; user approved replacing stale `main` with verified `dev` |
 | SEC-001 | Remediate high-severity frontend dependency advisories | Final promotion audit | completed | `dev` | `package-lock.json` | `npm audit --audit-level=high`, typecheck, build, 12 runtime tests | `71a9a45` | yes | None |
 
@@ -55,6 +55,8 @@
 | 2026-08-13 | HUB-010 | `npm run typecheck`, `npm run build`, `npm test`, `npm run test:e2e:update` | All local gates pass | Passed | Zero type errors; 41-module build; 12/12 runtime; 12/12 E2E |
 | 2026-08-13 | SEC-001 | `npm audit --audit-level=high` | No high-severity vulnerabilities | Failed | Two high-severity advisories (`brace-expansion`, `nanoid`) and one moderate (`postcss`) found; remediation required |
 | 2026-08-13 | SEC-001 | `npm audit fix`; `npm audit --audit-level=high`; `npm run typecheck`; `npm run build`; `npm test` | No vulnerabilities and no regressions | Passed | Lockfile updated to `brace-expansion` 2.1.4, `nanoid` 3.3.18, `postcss` 8.5.26; audit reports 0 vulnerabilities; 41-module build and 12/12 runtime pass |
+| 2026-08-13 | HUB-009 | GitHub run `31678212617` on `dev` with `update_snapshots=true` | Ubuntu unit/deployment/type/build checks pass and 16 Linux baselines are generated | Passed | Verify job completed in 1m28s; artifact `pegger-linux-visual-baselines` downloaded |
+| 2026-08-13 | HUB-009 | Manual review of all 16 generated Linux baselines | No clipping, collision, hierarchy, or platform-specific visual regressions | Passed | Default, compact, keyboard, expanded, hover, pan, 5 focus captures, and 5 mobile captures approved |
 
 ## Dev Integration Log
 
