@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarRating fixture</title>
+    <style>
+      body { margin: 2rem; background: #07101c; color: #f8fafc; font-family: sans-serif; }
+      main { display: grid; gap: 1.5rem; }
+      section { display: grid; gap: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { createApp, h, ref } from 'vue'
+      import StarRating from '/src/components/StarRating.vue'
+
+      createApp({
+        setup() {
+          const rating = ref(2.5)
+          const disabledRating = ref(2)
+          const readonlyRating = ref(3.7)
+
+          return () => h('main', [
+            h('section', [
+              h(StarRating, {
+                modelValue: rating.value,
+                label: 'Product rating',
+                'onUpdate:modelValue': value => { rating.value = value },
+              }),
+              h('output', { 'data-testid': 'rating-value' }, String(rating.value)),
+            ]),
+            h('section', [
+              h(StarRating, {
+                modelValue: disabledRating.value,
+                label: 'Disabled rating',
+                disabled: true,
+                'onUpdate:modelValue': value => { disabledRating.value = value },
+              }),
+              h('output', { 'data-testid': 'disabled-value' }, String(disabledRating.value)),
+            ]),
+            h('section', [
+              h(StarRating, {
+                modelValue: readonlyRating.value,
+                label: 'Read only rating',
+                step: 0.1,
+                readonly: true,
+                'onUpdate:modelValue': value => { readonlyRating.value = value },
+              }),
+              h('output', { 'data-testid': 'readonly-value' }, String(readonlyRating.value)),
+            ]),
+          ])
+        },
+      }).mount('#app')
+    </script>
+  </body>
+</html>

@@ -2,12 +2,12 @@
 
 ## Current State
 
-- Current branch: `main` (final reported checkout after this dev-first tracking update is promoted)
-- Remote tracking state: `origin/dev` and `origin/main` synchronized at `afb84f8`; this final state correction will advance both branches together
+- Current branch: `dev`
+- Remote tracking state: `origin/dev` and `origin/main` synchronized at `6b2d5ed`
 - Last updated: 2026-08-13
-- Current objective: completed; preserve synchronized verified `dev` and `main`
-- Main promotion allowed: yes
-- Reason: all tracked work is completed on `origin/dev`; local and Ubuntu full-scope gates pass; 16 Windows and 16 Linux visual states are approved; `origin/main` is an ancestor of `origin/dev`
+- Current objective: implement and verify an accessible Vue 3 fractional star rating component (HUB-011)
+- Main promotion allowed: no
+- Reason: HUB-011 is in progress and must be verified, committed, and pushed to `dev`
 
 ## Task Tracker
 
@@ -26,6 +26,7 @@
 | HUB-009 | Cross-platform galactic visual approval and promotion readiness | `opencode.md` | completed | `dev` | Tests, 32 snapshots, status files | Full local gates, 16 Windows and 16 Linux baselines, audit, deployment fixtures | `4a6eeff` | yes | None |
 | HUB-010 | Realistic visual QA, focus-mode scene cleanup, and approved main replacement | Current user request and visual review | completed | `dev` | `StarMap.vue`, `Star.vue`, `ClusterRegions.vue`, `CenterPresence.vue`, snapshots, `TODO.md`, `project_status.md` | Manual review of 16 active Windows snapshots; type/build/runtime/E2E after correction | `5c0a29d` | yes | None; user approved replacing stale `main` with verified `dev` |
 | SEC-001 | Remediate high-severity frontend dependency advisories | Final promotion audit | completed | `dev` | `package-lock.json` | `npm audit --audit-level=high`, typecheck, build, 12 runtime tests | `71a9a45` | yes | None |
+| HUB-011 | Accessible SVG star rating with fractional selection | Current user request | verified | `dev` | `StarRating.vue`, fixture, focused browser tests, `project_status.md` | Typecheck/build, 12 runtime tests, 6 cross-device component scenarios, 18-test full Playwright matrix | pending | no | Standalone reusable component; not yet integrated into a product screen |
 
 ## Verification Log
 
@@ -62,6 +63,9 @@
 | 2026-08-13 | HUB-009 | Repository scan for `TODO`, `FIXME`, isolated, and skipped tests in `src`, `tests`, `scripts`, `.github` | No temporary or disabled checks | Passed | No matches found |
 | 2026-08-13 | HUB-009 | Exact `main` tree verification after fast-forward to `ff4adbf` | Audit, runtime, deployment, type, build, and Windows E2E pass | Passed | 0 vulnerabilities; 12/12 runtime; Caddy fixtures pass; zero type errors; 41-module build; 12/12 Playwright |
 | 2026-08-13 | HUB-009 | GitHub run `31679191824` on `main` with `update_snapshots=false` | Ubuntu validates promoted `main` and committed Linux baselines | Passed | Verify job completed in 1m6s with all browser visual comparisons passing |
+| 2026-08-13 | HUB-011 | `npm run typecheck`; `npm run build`; `npm test`; `npm audit --audit-level=high` | Component compiles and existing application remains healthy | Passed | Zero type errors; 41-module application build; 12/12 runtime; 0 vulnerabilities |
+| 2026-08-13 | HUB-011 | `npx playwright test tests/e2e/star-rating.e2e.spec.js --project=desktop` | Pointer, keyboard, fractional, disabled, and read-only behavior passes | Passed | 3/3 desktop component scenarios |
+| 2026-08-13 | HUB-011 | `npm run test:e2e` | Component works on desktop/mobile and hub visuals do not regress | Passed | 18/18 tests: 6 component scenarios plus 12 existing hub scenarios |
 
 ## Dev Integration Log
 
