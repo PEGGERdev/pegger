@@ -1,0 +1,16 @@
+# Dateien in src/components
+
+Die [Ordnerregeln](README.md) gelten für alle direkten Dateien. Die Einträge werden aus dem Quellbaum aktualisiert. Individuelle fachliche Regeln stehen im verlinkten Dateivertrag.
+
+| Datei | Verantwortung | Guardrail und Prüfung |
+|---|---|---|
+| [CenterPresence.vue](../../../src/components/CenterPresence.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |
+| [ClusterRegions.vue](../../../src/components/ClusterRegions.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |
+| [ConstellationLines.vue](../../../src/components/ConstellationLines.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. Deklarationen `isConnectedToSelected`, `isConnectedToHovered`, `isHighlighted`. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |
+| [ItemCard.vue](../../../src/components/ItemCard.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. Deklarationen `handleClick`, `getIconComponent`. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |
+| [ItemList.vue](../../../src/components/ItemList.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |
+| [Star.vue](../../../src/components/Star.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. Deklarationen `emitPosition`, `calculateDistance`, `clamp`, `updateAttraction`, `handleMouseEnter`, `handleMouseLeave`. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |
+| [StarField.vue](../../../src/components/StarField.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. Deklarationen `createRng`, `gaussianRng`, `pickStellarClass`, `dustAttenuation`. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |
+| [StarMap.vue](../../../src/components/StarMap.vue) | Rendert Karte und mobile Details mit tatsächlich nutzbaren, semantischen Projekt-/Kontaktlinks. Deklarationen `isConnected`, `getNodeTone`, `getClusterStyle`, `getNodeClusterStyle`, `isMuted`, `clampScale`. | [Anforderungen und Nachweis](../../VERTRAEGE.md#srccomponentsstarmapvue). |
+| [StarPanel.vue](../../../src/components/StarPanel.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. Deklarationen `requestClose`, `finishClose`, `focusPanel`, `restoreFocus`, `handleKeydown`. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |
+| [StarRating.vue](../../../src/components/StarRating.vue) | Rendert oder bindet den bezeichneten UI-Teil und seine Eingaben. Deklarationen `clamp`, `decimalPlaces`, `roundForStep`, `formatRating`, `fillPercentage`, `ratingFromPointer`. | Aussehen, Eingaben und Rückmeldung am wirklichen Screen prüfen. Gemeinsame Regeln bleiben beim zuständigen Ablauf. |

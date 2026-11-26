@@ -6,12 +6,14 @@ Personal hub for Patrik Egger's web presence, portfolio, and private developer t
 
 `pegger.dev` serves as the central landing page connecting all personal projects, services, and contact methods. It features an interactive star map constellation where each star represents a service, skill, or connection point in Patrik's developer universe.
 
-## Live
+## Configured destinations
 
 - **Hub**: https://pegger.dev
 - **Portfolio**: https://portfolio.pegger.dev
 - **SpotOnSight**: https://spotonsight.com
-- **Dev Terminal**: https://dev.pegger.dev
+- **Dev Terminal**: `https://dev.pegger.dev` is a planned private destination; no terminal server is implemented in this checkout.
+
+Current local work, verification and the future AgentenWerk boundary: [aidocs/README.md](aidocs/README.md). A configured link is not evidence that its service is currently reachable or authenticated.
 
 ## Architecture
 
@@ -118,27 +120,25 @@ When a star is clicked:
 
 ### Phase 2: Dev Terminal (dev.pegger.dev)
 
-Web-based SSH terminal for remote server access.
+Planned web-based SSH terminal for remote server access. The binding delivery boundaries are in [aidocs/agentenwerk-anbindung.md](aidocs/agentenwerk-anbindung.md). [docs/dev-terminal-design.md](docs/dev-terminal-design.md) is a historical concept which may also have unpublished local revisions; its code examples are not an approved production implementation. No terminal implementation or production enablement is implied here.
 
 #### Architecture
 
 ```
-Browser ←→ WebSocket ←→ Python Proxy ←→ SSH ←→ Server Shell
-         (xterm.js)     (server)      (opencode)
+Enrolled browser ←→ mutual-TLS Caddy ←→ authenticated ASGI gateway ←→ pinned key-only SSH ←→ dedicated non-root account
 ```
 
 #### Components
 
 1. **Frontend**: React + xterm.js
-2. **Backend**: Python websockets + paramiko/ssh subprocess
-3. **Auth**: Password (stored hashed in env)
+2. **Backend**: planned Starlette/Uvicorn + AsyncSSH, one gateway for client/auth/WebSocket
+3. **Auth**: device mutual TLS plus application session; file-mounted Argon2id hash, no default password
 
 #### Security
 
-- Password authentication with rate limiting
-- Session timeout after inactivity
-- SSH connection pooling
-- HTTPS required
+- Fail-closed authentication, CSRF/Origin checks, bounded sessions and rate limits
+- Dedicated non-root account, pinned host identity and key-only SSH; no connection pooling
+- No published backend port, shared login with other products, or implicit AgentenWerk/worker access
 
 ### Phase 3: Passkey Authentication
 
@@ -173,7 +173,7 @@ npm run typecheck
 
 ```
 /opt/
-├── pegger-hub/           # master branch checkout for pegger.dev
+├── pegger-hub/           # verified main checkout for pegger.dev
 │   ├── deployment/
 │   ├── scripts/
 │   └── src/
@@ -200,7 +200,7 @@ dev.pegger.dev {
 
 ### Automated Deployment
 
-Pull requests targeting `master` run unit tests, type checks, a production build, and Linux Playwright visual comparisons. A successful push to `master` repeats those checks and deploys the exact Git revision to the production Nginx container over SSH.
+Pushes and pull requests targeting `dev` or `main` run unit tests, type checks, a production build, and Linux Playwright visual comparisons. Only a verified current `main` revision can deploy; snapshot-generation dispatches never deploy.
 
 The `deploy-production` job follows the same VPS pattern as SpotOnSight and uses these repository secrets:
 
@@ -208,7 +208,7 @@ The `deploy-production` job follows the same VPS pattern as SpotOnSight and uses
 - `VPS_USER`
 - `VPS_SSH_KEY`
 
-The job fast-forwards `/opt/pegger-hub` to the tested `master` SHA and runs `scripts/deploy-production.sh` on the VPS. The script builds the Nginx image, validates container health, reloads the Caddy route, supports image rollback, and confirms `https://pegger.dev/revision.txt` matches the triggering commit.
+The job verifies every scanned Ed25519 host key against the pinned fingerprint, uses an isolated strict known-hosts file, refuses a dirty remote checkout and fast-forwards `/opt/pegger-hub` to the tested `main` SHA. The deployment script retains the Caddy recovery backup until public revision verification succeeds and does not delete unrelated legacy folders. Live SSH/container/proxy verification requires separate operator access; changing this workflow locally does not publish anything.
 
 ## Design Specifications
 

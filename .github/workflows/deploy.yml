@@ -3,10 +3,12 @@ name: CI and Deploy
 on:
   push:
     branches:
-      - master
+      - dev
+      - main
   pull_request:
     branches:
-      - master
+      - dev
+      - main
   workflow_dispatch:
     inputs:
       update_snapshots:
@@ -71,7 +73,7 @@ jobs:
   deploy-production:
     name: Deploy production
     needs: verify
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.update_snapshots != true)
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.update_snapshots != true)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -92,12 +94,12 @@ jobs:
         id: release
         shell: bash
         run: |
-          current_sha="$(git ls-remote origin refs/heads/master | cut -f1)"
+          current_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
           if [[ "$current_sha" == "$GITHUB_SHA" ]]; then
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping superseded revision $GITHUB_SHA; master is $current_sha"
+            echo "Skipping superseded revision $GITHUB_SHA; main is $current_sha"
           fi
 
       - name: Start SSH agent
@@ -113,11 +115,7 @@ jobs:
           EXPECTED_VPS_FINGERPRINT: SHA256:Feh0miKZx7Upiy4pYYqr6MaskLED8K1MDbkALuJ3kB8
         run: |
           : "${VPS_HOST:?VPS_HOST secret is required}"
-          mkdir -p ~/.ssh
-          ssh-keygen -R "$VPS_HOST" || true
-          ssh-keyscan -H "$VPS_HOST" > /tmp/vps_known_hosts
-          ssh-keygen -lf /tmp/vps_known_hosts | awk '{print $2}' | grep -Fx "$EXPECTED_VPS_FINGERPRINT"
-          cat /tmp/vps_known_hosts >> ~/.ssh/known_hosts
+          bash scripts/pin-host-key.sh "$VPS_HOST" "$EXPECTED_VPS_FINGERPRINT" "$RUNNER_TEMP/pegger_known_hosts"
 
       - name: Deploy to VPS
         if: steps.release.outputs.deploy == 'true'
@@ -127,13 +125,16 @@ jobs:
         run: |
           : "${VPS_HOST:?VPS_HOST secret is required}"
           : "${VPS_USER:?VPS_USER secret is required}"
-          ssh "$VPS_USER@$VPS_HOST" "
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/pegger_known_hosts" -o GlobalKnownHostsFile=/dev/null -o HostKeyAlgorithms=ssh-ed25519 "$VPS_USER@$VPS_HOST" "
             set -eu
             cd /opt/pegger-hub
-            git fetch origin master --prune
-            git checkout master
-            git pull --ff-only origin master
+            status=\"\$(git status --porcelain --untracked-files=no)\"
+            test -z \"\$status\"
+            git fetch origin main --prune
+            git checkout main
+            git pull --ff-only origin main
             test \"\$(git rev-parse HEAD)\" = \"$GITHUB_SHA\"
-            test -z \"\$(git status --porcelain --untracked-files=no)\"
+            status=\"\$(git status --porcelain --untracked-files=no)\"
+            test -z \"\$status\"
             DEPLOY_REVISION=\"$GITHUB_SHA\" bash ./scripts/deploy-production.sh
           "

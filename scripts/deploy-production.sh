@@ -78,9 +78,9 @@ restore_caddy() {
     return 0
   fi
 
-  cat "${caddy_backup}" > "${CADDYFILE_PATH}"
-  rm -f "${caddy_backup}"
-  docker exec "${PROXY_CONTAINER}" caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 || true
+  cat "${caddy_backup}" > "${CADDYFILE_PATH}" || return 1
+  docker exec "${PROXY_CONTAINER}" caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 || return 1
+  rm -f "${caddy_backup}" || return 1
   caddy_modified=false
 }
 
@@ -104,7 +104,7 @@ handle_exit() {
     if [[ -n "${rollback_context}" ]]; then
       rm -rf "${rollback_context}"
     fi
-    restore_caddy || true
+    restore_caddy || echo "Caddy restore failed; recovery backup retained at ${caddy_backup}" >&2
     if [[ "${deployment_started}" == true ]]; then
       rollback_deployment || echo "Automatic rollback failed" >&2
     fi
@@ -150,7 +150,11 @@ configure_caddy() {
   fi
 
   if [[ -n "${site_label}" ]]; then
-    cp -p "${CADDYFILE_PATH}" "${caddy_backup}"
+    if [[ -f "${caddy_backup}" ]]; then
+      echo "Existing Caddy recovery backup requires operator review: ${caddy_backup}" >&2
+      return 1
+    fi
+    cp -p "${CADDYFILE_PATH}" "${caddy_backup}" || return 1
     caddy_modified=true
     cat >> "${CADDYFILE_PATH}" <<CADDY_ROUTE
 
@@ -165,10 +169,8 @@ ${site_label} {
 CADDY_ROUTE
   fi
 
-  docker exec "${PROXY_CONTAINER}" caddy validate --config /etc/caddy/Caddyfile
-  docker exec "${PROXY_CONTAINER}" caddy reload --config /etc/caddy/Caddyfile
-  rm -f "${caddy_backup}"
-  caddy_modified=false
+  docker exec "${PROXY_CONTAINER}" caddy validate --config /etc/caddy/Caddyfile || return 1
+  docker exec "${PROXY_CONTAINER}" caddy reload --config /etc/caddy/Caddyfile || return 1
 }
 
 verify_public_revision() {
@@ -193,6 +195,11 @@ main() {
   trap handle_exit EXIT
   cd "${ROOT_DIR}"
 
+  if [[ -f "${caddy_backup}" ]]; then
+    echo "Caddy recovery is pending; refusing another deployment: ${caddy_backup}" >&2
+    return 1
+  fi
+
   docker network inspect spotonsight_proxy >/dev/null 2>&1 || docker network create spotonsight_proxy >/dev/null
   prepare_rollback_image
 
@@ -203,10 +210,12 @@ main() {
   configure_caddy
   verify_public_revision
 
+  if [[ "${caddy_modified}" == true ]]; then
+    rm -f "${caddy_backup}"
+    caddy_modified=false
+  fi
   deployment_started=false
   docker image rm pegger-hub:rollback >/dev/null 2>&1 || true
-  rm -rf "${ROOT_DIR}/dist" "${ROOT_DIR}/config"
-  rm -f "${ROOT_DIR}/docker-compose.yml"
   echo "Deployment verified at ${PUBLIC_URL} (${DEPLOY_REVISION})"
 }
 

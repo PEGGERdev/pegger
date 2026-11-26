@@ -1,3 +1,5 @@
+import { projectNodeAction } from './nodeActions.js'
+
 export const projectorCatalog = [
   {
     name: 'star-map-view',
@@ -14,6 +16,7 @@ export const projectorCatalog = [
         clusters: starMap?.clusters || [],
         connections: starMap?.connections || [],
         allStars: [...brightStars, ...dimStars],
+        actionsByNode: Object.fromEntries([...brightStars, ...dimStars].map(node => [node.id, projectNodeAction(node)])),
       }
     },
   },

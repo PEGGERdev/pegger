@@ -1,17 +1,20 @@
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useMouse } from '@vueuse/core'
+import { computed, ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { useMouse, useWindowSize } from '@vueuse/core'
 import theme from '@/config/theme'
-import { starMapData } from '@/data/starMapData'
+import { usePeggerRuntime } from '@/composables/usePeggerRuntime'
 import Star from './Star.vue'
 import CenterPresence from './CenterPresence.vue'
 import ClusterRegions from './ClusterRegions.vue'
 import ConstellationLines from './ConstellationLines.vue'
 
 const emit = defineEmits(['focus-change'])
+const { starMapView } = usePeggerRuntime()
+const starMapData = starMapView.value
 
 const containerRef = ref(null)
 const { x: mouseX, y: mouseY } = useMouse()
+const { width: viewportWidth } = useWindowSize()
 
 const viewport = ref({ x: 0, y: 0, scale: 1 })
 const containerSize = ref({ width: 0, height: 0 })
@@ -37,7 +40,7 @@ let dragStart = { x: 0, y: 0, viewportX: 0, viewportY: 0 }
 const allStars = computed(() => starMapData.brightStars.concat(starMapData.dimStars))
 const clusters = computed(() => starMapData.clusters || [])
 const mobileStars = computed(() => allStars.value.filter(star => star.type === 'bright'))
-const isMobile = computed(() => (containerSize.value.width || window.innerWidth) < 900)
+const isMobile = computed(() => viewportWidth.value <= 900)
 
 const starLookup = computed(() => {
   const entries = [...allStars.value, starMapData.center].map(star => [star.id, star])
@@ -59,6 +62,7 @@ const mobileClusters = computed(() => clusters.value.map(cluster => ({
 })).filter(cluster => cluster.stars.length > 0))
 
 const selectedStar = computed(() => selectedStarId.value ? starLookup.value[selectedStarId.value] : null)
+const selectedAction = computed(() => selectedStarId.value ? starMapData.actionsByNode[selectedStarId.value] : null)
 const featuredStars = computed(() => FEATURED_STAR_IDS
   .map(id => starLookup.value[id])
   .filter(Boolean))
@@ -315,11 +319,19 @@ function nudgeZoom(direction) {
 }
 
 function resetViewport() {
+  const previousStarId = selectedStarId.value
   if (selectedStarId.value) {
     emit('focus-change', null)
   }
   selectedStarId.value = null
   liveStarPositions.value = {}
+  if (isMobile.value) {
+    if (zoomAnimation.value) cancelAnimationFrame(zoomAnimation.value)
+    zoomAnimation.value = null
+    viewport.value = { x: 0, y: 0, scale: 1 }
+    nextTick(() => document.getElementById(`mobile-node-${previousStarId}`)?.focus())
+    return
+  }
   animateViewport({ x: 0, y: 0, scale: 1 })
 }
 
@@ -382,6 +394,18 @@ function animateViewport(target, onComplete) {
 function zoomToStar(starId) {
   guideDismissed.value = true
 
+  if (isMobile.value) {
+    if (zoomAnimation.value) cancelAnimationFrame(zoomAnimation.value)
+    zoomAnimation.value = null
+    if (selectedStarId.value === starId) {
+      resetViewport()
+    } else {
+      selectedStarId.value = starId
+      emit('focus-change', starId)
+    }
+    return
+  }
+
   if (selectedStarId.value === starId) {
     animateViewport({ x: 0, y: 0, scale: 1 }, () => {
       selectedStarId.value = null
@@ -413,13 +437,6 @@ function focusFeaturedStar(starId) {
   zoomToStar(starId)
 }
 
-function openStarUrl() {
-  const url = selectedStar.value?.data?.url
-  if (url) {
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }
-}
-
 function handleStarPositionChange({ id, position }) {
   liveStarPositions.value = {
     ...liveStarPositions.value,
@@ -428,7 +445,7 @@ function handleStarPositionChange({ id, position }) {
 }
 
 function handlePointerDown(event) {
-  if (!containerRef.value) {
+  if (!containerRef.value || isMobile.value) {
     return
   }
 
@@ -590,10 +607,13 @@ onUnmounted(() => {
             <button
               v-for="star in cluster.stars"
               :key="star.id"
+              :id="`mobile-node-${star.id}`"
               class="star-map__mobile-node"
               :class="{ 'star-map__mobile-node--selected': selectedStarId === star.id }"
               type="button"
               :aria-pressed="selectedStarId === star.id"
+              :aria-expanded="selectedStarId === star.id"
+              :aria-controls="selectedStarId === star.id ? `mobile-details-${star.id}` : undefined"
               @click="focusFeaturedStar(star.id)"
             >
               <span class="star-map__mobile-icon">
@@ -608,6 +628,34 @@ onUnmounted(() => {
               </span>
             </button>
           </div>
+          <article
+            v-if="selectedStar && cluster.stars.some(star => star.id === selectedStarId)"
+            :id="`mobile-details-${selectedStarId}`"
+            class="star-map__mobile-detail"
+            :aria-labelledby="`mobile-detail-title-${selectedStarId}`"
+          >
+            <div class="star-map__focus-header">
+              <h4 :id="`mobile-detail-title-${selectedStarId}`" class="star-map__focus-title">{{ selectedStar.label }}</h4>
+              <button class="star-map__close" type="button" :aria-label="`Close details for ${selectedStar.label}`" @click="resetViewport">
+                <i class="bi bi-x-lg" aria-hidden="true" />
+              </button>
+            </div>
+            <p class="star-map__focus-copy">{{ selectedStar.data?.detail || selectedStar.data?.description }}</p>
+            <div v-if="focusFacts.length" class="star-map__facts">
+              <p v-for="fact in focusFacts" :key="fact" class="star-map__fact">{{ fact }}</p>
+            </div>
+            <a
+              v-if="selectedAction"
+              class="star-map__panel-action"
+              :href="selectedAction.href"
+              :target="selectedAction.target"
+              :rel="selectedAction.rel"
+              :aria-label="selectedAction.accessibleLabel"
+            >
+              {{ selectedAction.label }}
+              <i :class="`bi ${selectedAction.icon}`" aria-hidden="true" />
+            </a>
+          </article>
         </section>
       </div>
     </section>
@@ -719,15 +767,17 @@ onUnmounted(() => {
         </button>
       </div>
 
-      <button
-        v-if="selectedStar?.data?.url"
+      <a
+        v-if="selectedAction"
         class="star-map__panel-action"
-        type="button"
-        @click="openStarUrl"
+        :href="selectedAction.href"
+        :target="selectedAction.target"
+        :rel="selectedAction.rel"
+        :aria-label="selectedAction.accessibleLabel"
       >
-        Visit site
-        <i class="bi bi-box-arrow-up-right" />
-      </button>
+        {{ selectedAction.label }}
+        <i :class="`bi ${selectedAction.icon}`" aria-hidden="true" />
+      </a>
     </aside>
 
     <div class="star-map__hud star-map__hud--controls" @pointerdown.stop @wheel.stop>
@@ -1153,6 +1203,7 @@ onUnmounted(() => {
   cursor: pointer;
   font: inherit;
   font-weight: 600;
+  text-decoration: none;
 }
 
 @media (min-width: 901px) and (max-height: 820px) {
@@ -1225,6 +1276,25 @@ onUnmounted(() => {
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
+  }
+
+  .star-map__mobile-detail {
+    margin-top: 0.85rem;
+    padding: 0.9rem;
+    border: 1px solid rgba(var(--cluster-rgb), 0.3);
+    border-radius: 3px 13px 3px 3px;
+    background: rgba(5, 12, 21, 0.7);
+  }
+
+  .star-map__mobile-detail .star-map__close {
+    flex: 0 0 auto;
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+
+  .star-map__mobile-detail .star-map__fact {
+    display: block;
+    margin: 0;
   }
 
   .star-map__mobile-title {

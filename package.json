@@ -8,8 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
-    "test": "node --experimental-vm-modules scripts/run-tests.js",
-    "test:deployment": "bash scripts/test-caddy-site-labels.sh",
+    "test": "node --experimental-vm-modules scripts/run-tests.js && node --test tests/navigation.test.mjs tests/release-contract.test.mjs",
+    "test:deployment": "bash scripts/test-caddy-site-labels.sh && bash scripts/test-pinned-host-keys.sh && bash scripts/test-deployment-rollback.sh",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots=all",
     "test:all": "npm test && npm run test:deployment && npm run test:e2e"
